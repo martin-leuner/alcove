@@ -1,0 +1,39 @@
+GenerateSuzukiGroup := function( m )
+ local F, V, theta, gens, vec, G;
+ F := GF(2,m);
+ V := AsVectorSpace(GF(2),F);
+ theta := FrobeniusAutomorphism(F);
+ gens := [];
+ for vec in Basis(V) do
+  AddSet( gens, [[1,0,0],[vec,1,0],[0,vec^theta,1]]*One(GF(2)) );
+  AddSet( gens, [[1,0,0],[0,1,0],[vec,0,1]]*One(GF(2)) );
+ od;
+ G := Group(gens);
+ return G;
+end;;
+
+#CompositionFactorsOfCentre := function( G )
+# local CompSeries, FactorList;
+
+
+# Die folgende Funktion ist eher maessig sinnvoll...
+
+CompositionFactorsOfSuzukiGroup := function( m )
+ local F, V, gens, vec, C, CompSeries, FactorList;
+ F := GF(2,m);
+ V := AsVectorSpace(GF(2),F);
+ gens := List( Basis(V), vec -> [[1,0,0],[0,1,0],[vec,0,1]]*One(GF(2)) );
+ C := Group(gens);
+ CompSeries := CompositionSeries( C );
+ FactorList := List( [1..Size(CompSeries)-1], i -> FactorGroup( CompSeries[i], CompSeries[i+1] ) );
+ return FactorList;
+end;;
+
+
+LogSignatur := function( m )
+ local B, epsilon, gens;
+ B:=Basis(AsVectorSpace(GF(2),GF(2^m) ));
+ gens :=List(B,x->[[1,0,0],[0,1,0],[x,0,1]]*One(GF(2)));
+ epsilon:=List(gens, x->[IdentityMat(3,GF(2)),x]);
+ return epsilon;
+end;;

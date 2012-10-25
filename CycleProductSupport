@@ -1,0 +1,35 @@
+RandomThreeCycle := function( NumberOfPoints )
+ local Cycle, L, RndElt;
+ if NumberOfPoints < 3 then
+  return fail;
+ fi;
+ L := [1..NumberOfPoints];
+ Cycle := [];
+ while( Size(Cycle) < 3 ) do
+  RndElt := PseudoRandom(L);
+  if not RndElt in Cycle then
+   Add( Cycle, RndElt );
+  fi;
+ od;
+ return (Cycle[1],Cycle[2],Cycle[3]);
+end;;
+
+SupportTest := function( NrOfPoints )
+ local ListOfElements, ListOfSuppSize, SuppSize, Cycle, CurrentProduct;
+ Cycle := RandomThreeCycle( NrOfPoints );
+ ListOfElements := [Cycle];;
+ ListOfSuppSize := [3];;
+ CurrentProduct := Cycle;
+ while( true ) do
+  Cycle := RandomThreeCycle( NrOfPoints );
+  Add( ListOfElements, Cycle );
+  CurrentProduct := CurrentProduct*Cycle;
+  SuppSize := NrMovedPointsPerm(CurrentProduct);
+  Add( ListOfSuppSize, SuppSize );
+  if SuppSize <= ListOfSuppSize[Size(ListOfSuppSize)-1] then
+   return [ListOfElements,ListOfSuppSize];
+  fi;
+ od;
+end;;
+
+
