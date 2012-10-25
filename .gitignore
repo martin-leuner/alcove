@@ -1,0 +1,10 @@
+*.aux
+*.bbl
+*.bibmd5sums
+*.blg
+*.dvi
+*.log
+*.pdf
+*.spl
+*.swp
+*.sty
