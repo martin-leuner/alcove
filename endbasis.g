@@ -16,7 +16,7 @@ DisplayList := function( list )
 end;
 
 
-AdjacencyMatrices := function( grp )
+GroupAdjacencyMatrices := function( grp )
  local conj, class;
 
  conj := ConjugacyClasses(grp);
@@ -122,3 +122,6 @@ EigenMatrices := function( matlist, eslist )
 end;
 
 
+CTBySecondGroupEigenMatrix := function( eigenmats )
+ Display( DiagonalMat( List( [1..DimensionsMat(eigenmats[1])[1]], i -> 1/Sqrt(eigenmats[2][1][i]) ) ) * TransposedMat( ComplexConjugate( eigenmats[2] ) ) );
+end;
