@@ -16,6 +16,15 @@ DisplayList := function( list )
 end;
 
 
+AdjacencyMatrices := function( grp )
+ local conj, class;
+
+ conj := ConjugacyClasses(grp);
+
+ return List( conj, class -> List( grp, i -> List( grp, function(j) if j^-1*i in class then return 1; else return 0; fi; end ) ) );
+end;
+
+
 ZGEndGenerators := function( grp, elt, act )
  local dom, stab, staborbs, reps, orb, mats, mat, tmporb, i, indicator;
 
