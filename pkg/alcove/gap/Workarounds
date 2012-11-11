@@ -1,0 +1,7 @@
+DeclareAttribute( "NullspaceMat", IsMatrixObj );
+InstallMethod( NullspaceMat, "temporary workaround", [ IsMatrixObj ], function( matobj ) return Matrix( NullspaceMat( Unpack( matobj ) ), matobj ); end );
+
+DeclareAttribute( "RankMat", IsMatrixObj );
+InstallMethod( RankMat, "temporary workaround", [ IsMatrixObj ], function( matobj ) return RankMat( Unpack( matobj ) ); end );
+
+InstallMethod( Rank, "temporary workaround", [ IsMatrixObj ], function( matobj ) return RankMat( matobj ); end );
