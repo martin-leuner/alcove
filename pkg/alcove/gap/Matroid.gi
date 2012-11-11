@@ -64,6 +64,46 @@ BindGlobal( "TheTypeGraphicMatroid",
 ####################################
 
 
+##############
+## DualMatroid
+
+InstallMethod( DualMatroid,
+		"for abstract matroids",
+		[ IsAbstractMatroidRep ],
+
+ function( matroid )
+  local dualbases, dual;
+
+  dualbases := Set( List( Bases( matroid ), b -> Difference( GroundSet( matroid ), b ) ) );
+
+  dual := Matroid( GroundSet( matroid ), dualbases );
+  SetDualMatroid( dual, matroid );
+
+  return dual;
+
+ end
+
+);
+
+InstallMethod( DualMatroid,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  local dualmatrix, dual;
+
+  dualmatrix := NullspaceMat( TransposedMat( MatrixOfVectorMatroid( matroid ) ) );
+
+  dual := Matroid( dualmatrix );
+  SetDualMatroid( dual, matroid );
+
+  return dual;
+
+ end
+
+);
+
+
 ##################
 ## SizeOfGroundSet
 
@@ -72,11 +112,7 @@ InstallMethod( SizeOfGroundSet,
 		[ IsAbstractMatroidRep ],
 
  function( matroid )
-  if IsBound( matroid!.groundSet ) and not IsEmpty( matroid!.groundSet ) then
-   return Size( matroid!.groundSet );
-  else
-   Error( "this matroid does not seem to have a ground set, this shouldn't happen" );
-  fi;
+  return Size( GroundSet( matroid ) );
  end
 
 );
@@ -86,11 +122,7 @@ InstallMethod( SizeOfGroundSet,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  if IsBound( matroid!.generatingMatrix ) then
-   return DimensionsMat( matroid!.generatingMatrix )[2];
-  else
-   Error( "this vector matroid apparently lost its matrix, this shouldn't happen" );
-  fi;
+   return DimensionsMat( MatrixOfVectorMatroid(matroid) )[2];
  end
 
 );
@@ -124,11 +156,7 @@ InstallMethod( RankOfMatroid,
 		[ IsAbstractMatroidRep ],
 
  function( matroid )
-  if IsBound( matroid!.bases ) and not IsEmpty( matroid!.bases ) then
-   return Size( matroid!.bases[1] );
-  else
-   Error( "this matroid does not seem to have any bases, this shouldn't happen" );
-  fi;
+  return Size( Bases(matroid)[1] );
  end
 
 );
@@ -138,11 +166,7 @@ InstallMethod( RankOfMatroid,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  if IsBound( matroid!.generatingMatrix ) then
-   return Rank( matroid!.generatingMatrix );
-  else
-   Error( "this vector matroid apparently lost its matrix, this shouldn't happen" );
-  fi;
+  return RankMat( MatrixOfVectorMatroid(matroid) );
  end
 
 );
@@ -202,12 +226,8 @@ InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  if IsBound( matroid!.generatingMatrix ) then
-   return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], Rank( matroid ) ),
-		b -> Rank( ExtractSubMatrix( matroid!.generatingMatrix, [1..DimensionsMat(matroid!.generatingMatrix)], b ) ) = Rank( matroid ) );
-  else
-   Error( "this vector matroid apparently lost its matrix, this shouldn't happen" );
-  fi;
+  return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], Rank( matroid ) ),
+		b -> RankMat( ExtractSubMatrix( MatrixOfVectorMatroid(matroid), [1..DimensionsMat(MatrixOfVectorMatroid(matroid))[1]], b ) ) = Rank( matroid ) );
  end
 
 );
@@ -231,11 +251,7 @@ InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
 		[ IsAbstractMatroidRep ],
 
  function( matroid )
-  if IsBound( matroid!.bases ) and not IsEmpty( matroid!.bases ) then
 
-  else
-   Error( "this matroid does not seem to have any bases, this shouldn't happen" );
-  fi;
  end
 
 );
@@ -245,11 +261,7 @@ InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  if IsBound( matroid!.generatingMatrix ) then
 
-  else
-   Error( "this vector matroid apparently lost its matrix, this shouldn't happen" );
-  fi;
  end
 
 );
@@ -259,11 +271,7 @@ InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
 		[ IsGraphicMatroidRep ],
 
  function( matroid )
-  if IsBound( matroid!.incidenceMatrix ) then
 
-  else
-   Error( "this graphic matroid apparently lost its incidence matrix, this shouldn't happen" );
-  fi;
  end
 
 );
@@ -275,10 +283,10 @@ InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
 ##
 ####################################
 
-###################
-## IsUniformMatroid
+############
+## IsUniform
 
-InstallMethod( IsUniformMatroid,
+InstallMethod( IsUniform,
 		"for matroids",
 		[ IsMatroid ],
 
@@ -287,8 +295,6 @@ InstallMethod( IsUniformMatroid,
  end
 
 );
-
-InstallMethod( IsUniform, "for matroids", [ IsMatroid ], IsUniformMatroid );
 
 
 ##################
@@ -299,7 +305,7 @@ InstallMethod( IsSimpleMatroid,
 		[ IsMatroid ],
 
  function( matroid )
-
+  
  end
 
 );
@@ -307,10 +313,10 @@ InstallMethod( IsSimpleMatroid,
 InstallMethod( IsSimple, "for matroids", [ IsMatroid ], IsSimpleMatroid );
 
 
-###################
-## IsGraphicMatroid
+############
+## IsGraphic
 
-InstallMethod( IsGraphicMatroid,
+InstallMethod( IsGraphic,
 		"for matroids",
 		[ IsMatroid ],
 
@@ -321,10 +327,10 @@ InstallMethod( IsGraphicMatroid,
 );
 
 
-###################
-## IsRegularMatroid
+############
+## IsRegular
 
-InstallMethod( IsRegularMatroid,
+InstallMethod( IsRegular,
 		"for matroids",
 		[ IsMatroid ],
 
@@ -333,8 +339,6 @@ InstallMethod( IsRegularMatroid,
  end
 
 );
-
-InstallMethod( IsRegular, "for matroids", [ IsMatroid ], IsRegularMatroid );
 
 
 ####################################
@@ -366,18 +370,11 @@ InstallMethod( GroundSet,
 
  function( matroid )
   local template;
-  if IsBound( matroid!.generatingMatrix ) then
 
-#   return List( [ 1 .. SizeOfGroundSet(matroid) ],
-#	col -> List( [ 1 .. DimensionsMat( matroid!.generatingMatrix )[1] ], row -> matroid!.generatingMatrix[row][col]  ) );
+  template := CompatibleVector( MatrixOfVectorMatroid(matroid) );
+  return List( [ 1 .. SizeOfGroundSet(matroid) ],
+	col -> Unfold( ExtractSubMatrix( MatrixOfVectorMatroid(matroid), [1..DimensionsMat(MatrixOfVectorMatroid(matroid) )[1]], [col] ), template ) );
 
-   template := CompatibleVector(  matroid!.generatingMatrix );
-   return List( [ 1 .. SizeOfGroundSet(matroid) ],
-	col -> Unfold( ExtractSubMatrix( matroid!.generatingMatrix, [1..DimensionsMat(matroid!.generatingMatrix)[1]], [col] ), template ) );
-
-  else
-   Error( "this vector matroid apparently lost its matrix, this shouldn't happen" );
-  fi;
  end
 
 );
@@ -410,7 +407,27 @@ InstallMethod( GroundSet,
  end
 
 );
+
+
+########################
+## MatrixOfVectorMatroid
+
+InstallMethod( MatrixOfVectorMatroid,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
  
+  if IsBound( matroid!.generatingMatrix ) then
+   return matroid!.generatingMatrix;
+  else
+   Error( "this vector matroid apparently lost its matrix, this shouldn't happen" );
+  fi;
+
+ end
+
+);
+
 
 ####################################
 ##
@@ -474,6 +491,7 @@ InstallMethod( Matroid,
 		[ IsList, IsList ],
 
  function( groundset, indep )
+  local matroid, sizelist, rk, baselist;
 
   if IsEmpty( indep ) then Error( "the list of independent sets must be non-empty" ); fi;
 
@@ -506,47 +524,13 @@ InstallMethod( Matroid,
 
 ##
 InstallMethod( Matroid,
-		"by list of bases or independent sets",
-		[ IsList ],
-
- function( indep )
-  local gset;
-
-  if IsEmpty( indep ) then Error( "the list of independent sets must be non-empty" ); fi;
-  gset := Union( indep );
-
-  sizelist := List( indep, i -> Size( Set( i ) ) );
-  rk := Maximum( sizelist );
-
-# Extract bases from indep list:
-  baselist := List( Filtered( [ 1 .. Size( indep ) ], i -> sizelist[i] = rk ), i -> Set( indep[i] ) );
-
-# Check base exchange axiom:
-  if ForAny( baselist, b1 -> ForAny( baselist, b2 ->
-	ForAny( Difference(b1,b2), e -> ForAll( Difference(b2,b1), f ->
-		not Union( Difference( b1, [e] ), [f] ) in baselist
-	) )
-  ) ) then Error( "bases must satisfy the exchange axiom" ); fi;
-
-  matroid := Objectify( TheTypeAbstractMatroid, rec( groundSet := gset, bases := baselist ) );
-  SetRankOfMatroid( matroid, rk );
-
-  return matroid;
-
- end
-
-);
-
-
-##
-InstallMethod( Matroid,
 		"by matrix",
 		[ IsMatrix ],
 
  function( mat )
   local matobj;
 
-  matobj := ( MakeMatrix( mat ) );		## guess the base field and construct matrix object
+  matobj := Immutable( MakeMatrix( mat ) );		## guess the base field and construct matrix object
   return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := matobj ) );
 
  end
@@ -561,8 +545,8 @@ InstallMethod( Matroid,
 
  function( matobj )
 
-  return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := matobj ) );
-  
+  return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
+
  end
 
 );
@@ -641,7 +625,7 @@ InstallMethod( PrintObj,
     Print( " rank ", RankOfMatroid(matroid) );
    fi;
  
-   if HasIsUniformMatroid( matroid ) and IsUniformMatroid( matroid ) then
+   if HasIsUniform( matroid ) and IsUniform( matroid ) then
     Print( " uniform" );
    elif HasIsSimpleMatroid( matroid ) and IsSimpleMatroid( matroid ) then
     Print( " simple" );

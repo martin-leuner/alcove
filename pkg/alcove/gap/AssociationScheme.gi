@@ -14,10 +14,25 @@
 ##
 ####################################
 
-DeclareRepresentation( "IsAssociationSchemeRep",
-		IsAssociationScheme and IsAttributeStoringRep,
-		[ "groundSet", "relations" ]
-	);
+DeclareRepresentation( "IsAssociationSchemeByRelationsRep",
+	IsAssociationScheme and IsAttributeStoringRep,
+	[ "groundSet", "relations" ]
+);
+
+DeclareRepresentation( "IsAssociationSchemeByFunctionsRep",
+	IsAssociationScheme and IsAttributeStoringRep,
+	[ "groundSet", "functions" ]
+);
+
+DeclareRepresentation( "IsAssociationSchemeByActionRep",
+	IsAssociationScheme and IsAttributeStoringRep,
+	[ "group", "groundSet", "action" ]
+);
+
+DeclareRepresentation( "IsAssociationSchemeByGroupRep",
+	IsAssociationScheme and IsAttributeStoringRep,
+	[ "group" ]
+);
 
 
 ####################################
@@ -27,16 +42,20 @@ DeclareRepresentation( "IsAssociationSchemeRep",
 ####################################
 
 
-BindGlobal( "TheFamilyOfMatroids",
-	NewFamily( "TheFamilyOfMatroids" , IsMatroid ) );
+BindGlobal( "TheFamilyOfAssociationSchemes",
+	NewFamily( "TheFamilyOfAssociationSchemes" , IsAssociationScheme ) );
 
-BindGlobal( "TheTypeAbstractMatroid",
-	NewType( TheFamilyOfMatroids,
-		IsAbstractMatroidRep ) );
+BindGlobal( "TheTypeRelationAssociationScheme",
+	NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByRelationsRep ) );
 
-BindGlobal( "TheTypeVectorMatroid",
-	NewType( TheFamilyOfMatroids,
-		IsVectorMatroidRep ) );
+BindGlobal( "TheTypeFunctionAssociationScheme",
+	NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByFunctionsRep ) );
+
+BindGlobal( "TheTypeActionAssociationScheme",
+	NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByActionRep ) );
+
+BindGlobal( "TheTypeGroupAssociationScheme",
+	NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByGroupRep ) );
 
 
 ####################################
@@ -46,211 +65,11 @@ BindGlobal( "TheTypeVectorMatroid",
 ####################################
 
 
-##################
-## SizeOfGroundSet
-
-InstallMethod( SizeOfGroundSet,
-		"for abstract matroids",
-		[ IsAbstractMatroid ],
-
- function( matroid )
-  if IsBound( matroid!.groundSet ) and not IsEmpty( matroid!.groundSet ) then
-   return Size( matroid!.groundSet );
-  else
-   Error( "this matroid does not seem to have a ground set, this shouldn't happen" );
-  fi;
- end
-
-);
-
-InstallMethod( SizeOfGroundSet,
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
-
- function( matroid )
-  if IsBound( matroid!.generatingMatrix ) then
-   return DimensionsMat( matroid!.generatingMatrix )[2];
-  else
-   Error( "this vector matroid apparently lost its matrix, this shouldn't happen" );
-  fi;
- end
-
-);
-
-
-#######
-## Rank
-
-InstallMethod( Rank,
-		"for abstract matroids",
-		[ IsAbstractMatroid ],
-
- function( matroid )
-  if IsBound( matroid!.bases ) and not IsEmpty( matroid!.bases ) then
-   return Size( matroid!.bases[1] );
-  else
-   Error( "this matroid does not seem to have a basis, this shouldn't happen" );
-  fi;
- end
-
-);
-
-InstallMethod( Rank,
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
-
- function( matroid )
-  if IsBound( matroid!.generatingMatrix ) then
-   return Rank( matroid!.generatingMatrix );
-  else
-   Error( "this vector matroid apparently lost its matrix, this shouldn't happen" );
-  fi;
- end
-
-);
-
-
-################
-## Rank function
-
-InstallMethod( RankFunction,
-		"for matroids",
-		[ IsMatroid ],
-
- function
-
- end
-
-);
-
-
-########
-## Bases
-
-InstallMethod( Bases,
-		"for abstract matroids",
-		[ IsAbstractMatroid ],
-
- function( matroid )
-  if IsBound( matroid!.bases ) and not IsEmpty( matroid!.bases ) then
-   return matroid!.bases;
-  else
-   Error( "this matroid does not seem to have a basis, this shouldn't happen" );
-  fi;
- end
-
-);
-
-InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
-
- function( matroid )
-  if IsBound( matroid!.generatingMatrix ) then
-   return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], Rank( matroid ) ), b -> Rank(
-				List( [1..DimensionsMat(matroid!.generatingMatrix)[1]], i -> List( b, j -> matroid!.generatingMatrix[i][j] ) )
-			 ) = Rank( matroid ) );
-  else
-   Error( "this vector matroid apparently lost its matrix, this shouldn't happen" );
-  fi;
- end
-
-);
-
-
-###########
-## Circuits
-
-InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
-		"for abstract matroids",
-		[ IsAbstractMatroid ],
-
- function( matroid )
-  if IsBound( matroid!.bases ) and not IsEmpty( matroid!.bases ) then
-   return matroid!.bases;
-  else
-   Error( "this matroid does not seem to have a basis, this shouldn't happen" );
-  fi;
- end
-
-);
-
-InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
-
- function( matroid )
-  if IsBound( matroid!.generatingMatrix ) then
-   return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], Rank( matroid ) ), b -> Rank(
-				List( [1..DimensionsMat(matroid!.generatingMatrix)[1]], i -> List( b, j -> matroid!.generatingMatrix[i][j] ) )
-			 ) = Rank( matroid ) );
-  else
-   Error( "this vector matroid apparently lost its matrix, this shouldn't happen" );
-  fi;
- end
-
-);
-
-
 ####################################
 ##
 ## Properties
 ##
 ####################################
-
-############
-## IsUniform
-
-InstallMethod( IsUniform,
-		"for matroids",
-		[ IsMatroid ],
-
- function( matroid )
-  return Size( Bases( matroid ) ) = Binomial( SizeOfGroundSet( matroid ), Rank( matroid ) );
- end
-
-);
-
-
-###########
-## IsSimple
-
-InstallMethod( IsSimple,
-		"for matroids",
-		[ IsMatroid ],
-
- function( matroid )
-
- end
-
-);
-
-
-############
-## IsGraphic
-
-InstallMethod( IsGraphic,
-		"for matroids",
-		[ IsMatroid ],
-
- function( matroid )
-
- end
-
-);
-
-############
-## IsRegular
-
-InstallMethod( IsRegular,
-		"for matroids",
-		[ IsMatroid ],
-
- function( matroid )
-
- end
-
-);
 
 
 ####################################
@@ -268,9 +87,9 @@ InstallMethod( IsRegular,
 
 
 ##
-InstallMethod( Matroid,
+InstallMethod( AssociationScheme,
 		"copy constructor",
-		[ IsMatroid ],
+		[ IsAssociationScheme ],
 
  IdFunc
 
@@ -278,84 +97,82 @@ InstallMethod( Matroid,
 
 
 ##
-InstallMethod( Matroid,
-		"given size of ground set and list of bases or independent sets",
-		[ IsInt, IsList ],
+InstallMethod( AssociationScheme,
+		"by ground set and relations",
+		[ IsList, IsList ],
+		10,
 
- function(  )
+ function( gset, rels )
+  local aScheme, srels, sgset;
 
+  if IsEmpty(rels) or not IsList(rels[1]) then TryNextMethod(); fi;
+
+# Sort ground set and relations:
+  sgset := Set(gset);
+  srels := List( rels, rel -> List( rel, Set ) );
+
+# Check whether relations satisfy conditions:
+# TO DO
+
+  aScheme := Objectify( TheTypeRelationAssociationScheme, rec( groundSet := Immutable(sgset), relations := Immutable(srels) ) );
+
+  return aScheme;
  end
 
 );
 
 
 ##
-InstallMethod( Matroid,
-		"given list of independent sets",
-		[ IsList ],
-
- function(  )
-
- end
-
-);
-
-
-##
-InstallMethod( Matroid,
-		"given ground set and list of bases or independent sets",
+InstallMethod( AssociationScheme,
+		"by ground set and functions",
 		[ IsList, IsList ],
 
- function(  )
+ function( gset, funcs )
+  local aScheme, sgset;
 
+  sgset := Set(gset);
+
+# Check whether relations satisfy conditions:
+# TO DO
+
+  aScheme := Objectify( TheTypeFunctionAssociationScheme, rec( groundSet := Immutable(sgset), functions := Immutable(funcs) ) );
  end
 
 );
 
 
 ##
-InstallMethod( Matroid,
-		"for a vector matroid",
-		[ IsMatrix ],
+InstallMethod( AssociationScheme,
+		"by transitive action",
+		[ IsGroup, IsList, IsFunction ],
 
- function(  )
+ function( grp, dom, act )
+  local aScheme;
 
+  if not IsTransitive( grp, dom, act ) then
+   Error( "<grp> must act transitively on <dom>" );
+  fi;
+
+  aScheme := Objectify( TheTypeActionAssociationScheme, rec( group := Immutable(grp), groundSet := Immutable(dom), action := Immutable(act) ) );
+
+  return aScheme;
  end
 
 );
 
 
 ##
-InstallMethod( MatroidByCircuits,
-		"given ground set and list of circuits",
-		[ IsList, IsList ],
+InstallMethod( AssociationScheme,
+		"by group",
+		[ IsGroup ],
 
- function(  )
+ function( grp )
+  local aScheme;
 
- end
+  aScheme := Objectify( TheTypeGroupAssociationScheme, rec( group := Immutable(grp) ) );
+  SetIsCommutative( aScheme, true );
 
-);
-
-
-##
-InstallMethod( MatroidByRankFunction,
-		"given ground set and integer valued function",
-		[ IsInt, IsFunction ],
-
- function(  )
-
- end
-
-);
-
-
-##
-InstallMethod( MatroidOfGraph,
-		"given an incidence matrix",
-		[ IsMatrix ],
-
- function(  )
-
+  return aScheme;
  end
 
 );
@@ -368,89 +185,101 @@ InstallMethod( MatroidOfGraph,
 ####################################
 
 ##
-InstallMethod( ViewObj,
-		"for homalg fans",
-		[ IsMatroid ],
+InstallMethod( PrintObj,
+		"for association schemes",
+		[ IsAssociationScheme ],
 
-  function( fan )
-    local str;
+ function( ascheme )
 
+  if IsAssociationSchemeByGroupRep( ascheme ) then
+
+   Print( "<A group association scheme>" );
+
+  else
+
+   if 	( HasIsCommutative( ascheme ) and IsCommutative( ascheme ) ) or
+	( HasIsSymmetric( ascheme ) and IsSymmetric( ascheme ) ) then
     Print( "<A" );
+   else
+    Print( "<An" );
+   fi;
 
-    if HasIsComplete( fan ) then
+   if HasIsCommutative( ascheme ) and IsCommutative( ascheme ) then
+    Print( " commutative" );
+   fi;
 
-        if IsComplete( fan ) then
+   if HasIsSymmetric( ascheme ) and IsSymmetric( ascheme ) then
+    Print( " symmetric" );
+   fi;
 
-		Print( " complete" );
+   Print( " association scheme>" );
 
-        fi;
+  fi;
 
-    fi;
+ end
 
-    if HasIsPointed( fan ) then
-
-        if IsPointed( fan ) then
-
-		Print( " pointed" );
-
-        fi;
-
-    fi;
-
-    if HasIsSmooth( fan ) then
-
-        if IsSmooth( fan ) then
-
-		Print( " smooth" );
-
-        fi;
-
-    fi;
-
-    Print( " fan in |R^" );
-
-    Print( String( AmbientSpaceDimension( fan ) ) );
-
-    if HasRays( fan ) then
-
-        Print( " with ", String( Length( Rays( fan ) ) )," rays" );
-
-    fi;
-
-    Print( ">" );
-
-end );
+);
 
 ##
 InstallMethod( Display,
-		"for homalg polytopes",
-		[ IsMatroid ],
+		"for group association schemes",
+		[ IsAssociationSchemeByGroupRep ],
 
-  function( fan )
-    local str;
+ function( ascheme )
 
-    Print( "A" );
+  Print( "The group association scheme of " );
+  Display( GroupOfAssociationScheme( ascheme ) );
 
-    if HasIsComplete( fan ) then
+ end
 
-        if IsComplete( fan ) then
+);
 
-		Print( " complete" );
+##
+InstallMethod( Display,
+		"for action association schemes",
+		[ IsAssociationSchemeByActionRep ],
 
-        fi;
+ function( ascheme )
 
-    fi;
+  Print( "The association scheme for the action of " );
+  Display( GroupOfAssociationScheme( ascheme ) );
+  Print( " on " );
+  Display( GroundSet( ascheme ) );
+  Print( " via ", ActionOfAssociationScheme( ascheme ), "." );
 
-    Print( " fan in |R^" );
+ end
 
-    Print( String( AmbientSpaceDimension( fan ) ) );
+);
 
-    if HasRays( fan ) then
+##
+InstallMethod( Display,
+		"for relation association schemes",
+		[ IsAssociationSchemeByRelationsRep ],
 
-        Print( " with ", String( Length( Rays( fan ) ) )," rays" );
+ function( ascheme )
 
-    fi;
+  Print( "The association scheme on " );
+  Display( GroundSet( ascheme ) );
+  Print( " with relations defined by " );
+  Display( RelationsOfAssociationScheme( ascheme ) );
 
-    Print( ".\n" );
+ end
 
-end );
+);
+
+##
+InstallMethod( Display,
+		"for function association schemes",
+		[ IsAssociationSchemeByFunctionsRep  ],
+
+ function( ascheme )
+
+  Print( "The association scheme on " );
+  Display( GroundSet( ascheme ) );
+  Print( " with relations defined by " );
+  Display( RelationsOfAssociationScheme( ascheme ) );
+
+ end
+
+);
+

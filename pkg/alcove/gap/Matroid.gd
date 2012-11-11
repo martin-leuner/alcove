@@ -21,20 +21,20 @@ DeclareCategory( "IsMinor",
 ##
 ####################################
 
+DeclareAttribute( "DualMatroid",
+		IsMatroid );
+
+DeclareAttribute( "ParentAttr",
+		IsMinor );
+
+DeclareAttribute( "SimpleMatroid",
+		IsMatroid );
+
 DeclareAttribute( "SizeOfGroundSet",
 		IsMatroid );
 
 DeclareAttribute( "RankOfMatroid",
 		IsMatroid );
-
-#DeclareOperation( "Rank",
-		#[ IsMatroid ] );
-
-#DeclareOperation( "HasRank",
-#		[ IsMatroid ] );
-#
-#DeclareOperation( "SetRank",
-#		[ IsMatroid, IsInt ] );
 
 DeclareAttribute( "RankFunction",
 		IsMatroid );
@@ -45,6 +45,12 @@ DeclareAttribute( "Bases",
 DeclareAttribute( "Circuits",
 		IsMatroid );
 
+DeclareAttribute( "TuttePolynomial",
+		IsMatroid );
+
+DeclareAttribute( "RankGeneratingPolynomial",
+		IsMatroid );
+
 
 ####################################
 ##
@@ -52,18 +58,16 @@ DeclareAttribute( "Circuits",
 ##
 ####################################
 
-DeclareProperty( "IsUniformMatroid",
+DeclareProperty( "IsUniform",
 		IsMatroid );
 
 DeclareProperty( "IsSimpleMatroid",
 		IsMatroid );
 
-DeclareProperty( "IsGraphicMatroid",
+DeclareProperty( "IsGraphic",
 		IsMatroid );
 
-DeclareSynonym( "IsGraphic", IsGraphicMatroid );
-
-DeclareProperty( "IsRegularMatroid",
+DeclareProperty( "IsRegular",
 		IsMatroid );
 
 
@@ -76,6 +80,8 @@ DeclareProperty( "IsRegularMatroid",
 DeclareOperation( "GroundSet",
 		[ IsMatroid ] );
 
+DeclareOperation( "MatrixOfVectorMatroid",
+		[ IsMatroid ] );
 
 ####################################
 ##
@@ -93,7 +99,7 @@ DeclareOperation( "Matroid",
 		[ IsList, IsList ] );
 
 DeclareOperation( "Matroid",
-		[ IsList ] );	# this implies a declaration for IsMatrix
+		[ IsMatrix ] );
 
 DeclareOperation( "Matroid",
 		[ IsMatrixObj ] );

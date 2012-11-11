@@ -10,4 +10,4 @@
 
 ReadPackage( "alcove", "gap/Matroid.gd" );
 
-#ReadPackage( "alcove", "gap/AssociationScheme.gd" );
+ReadPackage( "alcove", "gap/AssociationScheme.gd" );
