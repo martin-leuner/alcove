@@ -79,6 +79,135 @@ BindGlobal( "TheTypeGroupAssociationScheme",
 ####################################
 
 
+############
+## GroundSet
+
+InstallMethod( GroundSet,
+		"for association schemes",
+		[ IsAssociationScheme ],
+
+ function( ascheme )
+  if IsBound( ascheme!.groundSet ) then
+   return ascheme!.groundSet;
+  else
+   Error( "this association scheme apparently lost its ground set, this shouldn't happen" );
+  fi;
+ end
+
+);
+
+InstallMethod( GroundSet,
+		"for group association schemes",
+		[ IsAssociationSchemeByGroupRep ],
+		10,
+
+ function( ascheme )
+  if IsBound( ascheme!.group ) then
+   return ascheme!.group;
+  else
+   Error( "this group association scheme apparently lost its group, this shouldn't happen" );
+  fi;
+ end
+
+);
+
+
+###############################
+## RelationsOfAssociationScheme
+
+InstallMethod( RelationsOfAssociationScheme,
+		"for relation association schemes",
+		[ IsAssociationSchemeByRelationsRep ],
+
+ function( ascheme )
+  if IsBound( ascheme!.relations ) then
+   return ascheme!.relations;
+  else
+   Error( "this association scheme apparently lost its set of relations, this shouldn't happen" );
+  fi;
+ end
+
+);
+
+InstallMethod( RelationsOfAssociationScheme,
+		"for relation association schemes",
+		[ IsAssociationSchemeByFunctionsRep ],
+
+ function( ascheme )
+  if IsBound( ascheme!.functions ) then
+   return ascheme!.functions;
+  else
+   Error( "this association scheme apparently lost its set of relations, this shouldn't happen" );
+  fi;
+ end
+
+);
+
+InstallMethod( RelationsOfAssociationScheme,					# POTENTIALLY EXPENSIVE AND NAIVE APPROACH, SHOULD DO THIS DIFFERENTLY IF ADJACENCY ALGEBRA IS KNOWN
+		"for association schemes defined by a transitive action",
+		[ IsAssociationSchemeByActionRep ],
+
+ function( ascheme )
+  local dom, grp, act;
+  dom := GroundSet( ascheme );
+  grp := GroupOfAssociationScheme( ascheme );
+  act := ActionOfAssociationScheme( ascheme );
+  return OrbitsDomain( grp, Cartesian2( dom, dom ), function( tup, g ) return [ act( tup[1], g ), act( tup[2], g ) ]; end );
+ end
+
+);
+
+
+###########################
+## GroupOfAssociationScheme
+
+InstallMethod( GroupOfAssociationScheme,
+		"for group association schemes",
+		[ IsAssociationSchemeByGroupRep ],
+
+ function( ascheme )
+  if IsBound( ascheme!.group ) then
+   return ascheme!.group;
+  else
+   Error( "this group association scheme apparently lost its group, this shouldn't happen" );
+  fi;
+ end
+
+);
+
+InstallMethod( GroupOfAssociationScheme,
+		"for association schemes defined by a transitive action",
+		[ IsAssociationSchemeByActionRep ],
+
+ function( ascheme )
+  if IsBound( ascheme!.group ) then
+   return ascheme!.group;
+  else
+   Error( "this association scheme apparently lost its group, this shouldn't happen" );
+  fi;
+ end
+
+);
+
+
+############################
+## ActionOfAssociationScheme
+
+InstallMethod( ActionOfAssociationScheme,
+		"for association schemes defined by a transitive action",
+		[ IsAssociationSchemeByActionRep ],
+
+ function( ascheme )
+  if IsBound( ascheme!.action ) then
+   return ascheme!.action;
+  else
+   Error( "this association scheme apparently lost its action, this shouldn't happen" );
+  fi;
+ end
+
+);
+
+
 ####################################
 ##
 ## Constructors
