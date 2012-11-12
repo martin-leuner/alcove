@@ -65,6 +65,112 @@ BindGlobal( "TheTypeGroupAssociationScheme",
 ####################################
 
 
+####################
+## AdjacencyMatrices
+
+InstallMethod( AdjacencyMatrices,
+		"for relation association schemes",
+		[ IsAssociationSchemeByRelationsRep ],
+
+ function( ascheme )
+  local rels, dom;
+
+  rels := RelationsOfAssociationScheme( ascheme );
+  dom := GroundSet( ascheme );
+
+  return List( rels, rel -> List( dom, i -> List( dom, function(j) if [i,j] in rel then return 1; else return 0; fi; end ) ) );
+ end
+
+);
+
+InstallMethod( AdjacencyMatrices,
+		"for relation association schemes",
+		[ IsAssociationSchemeByFunctionsRep ],
+
+ function( ascheme )
+  local funcs, dom;
+
+  funcs := RelationsOfAssociationScheme( ascheme );
+  dom := GroundSet( ascheme );
+
+  return List( funcs, f -> List( dom, i -> List( dom, function(j) if f(i,j) then return 1; else return 0; fi; end ) ) );
+ end
+
+);
+
+InstallMethod( AdjacencyMatrices,				# CAUTION: Naive and probably less-than-optimal approach.
+		"for group association schemes",
+		[ IsAssociationSchemeByGroupRep ],
+
+ function( ascheme )
+  local grp, conj;
+
+  grp := GroundSet( ascheme );
+  conj := ConjugacyClasses(grp);
+
+  return List( conj, class -> List( grp, i -> List( grp, function(j) if j^-1*i in class then return 1; else return 0; fi; end ) ) );
+ end
+
+);
+
+InstallMethod( AdjacencyMatrices,
+		"for association schemes defined by a transitive action",
+		[ IsAssociationSchemeByActionRep ],
+
+ function( ascheme )
+  local dom, stab, staborbs, reps, orb, mats, mat, tmporb, i, grp, act;
+ 
+  grp := GroupOfAssociationScheme( ascheme );
+  dom := GroundSet( ascheme );
+  act := ActionOfAssociationScheme( ascheme );
+
+  stab := Stabiliser( grp, dom[1], act );
+  staborbs := OrbitsDomain( stab, dom, act );
+ 
+  reps := [];
+  for i in [ 1 .. Size(dom) ] do reps[i] := RepresentativeAction( grp, dom[1], dom[i], act ); od;
+ 
+  mats := [];
+  for orb in staborbs do
+   mat := [];
+   for i in [ 1 .. Size(dom) ] do
+    tmporb := List( orb, x -> act(x,reps[i]) );
+    Add( mat, List( [ 1 .. Size(dom) ], function(j) if dom[j] in tmporb then return 1; else return 0; fi; end ) );
+   od;
+   Add( mats, mat );
+  od;
+ 
+  return mats;
+ end
+
+);
+
+
+###################
+## AdjacencyAlgebra
+
+InstallMethod( AdjacencyAlgebra,
+		"for association schemes",
+		[ IsAssociationScheme ],
+
+ function( ascheme )
+  local irreds, F, mats;
+
+  mats := AdjacencyMatrices( ascheme );
+
+  F := Rationals;
+  irreds := Filtered( Union( List( mats, m -> Factors( MinimalPolynomial( F, m ) ) ) ), p -> Degree(p) > 1 );
+  while not IsEmpty( irreds ) do
+   F := FieldExtension( F, irreds[1] );
+   irreds := Filtered( Union( List( irreds, f -> Factors( PolynomialRing(F,1), f ) ) ), p -> Degree(p) > 1 );
+  od;
+
+  return Algebra( F, mats );
+ end
+
+);
+
+
 ####################################
 ##
 ## Properties
@@ -103,9 +209,24 @@ InstallMethod( GroundSet,
 
  function( ascheme )
   if IsBound( ascheme!.group ) then
-   return ascheme!.group;
+   return EnumeratorSorted( ascheme!.group );
   else
    Error( "this group association scheme apparently lost its group, this shouldn't happen" );
+  fi;
+ end
+
+);
+
+InstallMethod( GroundSet,
+		"for association schemes defined by a transitive action",
+		[ IsAssociationSchemeByActionRep ],
+		10,
+
+ function( ascheme )
+  if IsBound( ascheme!.groundSet ) then
+   return EnumeratorSorted( ascheme!.groundSet );
+  else
+   Error( "this association scheme apparently lost its ground set, this shouldn't happen" );
   fi;
  end
 
@@ -228,7 +349,7 @@ InstallMethod( AssociationScheme,
 ##
 InstallMethod( AssociationScheme,
 		"by ground set and relations",
-		[ IsList, IsList ],
+		[ IsListOrCollection, IsList ],
 		10,
 
  function( gset, rels )
@@ -237,7 +358,7 @@ InstallMethod( AssociationScheme,
   if IsEmpty(rels) or not IsList(rels[1]) then TryNextMethod(); fi;
 
 # Sort ground set and relations:
-  sgset := Set(gset);
+  sgset := Set( Enumerator( gset ) );
   srels := List( rels, rel -> List( rel, Set ) );
 
 # Check whether relations satisfy conditions:
@@ -254,12 +375,12 @@ InstallMethod( AssociationScheme,
 ##
 InstallMethod( AssociationScheme,
 		"by ground set and functions",
-		[ IsList, IsList ],
+		[ IsListOrCollection, IsList ],
 
  function( gset, funcs )
   local aScheme, sgset;
 
-  sgset := Set(gset);
+  sgset := Set( Enumerator( gset ) );
 
 # Check whether relations satisfy conditions:
 # TO DO
@@ -273,7 +394,7 @@ InstallMethod( AssociationScheme,
 ##
 InstallMethod( AssociationScheme,
 		"by transitive action",
-		[ IsGroup, IsList, IsFunction ],
+		[ IsGroup, IsListOrCollection, IsFunction ],
 
  function( grp, dom, act )
   local aScheme;

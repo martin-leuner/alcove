@@ -18,6 +18,9 @@ DeclareCategory( "IsAssociationScheme",
 ##
 ####################################
 
+DeclareAttribute( "AdjacencyMatrices",
+		IsAssociationScheme );
+
 DeclareAttribute( "AdjacencyAlgebra",
 		IsAssociationScheme );
 
@@ -64,10 +67,10 @@ DeclareOperation( "AssociationScheme",
 		[ IsAssociationScheme ] );
 
 DeclareOperation( "AssociationScheme",
-		[ IsList, IsList ] );
+		[ IsListOrCollection, IsList ] );
 
 DeclareOperation( "AssociationScheme",
-		[ IsGroup, IsList, IsFunction ] );
+		[ IsGroup, IsListOrCollection, IsFunction ] );
 
 DeclareOperation( "AssociationScheme",
 		[ IsGroup ] );
