@@ -106,7 +106,7 @@ InstallMethod( AdjacencyMatrices,				# CAUTION: Naive and probably less-than-opt
   local grp, conj;
 
   grp := GroundSet( ascheme );
-  conj := ConjugacyClasses(grp);
+  conj := ConjugacyClasses( GroupOfAssociationScheme( ascheme ) );
 
   return List( conj, class -> List( grp, i -> List( grp, function(j) if j^-1*i in class then return 1; else return 0; fi; end ) ) );
  end
