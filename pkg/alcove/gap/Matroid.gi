@@ -194,8 +194,28 @@ InstallMethod( Rank,
 ## Rank function
 
 InstallMethod( RankFunction,
-		"for matroids",
-		[ IsMatroid ],
+		"for abstract matroids",
+		[ IsAbstractMatroidRep ],
+
+ function( matroid )
+  return function( X ) return Maximum( List( Bases( matroid ), b -> Size( Intersection( b, X ) ) ) ); end;
+ end
+
+);
+
+InstallMethod( RankFunction,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  return function( X ) return RankMat( ExtractSubMatrix( MatrixOfVectorMatroid( matroid ), [ 1 .. DimensionsMat(MatrixOfVectorMatroid(matroid))[1] ], X ) ); end;
+ end
+
+);
+
+InstallMethod( RankFunction,
+		"for graphic matroids",
+		[ IsGraphicMatroidRep ],
 
  function( matroid )
 
@@ -267,6 +287,164 @@ InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
 );
 
 InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
+		"for graphic matroids",
+		[ IsGraphicMatroidRep ],
+
+ function( matroid )
+
+ end
+
+);
+
+
+###########
+## Cocircuits
+
+InstallMethod( Cocircuits,				# CPT. PLACEHOLDER BECKONS
+		"for abstract matroids",
+		[ IsAbstractMatroidRep ],
+
+ function( matroid )
+
+ end
+
+);
+
+InstallMethod( Cocircuits,				# CPT. PLACEHOLDER BECKONS
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+
+ end
+
+);
+
+InstallMethod( Cocircuits,				# CPT. PLACEHOLDER BECKONS
+		"for graphic matroids",
+		[ IsGraphicMatroidRep ],
+
+ function( matroid )
+
+ end
+
+);
+
+
+##################
+## TuttePolynomial
+
+InstallMethod( TuttePolynomial,
+		"for abstract matroids",
+		[ IsAbstractMatroidRep ],
+
+ function( matroid )
+
+ end
+
+);
+
+InstallMethod( TuttePolynomial,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  local recurse, x, y, mat;
+  mat := MatrixOfVectorMatroid( matroid );
+
+  x := Indeterminate( BaseDomain(mat), 1 );
+  y := Indeterminate( BaseDomain(mat), 2 );
+  if not HasIndeterminateName( BaseDomain(mat), 1 ) and not HasIndeterminateName( BaseDomain(mat), 2 ) then
+   SetIndeterminateName( BaseDomain(mat), 1, "x" );
+   SetIndeterminateName( BaseDomain(mat), 2, "y" );
+  fi;
+
+  recurse := function( activecols, activerows )
+  end
+
+ end
+
+);
+
+InstallMethod( TuttePolynomial,
+		"for graphic matroids",
+		[ IsGraphicMatroidRep ],
+
+ function( matroid )
+
+ end
+
+);
+
+
+########
+## Loops
+
+InstallMethod( Loops,
+		"for abstract matroids",
+		[ IsAbstractMatroidRep ],
+
+ function( matroid )
+  return Coloops( DualMatroid( matroid ) );
+ end
+
+);
+
+InstallMethod( Loops,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  local dims;
+  dims := DimensionsMat( MatrixOfVectorMatroid( matroid ) );
+  return Filtered( [ 1 .. dims[2] ], col -> ForAll( [ 1 .. dims[1] ], row -> IsZero( MatElm( MatrixOfVectorMatroid(matroid), row, col ) ) ) );
+ end
+
+);
+
+InstallMethod( Loops,
+		"for graphic matroids",
+		[ IsGraphicMatroidRep ],
+
+ function( matroid )
+
+ end
+
+);
+
+
+########
+## Coloops
+
+InstallMethod( Coloops,
+		"for abstract matroids",
+		[ IsAbstractMatroidRep ],
+
+ function( matroid )
+  local is, b;
+
+  is := GroundSet( matroid );
+  for b in Bases( matroid ) do
+   is := Intersection2( is, b );
+   if IsEmpty( is ) then break; fi;
+  od;
+
+  return is;
+ end
+
+);
+
+InstallMethod( Coloops,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  return Loops( DualMatroid( matroid ) );
+ end
+
+);
+
+InstallMethod( Coloops,
 		"for graphic matroids",
 		[ IsGraphicMatroidRep ],
 
@@ -652,16 +830,19 @@ InstallMethod( Display,
 		[ IsMatroid ],
 
  function( matroid )
+  local mat;
 
   if IsVectorMatroidRep( matroid ) then
+   mat := MatrixOfVectorMatroid( matroid );
 
-   Print( "The vector matroid of this matrix:\n" );
-   Display( matroid!.generatingMatrix );
+   Print( "The vector matroid of this matrix" );
+   if IsList( mat ) then Print( " over ", BaseDomain(mat) ); fi;
+   Print( ":\n" );
+   Display( mat );
 
   elif IsGraphicMatroidRep( matroid ) then
 
    Print( "The matroid of the (multi-)graph with this incidence matrix:\n" );
-   Display( matroid!.incidenceMatrix );
 
   else
 

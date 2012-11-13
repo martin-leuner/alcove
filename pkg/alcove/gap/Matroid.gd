@@ -45,10 +45,19 @@ DeclareAttribute( "Bases",
 DeclareAttribute( "Circuits",
 		IsMatroid );
 
+DeclareAttribute( "Cocircuits",
+		IsMatroid );
+
 DeclareAttribute( "TuttePolynomial",
 		IsMatroid );
 
 DeclareAttribute( "RankGeneratingPolynomial",
+		IsMatroid );
+
+DeclareAttribute( "Loops",
+		IsMatroid );
+
+DeclareAttribute( "Coloops",
 		IsMatroid );
 
 
