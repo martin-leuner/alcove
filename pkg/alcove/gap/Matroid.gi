@@ -46,14 +46,29 @@ BindGlobal( "TheTypeAbstractMatroid",
 		IsAbstractMatroidRep )
 );
 
+BindGlobal( "TheTypeMinorOfAbstractMatroid",
+	NewType( TheFamilyOfMatroids,
+		IsAbstractMatroidRep and IsMinorOfMatroid )
+);
+
 BindGlobal( "TheTypeVectorMatroid",
 	NewType( TheFamilyOfMatroids,
 		IsVectorMatroidRep )
 );
 
+BindGlobal( "TheTypeMinorOfVectorMatroid",
+	NewType( TheFamilyOfMatroids,
+		IsVectorMatroidRep and IsMinorOfMatroid )
+);
+
 BindGlobal( "TheTypeGraphicMatroid",
 	NewType( TheFamilyOfMatroids,
 		IsGraphicMatroidRep )
+);
+
+BindGlobal( "TheTypeMinorOfGraphicMatroid",
+	NewType( TheFamilyOfMatroids,
+		IsGraphicMatroidRep and IsMinorOfMatroid )
 );
 
 
@@ -359,8 +374,9 @@ InstallMethod( TuttePolynomial,
    SetIndeterminateName( BaseDomain(mat), 2, "y" );
   fi;
 
-  recurse := function( activecols, activerows )
-  end
+  recurse := function( actRows, actCols )
+   local submat;
+  end;
 
  end
 
@@ -534,7 +550,7 @@ InstallMethod( GroundSet,
 
  function( matroid )
   if IsBound( matroid!.groundSet ) then
-   return ShallowCopy( matroid!.groundSet );
+   return matroid!.groundSet;
   else
    Error( "this matroid does not seem to have a ground set, this shouldn't happen" );
   fi;
@@ -607,6 +623,189 @@ InstallMethod( MatrixOfVectorMatroid,
 );
 
 
+########
+## Minor
+
+InstallMethod( Minor,
+		"for abstract matroids",
+		[ IsAbstractMatroidRep, IsList, IsList ],
+
+##
+ function( matroid, del, contr )
+  local minorBases, t, sdel, scontr, minor;
+
+  sdel := Set( del );
+  scontr := Set( contr );
+  if not IsEmpty( Intersection2( sdel, scontr ) ) then Error( "<del> and <contr> must not meet" ); fi;
+
+  minorBases := ShallowCopy( Bases( Matroid ) );
+
+# Deletion:
+
+  for t in sdel do
+   if ForAll( minorBases, b -> t in b ) then		# t is a coloop in the current minor
+    minorBases := List( minorBases, b -> Difference(b,[t]) );
+   else
+    minorBases := Filtered( minorBases, b -> not t in b );
+   fi;
+  od;
+
+# Contraction:
+
+  for t in scontr do
+   if ForAny( minorBases, b -> t in b ) then		# t is not a loop in the current minor
+    minorBases := List( Filtered( minorBases, b -> t in b ), b -> Difference(b,[t]) );
+   fi;
+  od;
+
+  minor := Objectify( TheTypeMinorOfAbstractMatroid,
+	rec( groundSet := Immutable( Difference( Difference( GroundSet( matroid ), sdel ), scontr ) ), bases := Immutable( minorBases ) ) );
+  SetParentAttr( minor, matroid );
+
+  return minor;
+ end
+
+);
+
+##
+InstallMethod( Minor,
+		"for vector matroids",
+		[ IsVectorMatroidRep, IsList, IsList ],
+
+ function( matroid, del, contr )
+  local loopsColoops, sdel, scontr, minorMat, minor, num, col, row, actRows, actCols, foundRow, foundCoeff, rowCoeff, calcCol;
+
+  sdel := Set( del );
+  scontr := Set( contr );
+
+  if not IsEmpty( Intersection2( sdel, scontr ) ) then Error( "<del> and <contr> must not meet" ); fi;
+
+# If loops or coloops will be deleted or contracted, delete rather than contract:
+
+  loopsColoops := Intersection2( Union2( Loops( matroid ), Coloops( matroid ) ), scontr );
+  scontr := Difference( scontr, loopsColoops );
+  sdel := Union2( sdel, loopsColoops );
+
+# Delete columns and prepare matrix for contraction:
+
+  minorMat := MutableCopyMat( MatrixOfVectorMatroid( matroid ) );
+  actCols := Difference( [ 1 .. DimensionsMat( minorMat )[2] ], sdel );
+
+##  minorMat := List( [ 1 .. DimensionsMat( MatrixOfVectorMatroid( matroid ) )[1] ], i ->
+##		List( Difference( [ 1 .. SizeOfGroundSet( matroid ) ], sdel ), j -> MatElm( MatrixOfVectorMatroid( matroid ) ) ) );
+##
+### Contraction list must be shifted.
+##
+##  for num in sdel do
+##   scontr := List( scontr, function(n) if n > num then return n-1; else return n; fi; end );
+##  od;
+##  actCols := DimensionsMat( minorMat )[2];
+#      minorMat[row] := minorMat[row] - (rowCoeff/foundCoeff) * minorMat[foundRow];
+
+# Contraction:
+
+  actRows := [ 1 .. DimensionsMat( minorMat )[1] ];
+  for col in scontr do
+
+   actCols := Difference( actCols, [ col ] );
+   foundRow := 0;
+   for row in actRows do  
+
+    rowCoeff := MatElm( minorMat, row, col );
+    if not IsZero( rowCoeff ) then
+
+     if foundRow = 0 then
+
+      foundRow := row;
+      foundCoeff := rowCoeff;
+
+     else
+
+      rowCoeff := rowCoeff/foundCoeff;
+      for calcCol in actCols do
+       SetMatElm( minorMat, row, calcCol,
+	MatElm(minorMat,row,calcCol) - rowCoeff * MatElm(minorMat,foundRow,calcCol) );
+      od;
+
+     fi;
+
+    fi;
+
+   od;
+   actRows := Difference( actRows, [ foundRow ] );
+
+  od;
+
+  minorMat := ExtractSubMatrix( minorMat, actRows, actCols );
+
+  minor := Objectify( TheTypeMinorOfVectorMatroid, rec( generatingMatrix := Immutable( minorMat ) ) );
+  SetParentAttr( minor, matroid );
+
+  return minor;
+ end
+
+);
+
+##
+InstallMethod( Minor,
+		"for graphic matroids",
+		[ IsGraphicMatroidRep, IsList, IsList ],
+
+ function( matroid, del, contr )
+
+ end
+
+);
+
+
+###########
+## Deletion
+
+InstallMethod( Deletion,
+		"for matroids",
+		[ IsMatroid, IsList ],
+
+ function( matroid, del )
+  return Minor( matroid, del, [] );
+ end
+
+);
+
+
+##############
+## Contraction
+
+InstallMethod( Contraction,
+		"for matroids",
+		[ IsMatroid, IsList ],
+
+ function( matroid, contr )
+  return Minor( matroid, [], contr );
+ end
+
+);
+
+
+##########
+## IsMinor
+
+InstallMethod( IsMinor,
+		"for matroids",
+		[ IsMatroid, IsMinorOfMatroid ],
+
+ function( matroid, minor )
+  local parent;
+  parent := ParentAttr( minor );
+  if IsMinorOfMatroid( parent ) then
+   return IsMinor( matroid, parent );
+  else
+   return matroid = parent;
+  fi;
+ end
+
+);
+
+
 ####################################
 ##
 ## Constructors
@@ -634,7 +833,7 @@ InstallMethod( Matroid,
 
   if IsEmpty( indep ) then Error( "the list of independent sets must be non-empty" ); fi;
 
-  gset := [ 1 .. deg ];
+  gset := Immutable([ 1 .. deg ]);
 
   if ForAny( indep, i -> not IsSubset( gset, i ) ) then
    Error( "elements of <indep> must be subsets of [1..<deg>]" );
@@ -644,7 +843,7 @@ InstallMethod( Matroid,
   rk := Maximum( sizelist );
 
 # Extract bases from indep list:
-  baselist := List( Filtered( [ 1 .. Size( indep ) ], i -> sizelist[i] = rk ), i -> Set( indep[i] ) );
+  baselist := Immutable( List( Filtered( [ 1 .. Size( indep ) ], i -> sizelist[i] = rk ), i -> Set( indep[i] ) ) );
 
 # Check base exchange axiom:
   if ForAny( baselist, b1 -> ForAny( baselist, b2 ->
@@ -658,6 +857,18 @@ InstallMethod( Matroid,
 
   return matroid;
 
+ end
+
+);
+
+
+##
+InstallMethod( Matroid,
+		"by size of ground set and list of bases",
+		[ IsInt, IsList ],
+
+ function( deg, baselist  )
+  return Objectify( TheTypeAbstractMatroid, rec( groundSet := Immutable([1..deg]), bases := Immutable(baselist) ) );
  end
 
 );
@@ -681,7 +892,7 @@ InstallMethod( Matroid,
   rk := Maximum( sizelist );
 
 # Extract bases from indep list:
-  baselist := List( Filtered( [ 1 .. Size( indep ) ], i -> sizelist[i] = rk ), i -> Set( indep[i] ) );
+  baselist := Immutable( List( Filtered( [ 1 .. Size( indep ) ], i -> sizelist[i] = rk ), i -> Set( indep[i] ) ) );
 
 # Check base exchange axiom:
   if ForAny( baselist, b1 -> ForAny( baselist, b2 ->
@@ -690,7 +901,7 @@ InstallMethod( Matroid,
 	) )
   ) ) then Error( "bases must satisfy the exchange axiom" ); fi;
 
-  matroid := Objectify( TheTypeAbstractMatroid, rec( groundSet := groundset, bases := baselist ) );
+  matroid := Objectify( TheTypeAbstractMatroid, rec( groundSet := Immutable(groundset), bases := baselist ) );
   SetRankOfMatroid( matroid, rk );
 
   return matroid;
@@ -698,6 +909,19 @@ InstallMethod( Matroid,
  end
 
 );
+
+
+##
+InstallMethod( MatroidNC,
+		"by ground set and list of bases, no checks",
+		[ IsList, IsList ],
+
+ function( groundset, baselist )
+  return Objectify( TheTypeAbstractMatroid, rec( groundSet := Immutable(groundset), bases := Immutable(baselist) ) );
+ end
+
+);
+
 
 
 ##
@@ -709,8 +933,8 @@ InstallMethod( Matroid,
   local matobj;
 
   matobj := Immutable( MakeMatrix( mat ) );		## guess the base field and construct matrix object
-  return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := matobj ) );
 
+  return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := matobj ) );
  end
 
 );
@@ -722,9 +946,7 @@ InstallMethod( Matroid,
 		[ IsMatrixObj ],
 
  function( matobj )
-
   return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
-
  end
 
 );

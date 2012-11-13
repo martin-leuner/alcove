@@ -11,7 +11,7 @@
 DeclareCategory( "IsMatroid",
 		IsObject );
 
-DeclareCategory( "IsMinor",
+DeclareCategory( "IsMinorOfMatroid",
 		IsMatroid );
 
 
@@ -25,7 +25,7 @@ DeclareAttribute( "DualMatroid",
 		IsMatroid );
 
 DeclareAttribute( "ParentAttr",
-		IsMinor );
+		IsMinorOfMatroid );
 
 DeclareAttribute( "SimpleMatroid",
 		IsMatroid );
@@ -92,6 +92,18 @@ DeclareOperation( "GroundSet",
 DeclareOperation( "MatrixOfVectorMatroid",
 		[ IsMatroid ] );
 
+DeclareOperation( "Minor",
+		[ IsMatroid, IsList, IsList ] );
+
+DeclareOperation( "Deletion",
+		[ IsMatroid, IsList ] );
+
+DeclareOperation( "Contraction",
+		[ IsMatroid, IsList ] );
+
+DeclareOperation( "IsMinor",
+		[ IsMatroid, IsMinorOfMatroid ] );
+
 ####################################
 ##
 ## Constructors
@@ -104,7 +116,13 @@ DeclareOperation( "Matroid",
 DeclareOperation( "Matroid",
 		[ IsInt, IsList ] );
 
+DeclareOperation( "MatroidNC",
+		[ IsInt, IsList ] );
+
 DeclareOperation( "Matroid",
+		[ IsList, IsList ] );
+
+DeclareOperation( "MatroidNC",
 		[ IsList, IsList ] );
 
 DeclareOperation( "Matroid",
