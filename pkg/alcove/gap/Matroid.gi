@@ -673,7 +673,7 @@ InstallMethod( Minor,
 		[ IsVectorMatroidRep, IsList, IsList ],
 
  function( matroid, del, contr )
-  local loopsColoops, sdel, scontr, minorMat, minor, num, col, row, actRows, actCols, foundRow, foundCoeff, rowCoeff, calcCol;
+  local loopsColoops, sdel, scontr, minorMat, minor, col, row, actRows, actCols, foundRow, foundCoeff, rowCoeff, calcCol;
 
   sdel := Set( del );
   scontr := Set( contr );
@@ -690,17 +690,6 @@ InstallMethod( Minor,
 
   minorMat := MutableCopyMat( MatrixOfVectorMatroid( matroid ) );
   actCols := Difference( [ 1 .. DimensionsMat( minorMat )[2] ], sdel );
-
-##  minorMat := List( [ 1 .. DimensionsMat( MatrixOfVectorMatroid( matroid ) )[1] ], i ->
-##		List( Difference( [ 1 .. SizeOfGroundSet( matroid ) ], sdel ), j -> MatElm( MatrixOfVectorMatroid( matroid ) ) ) );
-##
-### Contraction list must be shifted.
-##
-##  for num in sdel do
-##   scontr := List( scontr, function(n) if n > num then return n-1; else return n; fi; end );
-##  od;
-##  actCols := DimensionsMat( minorMat )[2];
-#      minorMat[row] := minorMat[row] - (rowCoeff/foundCoeff) * minorMat[foundRow];
 
 # Contraction:
 
@@ -736,7 +725,11 @@ InstallMethod( Minor,
 
   od;
 
-  minorMat := ExtractSubMatrix( minorMat, actRows, actCols );
+  if IsEmpty( actRows ) or IsEmpty( actCols ) then
+   minorMat := Matrix( [[ Zero(BaseDomain(minorMat)) ]], minorMat );
+  else
+   minorMat := ExtractSubMatrix( minorMat, actRows, actCols );
+  fi;
 
   minor := Objectify( TheTypeMinorOfVectorMatroid, rec( generatingMatrix := Immutable( minorMat ) ) );
   SetParentAttr( minor, matroid );
