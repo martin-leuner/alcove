@@ -1,6 +1,4 @@
 
-
-
 SetPackageInfo( rec(
 
 PackageName := "alcove",
@@ -8,11 +6,11 @@ PackageName := "alcove",
 Subtitle := "A package for algebraic combinatorics",
 
 Version :=  Maximum( [
-  "2012.11.12", ## Martin's version ## in case this package should ever be edited by more than one person
+  "2012-11-12", ## Martin's version ## in case this package should ever be edited by more than one person
 ] ),
 
 Date := ~.Version{[ 1 .. 10 ]},
-Date := Concatenation( ~.Date{[ 9, 10 ]}, "/", ~.Date{[ 6, 7 ]}, "/", ~.Date{[ 1 .. 4 ]} ),
+Date := Concatenation( ~.Date{[ 9, 10 ]}, ".", ~.Date{[ 6, 7 ]}, ".", ~.Date{[ 1 .. 4 ]} ),
 
 ArchiveURL := 
           Concatenation( "http://wwwb.math.rwth-aachen.de/~leuner/gap/", ~.PackageName, "/", ~.PackageName, "-", ~.Version ),
