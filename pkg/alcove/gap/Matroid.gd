@@ -125,8 +125,11 @@ DeclareOperation( "Matroid",
 DeclareOperation( "MatroidNC",
 		[ IsList, IsList ] );
 
+#DeclareOperation( "Matroid",		# this declaration is implied by the next one
+#		[ IsMatrix ] );
+
 DeclareOperation( "Matroid",
-		[ IsMatrix ] );
+		[ IsGeneralizedRowVector and IsNearAdditiveElementWithInverse and IsAdditiveElement ] );
 
 DeclareOperation( "Matroid",
 		[ IsMatrixObj ] );

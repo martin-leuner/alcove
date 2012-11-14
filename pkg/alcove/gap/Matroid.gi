@@ -105,9 +105,12 @@ InstallMethod( DualMatroid,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  local dualmatrix, dual;
+  local dualmatrix, dual, mat;
+  mat := MatrixOfVectorMatroid( matroid );
 
-  dualmatrix := NullspaceMat( TransposedMat( MatrixOfVectorMatroid( matroid ) ) );
+  dualmatrix := NullspaceMat( TransposedMat( mat ) );
+
+  if IsList( dualmatrix ) and IsEmpty( dualmatrix ) then dualmatrix := [ List( [ 1 .. SizeOfGroundSet(matroid) ], i -> Zero(BaseDomain(mat)) ) ]; fi;
 
   dual := Matroid( dualmatrix );
   SetDualMatroid( dual, matroid );
@@ -213,7 +216,21 @@ InstallMethod( RankFunction,
 		[ IsAbstractMatroidRep ],
 
  function( matroid )
-  return function( X ) return Maximum( List( Bases( matroid ), b -> Size( Intersection( b, X ) ) ) ); end;
+  return function( X )
+   local b, max, s;
+
+   max := 0;
+
+   for b in Bases( matroid ) do
+    s := Size( Intersection2( b, X ) );
+    if s > max then
+     max := s;
+     if max = Size( X ) then return max; fi;
+    fi;
+   od;
+
+   return max;
+  end;
  end
 
 );
@@ -223,7 +240,7 @@ InstallMethod( RankFunction,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  return function( X ) return RankMat( ExtractSubMatrix( MatrixOfVectorMatroid( matroid ), [ 1 .. DimensionsMat(MatrixOfVectorMatroid(matroid))[1] ], X ) ); end;
+  return function( X ) return RankSubMatrix( MatrixOfVectorMatroid( matroid ), [ 1 .. DimensionsMat(MatrixOfVectorMatroid(matroid))[1] ], X ); end;
  end
 
 );
@@ -262,7 +279,7 @@ InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
 
  function( matroid )
   return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], Rank( matroid ) ),
-		b -> RankMat( ExtractSubMatrix( MatrixOfVectorMatroid(matroid), [1..DimensionsMat(MatrixOfVectorMatroid(matroid))[1]], b ) ) = Rank( matroid ) );
+		b -> RankSubMatrix( MatrixOfVectorMatroid(matroid), [1..DimensionsMat(MatrixOfVectorMatroid(matroid))[1]], b ) = Rank( matroid ) );
  end
 
 );
@@ -350,47 +367,73 @@ InstallMethod( Cocircuits,				# CPT. PLACEHOLDER BECKONS
 ## TuttePolynomial
 
 InstallMethod( TuttePolynomial,
-		"for abstract matroids",
-		[ IsAbstractMatroidRep ],
+		"for matroids",
+		[ IsMatroid ],
 
  function( matroid )
+  local loopNum, coloopNum, loopsColoops, x, y, p, min;
 
- end
-
-);
-
-InstallMethod( TuttePolynomial,
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
-
- function( matroid )
-  local recurse, x, y, mat;
-  mat := MatrixOfVectorMatroid( matroid );
-
-  x := Indeterminate( BaseDomain(mat), 1 );
-  y := Indeterminate( BaseDomain(mat), 2 );
-  if not HasIndeterminateName( BaseDomain(mat), 1 ) and not HasIndeterminateName( BaseDomain(mat), 2 ) then
-   SetIndeterminateName( BaseDomain(mat), 1, "x" );
-   SetIndeterminateName( BaseDomain(mat), 2, "y" );
+  x := Indeterminate( Integers, 1 );
+  y := Indeterminate( Integers, 2 );
+  if not HasIndeterminateName( FamilyObj(x), 1 ) and not HasIndeterminateName( FamilyObj(x), 2 ) then
+   SetIndeterminateName( FamilyObj(x), 1, "x" );
+   SetIndeterminateName( FamilyObj(x), 2, "y" );
   fi;
 
-  recurse := function( actRows, actCols )
-   local submat;
-  end;
+  loopNum := Size( Loops( matroid ) );
+  coloopNum := Size( Coloops( matroid ) );
 
+  p := x^coloopNum * y^loopNum;
+
+# Termination case:
+
+  if loopNum + coloopNum = SizeOfGroundSet( matroid ) then
+   return p;
+  fi;
+
+# Recursion:
+
+  loopsColoops := Union2( Loops( matroid ), Coloops( matroid ) );
+
+  min := Deletion( matroid, loopsColoops );
+
+  return p * ( TuttePolynomial( Deletion( min, [1] ) ) + TuttePolynomial( Contraction( min, [1] ) ) );
  end
 
 );
 
-InstallMethod( TuttePolynomial,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep ],
-
- function( matroid )
-
- end
-
-);
+#InstallMethod( TuttePolynomial,
+#		"for vector matroids",
+#		[ IsVectorMatroidRep ],
+#
+# function( matroid )
+#  local recurse, x, y, mat;
+#  mat := MatrixOfVectorMatroid( matroid );
+#
+#  x := Indeterminate( Integers, 1 );
+#  y := Indeterminate( Integers, 2 );
+#  if not HasIndeterminateName( Integers, 1 ) and not HasIndeterminateName( Integers, 2 ) then
+#   SetIndeterminateName( Integers, 1, "x" );
+#   SetIndeterminateName( Integers, 2, "y" );
+#  fi;
+#
+#  recurse := function( actRows, actCols )
+#   local submat;
+#  end;
+#
+# end
+#
+#);
+#
+#InstallMethod( TuttePolynomial,
+#		"for graphic matroids",
+#		[ IsGraphicMatroidRep ],
+#
+# function( matroid )
+#
+# end
+#
+#);
 
 
 ########
@@ -563,12 +606,7 @@ InstallMethod( GroundSet,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  local template;
-
-  template := CompatibleVector( MatrixOfVectorMatroid(matroid) );
-  return List( [ 1 .. SizeOfGroundSet(matroid) ],
-	col -> Unfold( ExtractSubMatrix( MatrixOfVectorMatroid(matroid), [1..DimensionsMat(MatrixOfVectorMatroid(matroid) )[1]], [col] ), template ) );
-
+  return [ 1 .. SizeOfGroundSet(matroid) ];
  end
 
 );
@@ -679,6 +717,7 @@ InstallMethod( Minor,
   scontr := Set( contr );
 
   if not IsEmpty( Intersection2( sdel, scontr ) ) then Error( "<del> and <contr> must not meet" ); fi;
+  if not IsSubset( [ 1 .. SizeOfGroundSet( matroid ) ], Union2( sdel, scontr ) ) then Error( "<del> and <contr> must be subsets of the column labels of <matroid>" ); fi;
 
 # If loops or coloops will be deleted or contracted, delete rather than contract:
 
@@ -726,7 +765,7 @@ InstallMethod( Minor,
   od;
 
   if IsEmpty( actRows ) or IsEmpty( actCols ) then
-   minorMat := Matrix( [[ Zero(BaseDomain(minorMat)) ]], minorMat );
+   minorMat := Matrix( [ List( [ 1 .. Size(actCols) ], c -> Zero(BaseDomain(minorMat)) ) ], minorMat );
   else
    minorMat := ExtractSubMatrix( minorMat, actRows, actCols );
   fi;
@@ -921,6 +960,7 @@ InstallMethod( MatroidNC,
 InstallMethod( Matroid,
 		"by matrix",
 		[ IsMatrix ],
+		10,
 
  function( mat )
   local matobj;
@@ -935,8 +975,26 @@ InstallMethod( Matroid,
 
 ##
 InstallMethod( Matroid,
+		"by empty matrix",
+		[ IsGeneralizedRowVector and IsNearAdditiveElementWithInverse and IsAdditiveElement ],
+
+ function( mat )
+  if not IsEmpty( mat[1] ) then Error( "constructor for empty vector matroids called on non-empty matrix" ); fi;
+
+  return ObjectifyWithAttributes( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(mat) ),
+			SizeOfGroundSet, 0,
+			RankOfMatroid, 0
+	);
+ end
+
+);
+
+
+##
+InstallMethod( Matroid,
 		"by matrix object",
 		[ IsMatrixObj ],
+		20,
 
  function( matobj )
   return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
