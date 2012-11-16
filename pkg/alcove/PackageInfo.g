@@ -42,27 +42,27 @@ Status := "dev",
 
 
 #README_URL := 
-  #"http://wwwb.math.rwth-aachen.de/~gutsche/gap_packages/Convex/README.Convex",
+#  "http://wwwb.math.rwth-aachen.de/~gutsche/gap_packages/Convex/README.Convex",
 #PackageInfoURL := 
-  #"http://wwwb.math.rwth-aachen.de/~gutsche/gap_packages/Convex/PackageInfo.g",
+#  "http://wwwb.math.rwth-aachen.de/~gutsche/gap_packages/Convex/PackageInfo.g",
 
 #AbstractHTML := 
-  #Concatenation( "Convex provides structures and algorithms for convex geometry. It can handle convex, ",
-                 #"fans and polytopes. Not only the structures are provided, but also a collection of ",
-                 #"algorithms to handle those objects. Basically, it provides convex geometry to GAP. ",
-                 #"It is capable of communicating with the CAS polymake via the package PolymakeInterface",
-                 #" and also provides several methods by itself." ),
+#  Concatenation( "Convex provides structures and algorithms for convex geometry. It can handle convex, ",
+#                 "fans and polytopes. Not only the structures are provided, but also a collection of ",
+#                 "algorithms to handle those objects. Basically, it provides convex geometry to GAP. ",
+#                 "It is capable of communicating with the CAS polymake via the package PolymakeInterface",
+#                 " and also provides several methods by itself." ),
 
 #PackageWWWHome := "http://wwwb.math.rwth-aachen.de/~gutsche/gap_packages/Convex/",
-               
+#               
 #PackageDoc := rec(
-  #BookName  := "Convex",
-  #ArchiveURLSubset := ["doc"],
-  #HTMLStart := "doc/chap0.html",
-  #PDFFile   := "doc/manual.pdf",
-  #SixFile   := "doc/manual.six",
-  #LongTitle := "A package to provide convex geometry functions to GAP.",
-  #Autoload  := false
+#  BookName  := "alcove",
+#  ArchiveURLSubset := ["doc"],
+#  HTMLStart := "doc/chap0.html",
+#  PDFFile   := "doc/manual.pdf",
+#  SixFile   := "doc/manual.six",
+#  LongTitle := "alcove - Objects in Algebraic Combinatorics",
+#  Autoload  := false
 #),
 
 
@@ -76,17 +76,9 @@ Dependencies := rec(
 
 AvailabilityTest := ReturnTrue,
     
-
-BannerString := Concatenation( 
-  "----------------------------------------------------------------\n",
-  "Loading ", ~.PackageName, " ", ~.Version, "\n",
-  "by Martin Leuner\n",
-  "----------------------------------------------------------------\n" ),
-
 Autoload := false,
 
-
-Keywords := [ "Algebraic combinatorics", "Matroid", "Association scheme" ]
+Keywords := [ "Algebraic combinatorics", "Matroid", "Association scheme", "Tutte polynomial", "C-algebra" ]
 
 ));
 

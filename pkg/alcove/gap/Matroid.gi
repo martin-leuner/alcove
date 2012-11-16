@@ -380,6 +380,11 @@ InstallMethod( TuttePolynomial,
    SetIndeterminateName( FamilyObj(x), 2, "y" );
   fi;
 
+# Check whether Tutte polynomial of dual matroid is already known:
+  if HasDualMatroid( matroid ) and HasTuttePolynomial( DualMatroid( matroid ) ) then
+   return Value( TuttePolynomial( DualMatroid( matroid ) ), [ x, y ], [ y, x ] );
+  fi;
+
   loopNum := Size( Loops( matroid ) );
   coloopNum := Size( Coloops( matroid ) );
 
@@ -402,38 +407,22 @@ InstallMethod( TuttePolynomial,
 
 );
 
-#InstallMethod( TuttePolynomial,
-#		"for vector matroids",
-#		[ IsVectorMatroidRep ],
-#
-# function( matroid )
-#  local recurse, x, y, mat;
-#  mat := MatrixOfVectorMatroid( matroid );
-#
-#  x := Indeterminate( Integers, 1 );
-#  y := Indeterminate( Integers, 2 );
-#  if not HasIndeterminateName( Integers, 1 ) and not HasIndeterminateName( Integers, 2 ) then
-#   SetIndeterminateName( Integers, 1, "x" );
-#   SetIndeterminateName( Integers, 2, "y" );
-#  fi;
-#
-#  recurse := function( actRows, actCols )
-#   local submat;
-#  end;
-#
-# end
-#
-#);
-#
-#InstallMethod( TuttePolynomial,
-#		"for graphic matroids",
-#		[ IsGraphicMatroidRep ],
-#
-# function( matroid )
-#
-# end
-#
-#);
+
+###########################
+## RankGeneratingPolynomial
+
+InstallMethod( RankGeneratingPolynomial,
+		"for matroids",
+		[ IsMatroid ],
+
+ function( matroid )
+  local x, y;
+  x := Indeterminate( Integers, 1 );
+  y := Indeterminate( Integers, 2 );
+  return Value( TuttePolynomial( matroid ), [ x, y ], [ x+1, y+1 ] );
+ end
+
+);
 
 
 ########

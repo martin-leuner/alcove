@@ -9,7 +9,7 @@
 #############################################################################
 
 DeclareCategory( "IsCAlgebra",
-		IsAlgebra );
+		IsAlgebraWithOne );
 
 
 ####################################
@@ -18,11 +18,11 @@ DeclareCategory( "IsCAlgebra",
 ##
 ####################################
 
-DeclareAttribute( "Basis",
-		IsCAlgebra );
+DeclareAttribute( "DualCAlgebra",
+		[ IsCAlgebra ] );
 
-DeclareAttribute( "Idempotents",
-		IsCAlgebra );
+DeclareAttribute( "Eigenmatrix",
+		[ IsCAlgebra ] );
 
 
 ####################################
@@ -31,27 +31,12 @@ DeclareAttribute( "Idempotents",
 ##
 ####################################
 
-DeclareProperty( "IsCommutative",
-		IsCAlgebra );
-
 
 ####################################
 ##
 ## Methods
 ##
 ####################################
-
-DeclareOperation( "GroundSet",
-		[ IsCAlgebra ] );
-
-DeclareOperation( "RelationsOfCAlgebra",
-		[ IsCAlgebra ] );
-
-DeclareOperation( "GroupOfCAlgebra",
-		[ IsCAlgebra ] );
-
-DeclareOperation( "ActionOfCAlgebra",
-		[ IsCAlgebra ] );
 
 
 ####################################
@@ -64,11 +49,8 @@ DeclareOperation( "CAlgebra",
 		[ IsCAlgebra ] );
 
 DeclareOperation( "CAlgebra",
-		[ IsListOrCollection, IsList ] );
+		[ IsBasis, IsFunction ] );
 
 DeclareOperation( "CAlgebra",
-		[ IsGroup, IsListOrCollection, IsFunction ] );
-
-DeclareOperation( "CAlgebra",
-		[ IsGroup ] );
+		[ IsAssociationScheme and IsCommutative ] );
 
