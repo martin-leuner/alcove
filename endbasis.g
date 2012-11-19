@@ -1,3 +1,7 @@
+if not IsBound( Matroid ) then
+ LoadPackage( "alcove" );
+fi;
+
 SplitOverQ := function( list )
  local irreds, F;
  F := Rationals;
@@ -13,6 +17,11 @@ end;
 DisplayList := function( list )
  local ent;
  for ent in list do Display( ent ); Print("\n"); od;
+end;
+
+
+DisplayBivariatePolynomial := function( p )
+ Display( List( PolynomialCoefficientsOfPolynomial( p, 1 ), CoefficientsOfUnivariatePolynomial ) );
 end;
 
 
@@ -124,4 +133,31 @@ end;
 
 CTBySecondGroupEigenMatrix := function( eigenmats )
  Display( DiagonalMat( List( [1..DimensionsMat(eigenmats[1])[1]], i -> 1/Sqrt(eigenmats[2][1][i]) ) ) * TransposedMat( ComplexConjugate( eigenmats[2] ) ) );
+end;
+
+
+MatroidsOfDualCAlgebraByGroupAction := function( grp, pnt, act )
+ local mats, es, ev, ad, i;
+
+ ev := function( mat, vs )
+  local gen, im, i;
+  gen := GeneratorsOfVectorSpace(vs)[1];
+  im := gen*mat;
+  for i in [1..Length(gen)] do
+   if not IsZero(gen[i]) then return im[i]/gen[i]; fi;
+  od;
+ end;
+
+ ad := ZGEndGenerators( grp, pnt, act );
+ es := SimultaneousEigenspaces( ad );
+ mats := List( OrthogonalProjections( es ), Matroid );
+ for i in [1..Size(mats)] do
+  #Display( mats[i] );
+  Print( "Coefficients of rank generating function:\n" );
+  DisplayBivariatePolynomial( RankGeneratingPolynomial( mats[i] ) );
+  Print( "Eigenvalues:\n" );
+  Display( List( ad, m -> ev( m, es[i] ) ) );
+  Print( "\n" );
+ od;
+ return mats;
 end;
