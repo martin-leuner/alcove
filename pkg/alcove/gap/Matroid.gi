@@ -122,6 +122,20 @@ InstallMethod( DualMatroid,
 );
 
 
+#################
+## ComputedMinors
+
+InstallMethod( ComputedMinors,
+		"for matroids",
+		[ IsMatroid ],
+
+ function( matroid )
+  return rec( keys := [], minors := [] );
+ end
+
+);
+
+
 ##################
 ## SizeOfGroundSet
 
@@ -256,6 +270,32 @@ InstallMethod( RankFunction,
 );
 
 
+##################
+## ClosureFunction
+
+InstallMethod( ClosureFunction,
+		"for matroids",
+		[ IsMatroid ],
+
+ function( matroid )
+  return
+	function( X )
+	 local loopsOfMinor, x, i;
+
+	 loopsOfMinor := ShallowCopy( Loops( Contraction( matroid, X ) ) );
+	 for x in X do
+          for i in [1..Size(loopsOfMinor)] do
+           if x <= loopsOfMinor[i] then loopsOfMinor[i] := loopsOfMinor[i]+1; fi;
+	  od;
+	 od;
+
+	 return Union2( X, loopsOfMinor );
+	end;
+ end
+
+);
+
+
 ########
 ## Bases
 
@@ -298,7 +338,7 @@ InstallMethod( Bases,
 ###########
 ## Circuits
 
-InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
+InstallMethod( Circuits,
 		"for abstract matroids",
 		[ IsAbstractMatroidRep ],
 
@@ -308,7 +348,7 @@ InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
 
 );
 
-InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
+InstallMethod( Circuits,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
 
@@ -318,7 +358,7 @@ InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
 
 );
 
-InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
+InstallMethod( Circuits,
 		"for graphic matroids",
 		[ IsGraphicMatroidRep ],
 
@@ -332,7 +372,7 @@ InstallMethod( Circuits,				# CPT. PLACEHOLDER BECKONS
 ###########
 ## Cocircuits
 
-InstallMethod( Cocircuits,				# CPT. PLACEHOLDER BECKONS
+InstallMethod( Cocircuits,
 		"for abstract matroids",
 		[ IsAbstractMatroidRep ],
 
@@ -342,7 +382,7 @@ InstallMethod( Cocircuits,				# CPT. PLACEHOLDER BECKONS
 
 );
 
-InstallMethod( Cocircuits,				# CPT. PLACEHOLDER BECKONS
+InstallMethod( Cocircuits,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
 
@@ -352,7 +392,7 @@ InstallMethod( Cocircuits,				# CPT. PLACEHOLDER BECKONS
 
 );
 
-InstallMethod( Cocircuits,				# CPT. PLACEHOLDER BECKONS
+InstallMethod( Cocircuits,
 		"for graphic matroids",
 		[ IsGraphicMatroidRep ],
 
@@ -653,17 +693,44 @@ InstallMethod( MatrixOfVectorMatroid,
 ########
 ## Minor
 
+##
+InstallOtherMethod( Minor,
+		"for empty arguments",
+		[ IsMatroid, IsList and IsEmpty, IsList and IsEmpty ],
+		20,
+
+ function( matroid, del, contr )
+  return matroid;
+ end
+
+);
+
+##
 InstallMethod( Minor,
 		"for abstract matroids",
 		[ IsAbstractMatroidRep, IsList, IsList ],
 
-##
  function( matroid, del, contr )
-  local minorBases, t, sdel, scontr, minor;
+  local minorBases, t, sdel, scontr, minor, loopsColoops;
 
   sdel := Set( del );
   scontr := Set( contr );
   if not IsEmpty( Intersection2( sdel, scontr ) ) then Error( "<del> and <contr> must not meet" ); fi;
+
+# If loops or coloops will be deleted or contracted, delete rather than contract:
+
+  loopsColoops := Intersection2( Union2( Loops( matroid ), Coloops( matroid ) ), scontr );
+  scontr := Difference( scontr, loopsColoops );
+  sdel := Union2( sdel, loopsColoops );
+
+# Check whether we computed this minor already:
+
+  t := Position( ComputedMinors( matroid ).keys, [sdel,scontr] );
+  if not IsBool(t) then return ComputedMinors( matroid ).minors[t]; fi;
+  t := Position( ComputedMinors( DualMatroid( matroid ) ).keys, [scontr,sdel] );
+  if not IsBool(t) then return DualMatroid( ComputedMinors( DualMatroid( matroid ) ).minors[t] ); fi;
+
+# Otherwise compute it:
 
   minorBases := ShallowCopy( Bases( Matroid ) );
 
@@ -689,6 +756,9 @@ InstallMethod( Minor,
 	rec( groundSet := Immutable( Difference( Difference( GroundSet( matroid ), sdel ), scontr ) ), bases := Immutable( minorBases ) ) );
   SetParentAttr( minor, matroid );
 
+  Add( ComputedMinors( matroid ).keys, [sdel,scontr] );
+  Add( ComputedMinors( matroid ).minors, minor );
+
   return minor;
  end
 
@@ -700,7 +770,7 @@ InstallMethod( Minor,
 		[ IsVectorMatroidRep, IsList, IsList ],
 
  function( matroid, del, contr )
-  local loopsColoops, sdel, scontr, minorMat, minor, col, row, actRows, actCols, foundRow, foundCoeff, rowCoeff, calcCol;
+  local loopsColoops, sdel, scontr, minorMat, minor, col, row, actRows, actCols, foundRow, foundCoeff, rowCoeff, calcCol, t;
 
   sdel := Set( del );
   scontr := Set( contr );
@@ -714,6 +784,14 @@ InstallMethod( Minor,
   scontr := Difference( scontr, loopsColoops );
   sdel := Union2( sdel, loopsColoops );
 
+# Check whether we computed this minor already:
+
+  t := Position( ComputedMinors( matroid ).keys, [sdel,scontr] );
+  if not IsBool(t) then return ComputedMinors( matroid ).minors[t]; fi;
+  t := Position( ComputedMinors( DualMatroid( matroid ) ).keys, [scontr,sdel] );
+  if not IsBool(t) then return DualMatroid( ComputedMinors( DualMatroid( matroid ) ).minors[t] ); fi;
+
+# Otherwise compute it.
 # Delete columns and prepare matrix for contraction:
 
   minorMat := MutableCopyMat( MatrixOfVectorMatroid( matroid ) );
@@ -761,6 +839,9 @@ InstallMethod( Minor,
 
   minor := Objectify( TheTypeMinorOfVectorMatroid, rec( generatingMatrix := Immutable( minorMat ) ) );
   SetParentAttr( minor, matroid );
+
+  Add( ComputedMinors( matroid ).keys, [sdel,scontr] );
+  Add( ComputedMinors( matroid ).minors, minor );
 
   return minor;
  end

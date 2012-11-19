@@ -27,6 +27,10 @@ DeclareAttribute( "DualMatroid",
 DeclareAttribute( "ParentAttr",
 		IsMinorOfMatroid );
 
+DeclareAttribute( "ComputedMinors",
+		IsMatroid,
+		"mutable" );
+
 DeclareAttribute( "SimpleMatroid",
 		IsMatroid );
 
@@ -37,6 +41,9 @@ DeclareAttribute( "RankOfMatroid",
 		IsMatroid );
 
 DeclareAttribute( "RankFunction",
+		IsMatroid );
+
+DeclareAttribute( "ClosureFunction",
 		IsMatroid );
 
 DeclareAttribute( "Bases",
