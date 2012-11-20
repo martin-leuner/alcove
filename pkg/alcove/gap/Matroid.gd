@@ -55,6 +55,9 @@ DeclareAttribute( "Circuits",
 DeclareAttribute( "Cocircuits",
 		IsMatroid );
 
+DeclareAttribute( "Hyperplanes",
+		IsMatroid );
+
 DeclareAttribute( "TuttePolynomial",
 		IsMatroid );
 

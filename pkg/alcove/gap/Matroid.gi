@@ -36,7 +36,6 @@ DeclareRepresentation( "IsGraphicMatroidRep",
 ##
 ####################################
 
-
 BindGlobal( "TheFamilyOfMatroids",
 	NewFamily( "TheFamilyOfMatroids" , IsMatroid )
 );
@@ -339,31 +338,47 @@ InstallMethod( Bases,
 ## Circuits
 
 InstallMethod( Circuits,
-		"for abstract matroids",
-		[ IsAbstractMatroidRep ],
+		"for matroids",
+		[ IsMatroid ],
 
  function( matroid )
+  local loopsColoops, loopColoopFree, delCircs, conCircs, t, h, l, circs;
 
- end
+# Check all trivial cases:
 
-);
+  if SizeOfGroundSet( matroid ) = 0 then return []; fi;
+  if SizeOfGroundSet( matroid ) = 1 then return List( Loops( matroid ), i -> [i] ); fi;
 
-InstallMethod( Circuits,
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
+  if Rank( matroid ) = 0 then return List( GroundSet( matroid ), i -> [i] ); fi;
 
- function( matroid )
+  loopsColoops := Union2( Loops( matroid ), Coloops( matroid ) );
 
- end
+  if Size( loopsColoops ) = SizeOfGroundSet( matroid ) then return List( Loops( matroid ), i -> [i] ); fi;
 
-);
+# Delete loops and coloops and start recursion:
 
-InstallMethod( Circuits,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep ],
+  loopColoopFree := Deletion( matroid, loopsColoops );
+  t := SizeOfGroundSet( loopColoopFree );
 
- function( matroid )
+  delCircs := Circuits( Deletion( loopColoopFree, [t] ) );
+  conCircs := Circuits( Contraction( loopColoopFree, [t] ) );
 
+# Combine results:
+
+  circs := Union2( 	List( delCircs, h -> ShallowCopy(h) ),		# this line ensures that the lists in circs are mutable
+			List( Difference( conCircs, delCircs ), h -> Union2( h, [t] ) ) );
+
+# Shift labels according to deletion:
+
+  for l in loopsColoops do
+   for h in circs do
+    for t in [ 1 .. Size( h ) ] do
+     if h[t] >= l then h[t] := h[t] + 1; fi;
+    od;
+   od;
+  od;
+
+  return Union2( circs, List( Loops( matroid ), l -> [l] ) );
  end
 
 );
@@ -373,31 +388,25 @@ InstallMethod( Circuits,
 ## Cocircuits
 
 InstallMethod( Cocircuits,
-		"for abstract matroids",
-		[ IsAbstractMatroidRep ],
+		"for matroids",
+		[ IsMatroid ],
 
  function( matroid )
-
+  return Circuits( DualMatroid( matroid ) );
  end
 
 );
 
-InstallMethod( Cocircuits,
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
+
+##############
+## Hyperplanes
+
+InstallMethod( Hyperplanes,
+		"for matroids",
+		[ IsMatroid ],
 
  function( matroid )
-
- end
-
-);
-
-InstallMethod( Cocircuits,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep ],
-
- function( matroid )
-
+  return Set( List( Cocircuits( matroid ), c -> Difference( GroundSet( matroid ), c ) ) );
  end
 
 );
@@ -571,7 +580,8 @@ InstallMethod( IsSimpleMatroid,
 		[ IsMatroid ],
 
  function( matroid )
-  
+  return IsEmpty( Loops( matroid ) )
+	and ForAll( GroundSet( matroid ), i -> Size( ClosureFunction(matroid)([i]) ) = 1 );
  end
 
 );
@@ -1051,7 +1061,8 @@ InstallMethod( Matroid,
  function( mat )
   if not IsEmpty( mat[1] ) then Error( "constructor for empty vector matroids called on non-empty matrix" ); fi;
 
-  return ObjectifyWithAttributes( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(mat) ),
+  return ObjectifyWithAttributes( rec( generatingMatrix := Immutable(mat) ),
+			TheTypeVectorMatroid,
 			SizeOfGroundSet, 0,
 			RankOfMatroid, 0
 	);
@@ -1067,6 +1078,7 @@ InstallMethod( Matroid,
 		20,
 
  function( matobj )
+  if DimensionsMat( matobj )[2] = 0 then return Matroid( [[]] ); fi;		# call constructor for empty matrix
   return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
  end
 
@@ -1176,12 +1188,17 @@ InstallMethod( Display,
   local mat;
 
   if IsVectorMatroidRep( matroid ) then
-   mat := MatrixOfVectorMatroid( matroid );
 
-   Print( "The vector matroid of this matrix" );
-   if IsList( mat ) then Print( " over ", BaseDomain(mat) ); fi;
-   Print( ":\n" );
-   Display( mat );
+   if SizeOfGroundSet( matroid ) = 0 then
+    Print( "The vector matroid of the empty matrix." );
+   else
+    mat := MatrixOfVectorMatroid( matroid );
+
+    Print( "The vector matroid of this matrix" );
+    if IsList( mat ) then Print( " over ", BaseDomain(mat) ); fi;
+    Print( ":\n" );
+    Display( mat );
+   fi;
 
   elif IsGraphicMatroidRep( matroid ) then
 
