@@ -27,11 +27,11 @@ DeclareAttribute( "DualMatroid",
 DeclareAttribute( "ParentAttr",
 		IsMinorOfMatroid );
 
-DeclareAttribute( "ComputedMinors",
-		IsMatroid,
-		"mutable" );
-
-DeclareAttribute( "SimpleMatroid",
+#CMDeclareAttribute( "ComputedMinors",
+#CM		IsMatroid,
+#CM		"mutable" );
+#CM
+DeclareAttribute( "SimplifiedMatroid",
 		IsMatroid );
 
 DeclareAttribute( "SizeOfGroundSet",

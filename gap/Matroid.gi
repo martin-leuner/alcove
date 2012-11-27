@@ -119,20 +119,24 @@ InstallMethod( DualMatroid,
 );
 
 
-#################
-## ComputedMinors
-
-InstallMethod( ComputedMinors,
-		"for matroids",
-		[ IsMatroid ],
-
- function( matroid )
-  return rec( keys := [], minors := [] );
- end
-
-);
+####################
+## SimplifiedMatroid
 
 
+#CM#################
+#CM## ComputedMinors
+#CM
+#CMInstallMethod( ComputedMinors,
+#CM		"for matroids",
+#CM		[ IsMatroid ],
+#CM
+#CM function( matroid )
+#CM  return rec( keys := [], minors := [] );
+#CM end
+#CM
+#CM);
+#CM
+#CM
 ##################
 ## SizeOfGroundSet
 
@@ -728,15 +732,15 @@ InstallMethod( Minor,
   loopsColoops := Intersection2( Union2( Loops( matroid ), Coloops( matroid ) ), scontr );
   scontr := Difference( scontr, loopsColoops );
   sdel := Union2( sdel, loopsColoops );
-
-# Check whether we computed this minor already:
-
-  t := Position( ComputedMinors( matroid ).keys, [sdel,scontr] );
-  if not IsBool(t) then return ComputedMinors( matroid ).minors[t]; fi;
-  t := Position( ComputedMinors( DualMatroid( matroid ) ).keys, [scontr,sdel] );
-  if not IsBool(t) then return DualMatroid( ComputedMinors( DualMatroid( matroid ) ).minors[t] ); fi;
-
-# Otherwise compute it:
+#CM
+#CM# Check whether we computed this minor already:
+#CM
+#CM  t := Position( ComputedMinors( matroid ).keys, [sdel,scontr] );
+#CM  if not IsBool(t) then return ComputedMinors( matroid ).minors[t]; fi;
+#CM  t := Position( ComputedMinors( DualMatroid( matroid ) ).keys, [scontr,sdel] );
+#CM  if not IsBool(t) then return DualMatroid( ComputedMinors( DualMatroid( matroid ) ).minors[t] ); fi;
+#CM
+#CM# Otherwise compute it:
 
   minorBases := ShallowCopy( Bases( Matroid ) );
 
@@ -762,9 +766,9 @@ InstallMethod( Minor,
 	rec( groundSet := Immutable( Difference( Difference( GroundSet( matroid ), sdel ), scontr ) ), bases := Immutable( minorBases ) ) );
   SetParentAttr( minor, matroid );
 
-  Add( ComputedMinors( matroid ).keys, [sdel,scontr] );
-  Add( ComputedMinors( matroid ).minors, minor );
-
+#CM  Add( ComputedMinors( matroid ).keys, [sdel,scontr] );
+#CM  Add( ComputedMinors( matroid ).minors, minor );
+#CM
   return minor;
  end
 
@@ -790,14 +794,14 @@ InstallMethod( Minor,
   scontr := Difference( scontr, loopsColoops );
   sdel := Union2( sdel, loopsColoops );
 
-# Check whether we computed this minor already:
-
-  t := Position( ComputedMinors( matroid ).keys, [sdel,scontr] );
-  if not IsBool(t) then return ComputedMinors( matroid ).minors[t]; fi;
-  t := Position( ComputedMinors( DualMatroid( matroid ) ).keys, [scontr,sdel] );
-  if not IsBool(t) then return DualMatroid( ComputedMinors( DualMatroid( matroid ) ).minors[t] ); fi;
-
-# Otherwise compute it.
+#CM# Check whether we computed this minor already:
+#CM
+#CM  t := Position( ComputedMinors( matroid ).keys, [sdel,scontr] );
+#CM  if not IsBool(t) then return ComputedMinors( matroid ).minors[t]; fi;
+#CM  t := Position( ComputedMinors( DualMatroid( matroid ) ).keys, [scontr,sdel] );
+#CM  if not IsBool(t) then return DualMatroid( ComputedMinors( DualMatroid( matroid ) ).minors[t] ); fi;
+#CM
+#CM# Otherwise compute it.
 # Delete columns and prepare matrix for contraction:
 
   mat := MatrixOfVectorMatroid( matroid );
@@ -846,9 +850,9 @@ InstallMethod( Minor,
   minor := Objectify( TheTypeMinorOfVectorMatroid, rec( generatingMatrix := Immutable( minorMat ) ) );
   SetParentAttr( minor, matroid );
 
-  Add( ComputedMinors( matroid ).keys, [sdel,scontr] );
-  Add( ComputedMinors( matroid ).minors, minor );
-
+#CM  Add( ComputedMinors( matroid ).keys, [sdel,scontr] );
+#CM  Add( ComputedMinors( matroid ).minors, minor );
+#CM
   return minor;
  end
 
@@ -1204,7 +1208,7 @@ InstallMethod( Display,
     mat := MatrixOfVectorMatroid( matroid );
 
     Print( "The vector matroid of this matrix" );
-    if IsList( mat ) then Print( " over ", BaseDomain(mat) ); fi;
+    Print( " over ", HomalgRing(mat) );
     Print( ":\n" );
     Display( mat );
    fi;
