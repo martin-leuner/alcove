@@ -107,9 +107,7 @@ InstallMethod( DualMatroid,
   local dualmatrix, dual, mat;
   mat := MatrixOfVectorMatroid( matroid );
 
-  dualmatrix := NullspaceMat( TransposedMat( mat ) );
-
-  if IsList( dualmatrix ) and IsEmpty( dualmatrix ) then dualmatrix := [ List( [ 1 .. SizeOfGroundSet(matroid) ], i -> Zero(BaseDomain(mat)) ) ]; fi;
+  dualmatrix := SyzygiesOfRows( Involution( mat ) );
 
   dual := Matroid( dualmatrix );
   SetDualMatroid( dual, matroid );
@@ -153,7 +151,7 @@ InstallMethod( SizeOfGroundSet,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-   return DimensionsMat( MatrixOfVectorMatroid(matroid) )[2];
+   return NrColumns( MatrixOfVectorMatroid( matroid ) );
  end
 
 );
@@ -197,7 +195,7 @@ InstallMethod( RankOfMatroid,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  return RankMat( MatrixOfVectorMatroid(matroid) );
+  return RowRankOfMatrix( MatrixOfVectorMatroid(matroid) );
  end
 
 );
@@ -253,7 +251,7 @@ InstallMethod( RankFunction,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  return function( X ) return RankSubMatrix( MatrixOfVectorMatroid( matroid ), [ 1 .. DimensionsMat(MatrixOfVectorMatroid(matroid))[1] ], X ); end;
+  return function( X ) return RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid( matroid ), X ) ); end;
  end
 
 );
@@ -318,7 +316,7 @@ InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
 
  function( matroid )
   return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], Rank( matroid ) ),
-		b -> RankSubMatrix( MatrixOfVectorMatroid(matroid), [1..DimensionsMat(MatrixOfVectorMatroid(matroid))[1]], b ) = Rank( matroid ) );
+		b -> RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid(matroid), b ) ) = Rank( matroid ) );
  end
 
 );
@@ -384,7 +382,7 @@ InstallMethod( Circuits,
 );
 
 
-###########
+#############
 ## Cocircuits
 
 InstallMethod( Cocircuits,
@@ -492,9 +490,7 @@ InstallMethod( Loops,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  local dims;
-  dims := DimensionsMat( MatrixOfVectorMatroid( matroid ) );
-  return Filtered( [ 1 .. dims[2] ], col -> ForAll( [ 1 .. dims[1] ], row -> IsZero( MatElm( MatrixOfVectorMatroid(matroid), row, col ) ) ) );
+  return ZeroColumns( MatrixOfVectorMatroid( matroid ) );
  end
 
 );
@@ -780,7 +776,7 @@ InstallMethod( Minor,
 		[ IsVectorMatroidRep, IsList, IsList ],
 
  function( matroid, del, contr )
-  local loopsColoops, sdel, scontr, minorMat, minor, col, row, actRows, actCols, foundRow, foundCoeff, rowCoeff, calcCol, t;
+  local loopsColoops, sdel, scontr, minorMat, minor, col, row, actRows, actCols, foundRow, foundCoeff, rowCoeff, calcCol, t, mat;
 
   sdel := Set( del );
   scontr := Set( contr );
@@ -804,8 +800,9 @@ InstallMethod( Minor,
 # Otherwise compute it.
 # Delete columns and prepare matrix for contraction:
 
-  minorMat := MutableCopyMat( MatrixOfVectorMatroid( matroid ) );
-  actCols := Difference( [ 1 .. DimensionsMat( minorMat )[2] ], sdel );
+  mat := MatrixOfVectorMatroid( matroid );
+  minorMat := EntriesOfHomalgMatrixAsListList( mat );
+  actCols := Difference( GroundSet( matroid ), sdel );
 
 # Contraction:
 
@@ -814,9 +811,9 @@ InstallMethod( Minor,
 
    actCols := Difference( actCols, [ col ] );
    foundRow := 0;
-   for row in actRows do  
+   for row in actRows do
 
-    rowCoeff := MatElm( minorMat, row, col );
+    rowCoeff := minorMat[row][col];
     if not IsZero( rowCoeff ) then
 
      if foundRow = 0 then
@@ -828,8 +825,7 @@ InstallMethod( Minor,
 
       rowCoeff := rowCoeff/foundCoeff;
       for calcCol in actCols do
-       SetMatElm( minorMat, row, calcCol,
-	MatElm(minorMat,row,calcCol) - rowCoeff * MatElm(minorMat,foundRow,calcCol) );
+       minorMat[row][calcCol] := minorMat[row][calcCol] - rowCoeff * minorMat[foundRow][calcCol];
       od;
 
      fi;
@@ -841,10 +837,10 @@ InstallMethod( Minor,
 
   od;
 
-  if IsEmpty( actRows ) or IsEmpty( actCols ) then
-   minorMat := Matrix( [ List( [ 1 .. Size(actCols) ], c -> Zero(BaseDomain(minorMat)) ) ], minorMat );
+  if IsEmpty( actRows ) then
+   minorMat := HomalgMatrix( [], 0, Size( actCols ), HomalgRing( mat ) );
   else
-   minorMat := ExtractSubMatrix( minorMat, actRows, actCols );
+   minorMat := CertainColumns( CertainRows( HomalgMatrix( minorMat, HomalgRing( mat ) ), actRows ), actCols );
   fi;
 
   minor := Objectify( TheTypeMinorOfVectorMatroid, rec( generatingMatrix := Immutable( minorMat ) ) );
@@ -1079,6 +1075,19 @@ InstallMethod( Matroid,
 
  function( matobj )
   if DimensionsMat( matobj )[2] = 0 then return Matroid( [[]] ); fi;		# call constructor for empty matrix
+  return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
+ end
+
+);
+
+
+##
+InstallMethod( Matroid,
+		"by homalg matrix",
+		[ IsHomalgMatrix ],
+		30,
+
+ function( matobj )
   return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
  end
 

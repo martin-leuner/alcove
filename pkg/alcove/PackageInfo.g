@@ -6,7 +6,7 @@ PackageName := "alcove",
 Subtitle := "A package for algebraic combinatorics",
 
 Version :=  Maximum( [
-  "2012-11-14", ## Martin's version ## in case this package should ever be edited by more than one person
+  "2012-11-23", ## Martin's version ## in case this package should ever be edited by more than one person
 ] ),
 
 Date := ~.Version{[ 1 .. 10 ]},
@@ -68,8 +68,8 @@ Status := "dev",
 
 Dependencies := rec(
   GAP := ">=4.5",
-  NeededOtherPackages := [  ],
-  SuggestedOtherPackages := [  ],
+  NeededOtherPackages := [ [ "MatricesForHomalg", ">=0" ], [ "RingsForHomalg", ">=0" ] ],
+  SuggestedOtherPackages := [ [ "GaussForHomalg", ">=0" ] ],
   ExternalConditions := []
                       
 ),
