@@ -24,10 +24,10 @@ DeclareRepresentation( "IsVectorMatroidRep",
 	[ "generatingMatrix" ]
 );
 
-DeclareRepresentation( "IsGraphicMatroidRep",
-	IsMatroid and IsAttributeStoringRep,
-	[ "incidenceMatrix" ]
-);
+#DeclareRepresentation( "IsGraphicMatroidRep",
+#	IsMatroid and IsAttributeStoringRep,
+#	[ "incidenceMatrix" ]
+#);
 
 
 ####################################
@@ -60,15 +60,15 @@ BindGlobal( "TheTypeMinorOfVectorMatroid",
 		IsVectorMatroidRep and IsMinorOfMatroid )
 );
 
-BindGlobal( "TheTypeGraphicMatroid",
-	NewType( TheFamilyOfMatroids,
-		IsGraphicMatroidRep )
-);
+#BindGlobal( "TheTypeGraphicMatroid",
+#	NewType( TheFamilyOfMatroids,
+#		IsGraphicMatroidRep )
+#);
 
-BindGlobal( "TheTypeMinorOfGraphicMatroid",
-	NewType( TheFamilyOfMatroids,
-		IsGraphicMatroidRep and IsMinorOfMatroid )
-);
+#BindGlobal( "TheTypeMinorOfGraphicMatroid",
+#	NewType( TheFamilyOfMatroids,
+#		IsGraphicMatroidRep and IsMinorOfMatroid )
+#);
 
 
 ####################################
@@ -168,26 +168,6 @@ InstallMethod( SizeOfGroundSet,
 
 );
 
-InstallMethod( SizeOfGroundSet,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep ],
-
- function( matroid )
-  local vertnum;
-  if IsBound( matroid!.incidenceMatrix ) then
-
-   vertnum := DimensionsMat( matroid!.incidenceMatrix )[1];
-   return Sum( List( [ 1 .. vertnum ], i ->
-		Sum( List( [ i .. vertnum ], j -> matroid!.incidenceMatrix[i][j] ) )
-	) );
-
-  else
-   Error( "this graphic matroid apparently lost its incidence matrix, this shouldn't happen" );
-  fi;
- end
-
-);
-
 
 #######
 ## Rank
@@ -208,16 +188,6 @@ InstallMethod( RankOfMatroid,
 
  function( matroid )
   return RowRankOfMatrix( MatrixOfVectorMatroid(matroid) );
- end
-
-);
-
-InstallMethod( RankOfMatroid,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep ],
-
- function( matroid )
-
  end
 
 );
@@ -264,16 +234,6 @@ InstallMethod( RankFunction,
 
  function( matroid )
   return function( X ) return RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid( matroid ), X ) ); end;
- end
-
-);
-
-InstallMethod( RankFunction,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep ],
-
- function( matroid )
-
  end
 
 );
@@ -329,16 +289,6 @@ InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
  function( matroid )
   return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], Rank( matroid ) ),
 		b -> RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid(matroid), b ) ) = Rank( matroid ) );
- end
-
-);
-
-InstallMethod( Bases,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep ],
-
- function( matroid )
-
  end
 
 );
@@ -507,16 +457,6 @@ InstallMethod( Loops,
 
 );
 
-InstallMethod( Loops,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep ],
-
- function( matroid )
-
- end
-
-);
-
 
 ########
 ## Coloops
@@ -545,16 +485,6 @@ InstallMethod( Coloops,
 
  function( matroid )
   return Loops( DualMatroid( matroid ) );
- end
-
-);
-
-InstallMethod( Coloops,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep ],
-
- function( matroid )
-
  end
 
 );
@@ -653,35 +583,6 @@ InstallMethod( GroundSet,
 
  function( matroid )
   return [ 1 .. SizeOfGroundSet(matroid) ];
- end
-
-);
-
-InstallMethod( GroundSet,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep ],
-
- function( matroid )
-  local i, j, edges, vertnum, multiplicity;
-
-  if IsBound( matroid!.incidenceMatrix ) then
-
-   vertnum := DimensionsMat( matroid!.incidenceMatrix )[1];
-   edges := [];
-   for i in [ 1 .. vertnum ] do
-    for j in [ i .. vertnum ] do
-     multiplicity := matroid!.incidenceMatrix[i][j];
-     if multiplicity <> 0 then
-      Add( edges, [Set([i,j]),multiplicity] );
-     fi;
-    od;
-   od;
-   return edges;
-
-  else
-   Error( "this graphic matroid apparently lost its incidence matrix, this shouldn't happen" );
-  fi;
-
  end
 
 );
@@ -838,17 +739,6 @@ InstallMethod( Minor,
   SetParentAttr( minor, matroid );
 
   return minor;
- end
-
-);
-
-##
-InstallMethod( Minor,
-		"for graphic matroids",
-		[ IsGraphicMatroidRep, IsList, IsList ],
-
- function( matroid, del, contr )
-
  end
 
 );
@@ -1163,11 +1053,9 @@ InstallMethod( PrintObj,
  
    if IsVectorMatroidRep( matroid ) then
     Print( " vector" );
-   elif IsGraphicMatroidRep( matroid ) then
-    Print( " graphic" );
    fi;
  
-   ## Print( " matroid over a ", SizeOfGroundSet( matroid ), " element ground set>" );
+   ## Print( " matroid on ", SizeOfGroundSet( matroid ), " elements>" );
    Print( " matroid>" );
 
   fi;
@@ -1191,15 +1079,11 @@ InstallMethod( Display,
    else
     mat := MatrixOfVectorMatroid( matroid );
 
-    Print( "The vector matroid of this matrix" );
-    Print( " over ", HomalgRing(mat) );
+    Print( "The vector matroid of this matrix over " );
+    View( HomalgRing(mat) );
     Print( ":\n" );
     Display( mat );
    fi;
-
-  elif IsGraphicMatroidRep( matroid ) then
-
-   Print( "The matroid of the (multi-)graph with this incidence matrix:\n" );
 
   else
 

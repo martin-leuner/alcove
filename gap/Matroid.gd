@@ -66,6 +66,9 @@ DeclareAttribute( "Loops",
 DeclareAttribute( "Coloops",
 		IsMatroid );
 
+DeclareAttribute( "Twitter",
+		IsMatroid );
+
 
 ####################################
 ##
