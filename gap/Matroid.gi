@@ -122,6 +122,28 @@ InstallMethod( DualMatroid,
 ####################
 ## SimplifiedMatroid
 
+InstallMethod( SimplifiedMatroid,
+		"for matroids",
+		[ IsMatroid ],
+
+ function( matroid )
+  local del, checkset, currParClass;
+
+  checkset := Difference( GroundSet( matroid ), Loops( matroid ) );
+  del := Loops( matroid );
+
+  while not IsEmpty( checkset ) do
+   currParClass := ClosureFunction(matroid)( checkset[1] );
+   checkset := Difference( checkset, currParClass );
+   Remove( currParClass );
+   del := Union2( del, currParClass );
+  od;
+
+  return Deletion( matroid, del );
+ end
+
+);
+
 
 ##################
 ## SizeOfGroundSet
@@ -566,8 +588,7 @@ InstallMethod( IsSimpleMatroid,
 		[ IsMatroid ],
 
  function( matroid )
-  return IsEmpty( Loops( matroid ) )
-	and ForAll( GroundSet( matroid ), i -> Size( ClosureFunction(matroid)([i]) ) = 1 );
+  return SimplifiedMatroid( matroid ) = matroid;
  end
 
 );
