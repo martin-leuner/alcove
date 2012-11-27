@@ -27,10 +27,6 @@ DeclareAttribute( "DualMatroid",
 DeclareAttribute( "ParentAttr",
 		IsMinorOfMatroid );
 
-#CMDeclareAttribute( "ComputedMinors",
-#CM		IsMatroid,
-#CM		"mutable" );
-#CM
 DeclareAttribute( "SimplifiedMatroid",
 		IsMatroid );
 

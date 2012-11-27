@@ -123,20 +123,6 @@ InstallMethod( DualMatroid,
 ## SimplifiedMatroid
 
 
-#CM#################
-#CM## ComputedMinors
-#CM
-#CMInstallMethod( ComputedMinors,
-#CM		"for matroids",
-#CM		[ IsMatroid ],
-#CM
-#CM function( matroid )
-#CM  return rec( keys := [], minors := [] );
-#CM end
-#CM
-#CM);
-#CM
-#CM
 ##################
 ## SizeOfGroundSet
 
@@ -732,15 +718,6 @@ InstallMethod( Minor,
   loopsColoops := Intersection2( Union2( Loops( matroid ), Coloops( matroid ) ), scontr );
   scontr := Difference( scontr, loopsColoops );
   sdel := Union2( sdel, loopsColoops );
-#CM
-#CM# Check whether we computed this minor already:
-#CM
-#CM  t := Position( ComputedMinors( matroid ).keys, [sdel,scontr] );
-#CM  if not IsBool(t) then return ComputedMinors( matroid ).minors[t]; fi;
-#CM  t := Position( ComputedMinors( DualMatroid( matroid ) ).keys, [scontr,sdel] );
-#CM  if not IsBool(t) then return DualMatroid( ComputedMinors( DualMatroid( matroid ) ).minors[t] ); fi;
-#CM
-#CM# Otherwise compute it:
 
   minorBases := ShallowCopy( Bases( Matroid ) );
 
@@ -766,9 +743,6 @@ InstallMethod( Minor,
 	rec( groundSet := Immutable( Difference( Difference( GroundSet( matroid ), sdel ), scontr ) ), bases := Immutable( minorBases ) ) );
   SetParentAttr( minor, matroid );
 
-#CM  Add( ComputedMinors( matroid ).keys, [sdel,scontr] );
-#CM  Add( ComputedMinors( matroid ).minors, minor );
-#CM
   return minor;
  end
 
@@ -794,14 +768,6 @@ InstallMethod( Minor,
   scontr := Difference( scontr, loopsColoops );
   sdel := Union2( sdel, loopsColoops );
 
-#CM# Check whether we computed this minor already:
-#CM
-#CM  t := Position( ComputedMinors( matroid ).keys, [sdel,scontr] );
-#CM  if not IsBool(t) then return ComputedMinors( matroid ).minors[t]; fi;
-#CM  t := Position( ComputedMinors( DualMatroid( matroid ) ).keys, [scontr,sdel] );
-#CM  if not IsBool(t) then return DualMatroid( ComputedMinors( DualMatroid( matroid ) ).minors[t] ); fi;
-#CM
-#CM# Otherwise compute it.
 # Delete columns and prepare matrix for contraction:
 
   mat := MatrixOfVectorMatroid( matroid );
@@ -850,9 +816,6 @@ InstallMethod( Minor,
   minor := Objectify( TheTypeMinorOfVectorMatroid, rec( generatingMatrix := Immutable( minorMat ) ) );
   SetParentAttr( minor, matroid );
 
-#CM  Add( ComputedMinors( matroid ).keys, [sdel,scontr] );
-#CM  Add( ComputedMinors( matroid ).minors, minor );
-#CM
   return minor;
  end
 
