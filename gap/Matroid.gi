@@ -519,7 +519,7 @@ InstallMethod( TuttePolynomial,
     if not IsZero( c ) then
      c := -c/nz;
      for j in [ 1 .. cdim ] do
-      delMat[i][j] := delMat[i][j] + c*MatElm(delMat,1,j);
+      delMat[i][j] := delMat[i][j] + c*delMat[1][j];
      od;
     fi;
    od;
