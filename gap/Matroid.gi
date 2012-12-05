@@ -145,6 +145,25 @@ InstallMethod( SimplifiedMatroid,
 );
 
 
+#############
+## NormalForm
+
+InstallMethod( NormalForm,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  local nf, posOfNonUnitCols;
+
+  nf := RowReducedEchelonForm( MatrixOfVectorMatroid( matroid ) );
+  posOfNonUnitCols := Difference( GroundSet( matroid ), PositionOfFirstNonZeroEntryPerRow( nf ) );
+
+  return [ CertainColumns( nf, posOfNonUnitCols ), posOfNonUnitCols ];
+ end
+
+);
+
+
 ##################
 ## SizeOfGroundSet
 
@@ -376,7 +395,7 @@ InstallMethod( Hyperplanes,
 ## TuttePolynomial
 
 InstallMethod( TuttePolynomial,
-		"for matroids",
+		"generic method for matroids",
 		[ IsMatroid ],
 
  function( matroid )
@@ -384,10 +403,10 @@ InstallMethod( TuttePolynomial,
 
   x := Indeterminate( Integers, 1 );
   y := Indeterminate( Integers, 2 );
-  if not HasIndeterminateName( FamilyObj(x), 1 ) and not HasIndeterminateName( FamilyObj(x), 2 ) then
-   SetIndeterminateName( FamilyObj(x), 1, "x" );
-   SetIndeterminateName( FamilyObj(x), 2, "y" );
-  fi;
+#  if not HasIndeterminateName( FamilyObj(x), 1 ) and not HasIndeterminateName( FamilyObj(x), 2 ) then
+#   SetIndeterminateName( FamilyObj(x), 1, "x" );
+#   SetIndeterminateName( FamilyObj(x), 2, "y" );
+#  fi;
 
 # Check whether Tutte polynomial of dual matroid is already known:
   if HasDualMatroid( matroid ) and HasTuttePolynomial( DualMatroid( matroid ) ) then
@@ -412,6 +431,113 @@ InstallMethod( TuttePolynomial,
   min := Deletion( matroid, loopsColoops );
 
   return p * ( TuttePolynomial( Deletion( min, [1] ) ) + TuttePolynomial( Contraction( min, [1] ) ) );
+ end
+
+);
+
+InstallMethod( TuttePolynomial,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  local x, y, recursiveTutteCon, recursiveTutteDel, recursionStep, loopsColoops, minorMat;
+
+  x := Indeterminate( Integers, 1 );
+  y := Indeterminate( Integers, 2 );
+  if not HasIndeterminateName( FamilyObj(x), 1 ) and not HasIndeterminateName( FamilyObj(x), 2 ) then
+   SetIndeterminateName( FamilyObj(x), 1, "x" );
+   SetIndeterminateName( FamilyObj(x), 2, "y" );
+  fi;
+
+##
+# Check after contraction:
+
+  recursiveTutteCon := function( minorMatrix )
+   local nonLoops;
+
+# Contraction may create new loops, check for those:
+   nonLoops := NonZeroColumns( minorMatrix );
+
+   if Size( nonLoops ) < NrColumns( minorMatrix ) then
+    minorMatrix := CertainColumns( minorMatrix, nonLoops );
+    return y^( NrColumns(minorMatrix) - Size(nonLoops) ) * recursionStep( minorMatrix );
+   fi;
+
+   return recursionStep( minorMatrix );
+  end;		# recursiveTutteCon
+##
+
+##
+# Check after deletion:
+
+  recursiveTutteDel := function( minorMatrix )
+   local nonColoops;
+
+# Contraction may create new coloops, check for those:
+   nonColoops := NonZeroRows( minorMatrix );
+
+   if Size( nonColoops ) < NrRows( minorMatrix ) then
+    minorMatrix := CertainColumns( minorMatrix, nonColoops );
+    return x^( NrRows(minorMatrix) - Size(nonColoops) ) * recursionStep( minorMatrix );
+   fi;
+
+   return recursionStep( minorMatrix );
+  end;		# recursiveTutteDel
+##
+
+##
+# Basic recursion step:
+
+  recursionStep := function( mat )
+   local i, j, c, nz, rdim, cdim, col, delMat;
+
+# Termination:
+   if NrRows( mat ) = 1 then
+    return x^( Size( NonZeroColumns(mat) ) + 1 ) * y^Size( ZeroColumns );
+   elif NrRows( mat ) = 0 then
+    return y^NrColumns( mat );
+   elif NrColumns( mat ) = 0 then
+    return x^NrRows( mat );
+   fi;
+
+# Find first non-zero entry in first row:
+   for i in [ 1 .. NrColumns(mat) ] do
+    nz := MatElm( mat, 1, i );
+    if not IsZero( nz ) then
+     col := i;
+     break;
+    fi;
+   od;
+
+# Compute matrix for deletion minor:
+   delMat := EntriesOfHomalgMatrixAsListList( CertainColumns( mat, Difference( [1..NrColumns(mat)], [col] ) ) );
+   rdim := NrRows(mat);
+   cdim := NrColumns(mat) - 1;
+
+   for i in [ 1 .. rdim ] do
+    c := mat[i][col];
+    if not IsZero( c ) then
+     c := -c/nz;
+     for j in [ 1 .. cdim ] do
+      delMat[i][j] := delMat[i][j] + c*MatElm(delMat,1,j);
+     od;
+    fi;
+   od;
+
+   delMat := HomalgMatrix( delMat, HomalgRing(mat) );
+
+   return recursiveTutteCon( CertainRows( mat, [ 2 .. NrRows(mat) ] ) )
+	+ recursiveTutteDel( delMat );
+  end;
+##
+
+# Prepare for recursion:
+
+  minorMat := NormalForm( matroid )[1];
+  loopsColoops := Union2( Loops( matroid ), Coloops( matroid ) );
+  minorMat := CertainRows( CertainColumns( minorMat, NonZeroColumns( minorMat ) ), NonZeroRows( minorMat ) );
+
+  return x^Size( Coloops( matroid ) ) * y^Size( Loops( matroid ) ) * recursionStep( minorMat );
  end
 
 );
@@ -484,7 +610,21 @@ InstallMethod( Coloops,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  return Loops( DualMatroid( matroid ) );
+
+  if HasNormalForm( matroid ) then
+
+   if IsEmpty( NormalForm( matroid )[2] ) then
+    return GroundSet( matroid );
+   else
+    return List( ZeroRows( NormalForm( matroid )[1] ), i -> Difference( GroundSet( matroid ), NormalForm( matroid )[2] )[i] );
+   fi;
+
+  else
+
+   return Loops( DualMatroid( matroid ) );
+
+  fi;
+
  end
 
 );

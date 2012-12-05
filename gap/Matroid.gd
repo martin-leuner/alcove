@@ -30,6 +30,9 @@ DeclareAttribute( "ParentAttr",
 DeclareAttribute( "SimplifiedMatroid",
 		IsMatroid );
 
+DeclareAttribute( "NormalForm",
+		IsVectorMatroidRep );
+
 DeclareAttribute( "SizeOfGroundSet",
 		IsMatroid );
 
