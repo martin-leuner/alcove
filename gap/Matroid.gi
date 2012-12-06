@@ -90,7 +90,7 @@ InstallMethod( DualMatroid,
 
   dualbases := Set( List( Bases( matroid ), b -> Difference( GroundSet( matroid ), b ) ) );
 
-  dual := Matroid( GroundSet( matroid ), dualbases );
+  dual := MatroidNC( GroundSet( matroid ), dualbases );
   SetDualMatroid( dual, matroid );
 
   return dual;
@@ -399,14 +399,10 @@ InstallMethod( TuttePolynomial,
 		[ IsMatroid ],
 
  function( matroid )
-  local loopNum, coloopNum, loopsColoops, x, y, p, min;
+  local loopNum, coloopNum, loopsColoops, x, y, p, min, n;
 
   x := Indeterminate( Integers, 1 );
   y := Indeterminate( Integers, 2 );
-#  if not HasIndeterminateName( FamilyObj(x), 1 ) and not HasIndeterminateName( FamilyObj(x), 2 ) then
-#   SetIndeterminateName( FamilyObj(x), 1, "x" );
-#   SetIndeterminateName( FamilyObj(x), 2, "y" );
-#  fi;
 
 # Check whether Tutte polynomial of dual matroid is already known:
   if HasDualMatroid( matroid ) and HasTuttePolynomial( DualMatroid( matroid ) ) then
@@ -418,9 +414,11 @@ InstallMethod( TuttePolynomial,
 
   p := x^coloopNum * y^loopNum;
 
+  n := SizeOfGroundSet( matroid );
+
 # Termination case:
 
-  if loopNum + coloopNum = SizeOfGroundSet( matroid ) then
+  if loopNum + coloopNum = n then
    return p;
   fi;
 
@@ -430,7 +428,9 @@ InstallMethod( TuttePolynomial,
 
   min := Deletion( matroid, loopsColoops );
 
-  return p * ( TuttePolynomial( Deletion( min, [1] ) ) + TuttePolynomial( Contraction( min, [1] ) ) );
+  n := GroundSet( min )[1];
+
+  return p * ( TuttePolynomial( Deletion( min, [n] ) ) + TuttePolynomial( Contraction( min, [n] ) ) );
  end
 
 );
@@ -459,8 +459,7 @@ InstallMethod( TuttePolynomial,
    nonLoops := NonZeroColumns( minorMatrix );
 
    if Size( nonLoops ) < NrColumns( minorMatrix ) then
-    minorMatrix := CertainColumns( minorMatrix, nonLoops );
-    return y^( NrColumns(minorMatrix) - Size(nonLoops) ) * recursionStep( minorMatrix );
+    return y^( NrColumns(minorMatrix) - Size(nonLoops) ) * recursionStep( CertainColumns( minorMatrix, nonLoops ) );
    fi;
 
    return recursionStep( minorMatrix );
@@ -477,8 +476,7 @@ InstallMethod( TuttePolynomial,
    nonColoops := NonZeroRows( minorMatrix );
 
    if Size( nonColoops ) < NrRows( minorMatrix ) then
-    minorMatrix := CertainColumns( minorMatrix, nonColoops );
-    return x^( NrRows(minorMatrix) - Size(nonColoops) ) * recursionStep( minorMatrix );
+    return x^( NrRows(minorMatrix) - Size(nonColoops) ) * recursionStep( CertainRows( minorMatrix, nonColoops ) );
    fi;
 
    return recursionStep( minorMatrix );
@@ -492,12 +490,17 @@ InstallMethod( TuttePolynomial,
    local i, j, c, nz, rdim, cdim, col, delMat;
 
 # Termination:
-   if NrRows( mat ) = 1 then
-    return x^( Size( NonZeroColumns(mat) ) + 1 ) * y^Size( ZeroColumns );
-   elif NrRows( mat ) = 0 then
-    return y^NrColumns( mat );
-   elif NrColumns( mat ) = 0 then
-    return x^NrRows( mat );
+   rdim := NrRows( mat );
+   cdim := NrColumns( mat );
+
+   if rdim = 1 then
+    return x - 1 + Sum( List( [ 1 .. cdim + 1 ], j -> Binomial(cdim+1,j) * (y-1)^(j-1) ) );
+   elif cdim = 1 then
+    return y - 1 + Sum( List( [ 0 .. rdim ], j -> Binomial(rdim+1,j) * (x-1)^(rdim-j) ) );
+   elif rdim = 0 then
+    return y^cdim;
+   elif cdim = 0 then
+    return x^rdim;
    fi;
 
 # Find first non-zero entry in first row:
@@ -511,11 +514,10 @@ InstallMethod( TuttePolynomial,
 
 # Compute matrix for deletion minor:
    delMat := EntriesOfHomalgMatrixAsListList( CertainColumns( mat, Difference( [1..NrColumns(mat)], [col] ) ) );
-   rdim := NrRows(mat);
-   cdim := NrColumns(mat) - 1;
+   cdim := cdim - 1;
 
-   for i in [ 1 .. rdim ] do
-    c := mat[i][col];
+   for i in [ 2 .. rdim ] do
+    c := MatElm( mat, i, col );
     if not IsZero( c ) then
      c := -c/nz;
      for j in [ 1 .. cdim ] do
@@ -781,7 +783,7 @@ InstallMethod( Minor,
   scontr := Difference( scontr, loopsColoops );
   sdel := Union2( sdel, loopsColoops );
 
-  minorBases := ShallowCopy( Bases( Matroid ) );
+  minorBases := ShallowCopy( Bases( matroid ) );
 
 # Deletion:
 
@@ -974,7 +976,7 @@ InstallMethod( Matroid,
 # Check base exchange axiom:
   if ForAny( baselist, b1 -> ForAny( baselist, b2 ->
 	ForAny( Difference(b1,b2), e -> ForAll( Difference(b2,b1), f ->
-		not Union( Difference( b1, [e] ), [f] ) in baselist
+		not Union2( Difference( b1, [e] ), [f] ) in baselist
 	) )
   ) ) then Error( "bases must satisfy the exchange axiom" ); fi;
 
@@ -1023,7 +1025,7 @@ InstallMethod( Matroid,
 # Check base exchange axiom:
   if ForAny( baselist, b1 -> ForAny( baselist, b2 ->
 	ForAny( Difference(b1,b2), e -> ForAll( Difference(b2,b1), f ->
-		not Union( Difference( b1, [e] ), [f] ) in baselist
+		not Union2( Difference( b1, [e] ), [f] ) in baselist
 	) )
   ) ) then Error( "bases must satisfy the exchange axiom" ); fi;
 
