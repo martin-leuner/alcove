@@ -68,8 +68,8 @@ Status := "dev",
 
 Dependencies := rec(
   GAP := ">=4.5",
-  NeededOtherPackages := [ [ "MatricesForHomalg", ">=0" ], [ "RingsForHomalg", ">=0" ] ],
-  SuggestedOtherPackages := [ [ "GaussForHomalg", ">=0" ] ],
+  NeededOtherPackages := [ [ "MatricesForHomalg", ">=0" ], [ "RingsForHomalg", ">=0" ], [ "GaussForHomalg", ">=0" ], [ "ToolsForHomalg", ">=2012.12.01" ] ],
+  SuggestedOtherPackages := [],
   ExternalConditions := []
                       
 ),

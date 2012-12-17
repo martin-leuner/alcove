@@ -652,6 +652,49 @@ InstallMethod( IsUniform,
 );
 
 
+InstallMethod( IsUniform,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  local mat, k, remainingCols;
+
+  k := Rank( matroid );
+
+  if k = 0 or k = SizeOfGroundSet( matroid ) then return true; fi;
+
+  mat := NormalForm( matroid )[1];
+  remainingCols := NrColumns( mat );
+
+  if k = 1 then
+   return not ForAny( [ 1 .. NrColumns( mat ) ], j -> IsZero( MatElm( mat, 1, j ) ) );
+  fi;
+
+  while remainingCols > k do
+
+   if NrRows( mat ) < k or
+	ForAny( [ 1 .. k ], i ->
+		ForAny( [ 1 .. remainingCols ], j ->
+			IsZero( MatElm( mat, i, j ) )
+		)
+	) then
+
+    return false;
+
+   fi;
+
+   mat := CertainColumns( RowReducedEchelonForm( mat ), [ k + 1 .. remainingCols ] );
+   remainingCols := remainingCols - k;
+
+  od;
+
+  return RowRankOfMatrix( mat ) = remainingCols;
+
+ end
+
+);
+
+
 ##################
 ## IsSimpleMatroid
 

@@ -39,3 +39,24 @@ InstallImmediateMethod( Twitter,
 );
 
 
+InstallGlobalFunction( __alcove_MatroidStandardImplications,
+			[ IsMatroid ],
+
+ function( matroid )
+  local entry;
+
+## Implications for uniform matroids:
+
+  #entry := ToDoListEntryWhichLaunchesAFunction( [ [ matroid, "IsUniform", true ] ], function() TuttePolynomial( matroid ); end );
+
+# Compute Tutte polynomial of uniform matroids:
+
+  entry := ToDoListEntryWithPointers( matroid, "IsUniform", true, matroid, "TuttePolynomial", function() return TuttePolynomial( matroid ); end );
+  SetDescriptionOfImplication( entry, SetDescriptionOfImplication );
+  AddToToDoList( entry );
+
+
+ end
+
+);
+
