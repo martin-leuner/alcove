@@ -61,10 +61,10 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
 # Set the rank:
 
   entry := ToDoListEntryWithListOfSources( [
-						[ matroid, "DualMatroid", function() return DualMatroid( matroid ); end ],
-						[ matroid, "RankOfMatroid", function() return RankOfMatroid( matroid ); end ]
+						[ matroid, "DualMatroid" ],
+						[ matroid, "RankOfMatroid" ]
 					],
-					function() return DualMatroid( matroid ); end,
+					[ DualMatroid, matroid ],
 					"RankOfMatroid",
 					function() return
 						SizeOfGroundSet( matroid ) - RankOfMatroid( matroid );
@@ -76,8 +76,8 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
 # Transfer uniformity:
 
   entry := ToDoListEntryWithListOfSources( [
-						[ matroid, "DualMatroid", function() return DualMatroid( matroid ); end ],
-						[ matroid, "IsUniform", function() return IsUniform( matroid ); end ]
+						[ matroid, "DualMatroid" ],
+						[ matroid, "IsUniform" ]
 					],
 					function() return DualMatroid( matroid ); end,
 					"IsUniform",
@@ -101,8 +101,8 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
 # Set simplicity:
 
   entry := ToDoListEntryWithListOfSources( [
-						[ matroid, "RankOfMatroid", function() return RankOfMatroid( matroid ); end ],
-						[ matroid, "IsUniform", function() return IsUniform( matroid ); end ]
+						[ matroid, "RankOfMatroid" ],
+						[ matroid, "IsUniform", true ]
 					],
 					matroid,
 					"IsSimpleMatroid",
