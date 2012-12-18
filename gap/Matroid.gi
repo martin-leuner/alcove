@@ -412,7 +412,7 @@ InstallMethod( TuttePolynomial,
    SetIndeterminateName( FamilyObj(x), 2, "y" );
   fi;
 
-  return Sum( List( [ 0 .. k ], i -> Binomial( n, i ) (x-1)^(k-i) ) ) + Sum( List( [ k+1 .. n ], i -> Binomial( n, i ) (y-1)^(i-k) ) );
+  return Sum( List( [ 0 .. k ], i -> Binomial( n, i ) * (x-1)^(k-i) ) ) + Sum( List( [ k+1 .. n ], i -> Binomial( n, i ) * (y-1)^(i-k) ) );
  end
 
 );
@@ -1213,6 +1213,31 @@ InstallMethod( Matroid,
   __alcove_MatroidStandardImplications( matroid );
 
   return matroid;
+ end
+
+);
+
+
+##
+InstallMethod( RandomVectorMatroidOverFinitePrimeField,
+		"of certain dimensions over a prime field",
+		[ IsInt, IsInt, IsInt ],
+
+ function( k, n, p )
+  if not IsPrimeInt(p) then Error( "<p> must be prime" ); fi;
+  return Matroid( HomalgMatrix( RandomMat( k, n, [ 1 .. p ] ), HomalgRingOfIntegers(p) ) );
+ end
+
+);
+
+
+##
+InstallMethod( RandomVectorMatroidOverRationals,
+		"of certain dimensions over a prime field",
+		[ IsInt, IsInt ],
+
+ function( k, n )
+  return Matroid( HomalgMatrix( RandomMat( k, n, Rationals ), HomalgFieldOfRationals ) );
  end
 
 );

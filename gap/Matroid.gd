@@ -149,6 +149,12 @@ DeclareOperation( "Matroid",
 #DeclareOperation( "Matroid",		# implied by IsMatrixObj
 #		[ IsHomalgMatrix ] );
 
+DeclareOperation( "RandomVectorMatroidOverFinitePrimeField",
+		[ IsInt, IsInt, IsInt ] );
+
+DeclareOperation( "RandomVectorMatroidOverRationals",
+		[ IsInt, IsInt ] );
+
 DeclareOperation( "Matroid",
 		[ IsList, IsFunction ] );
 
