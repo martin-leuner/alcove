@@ -395,6 +395,29 @@ InstallMethod( Hyperplanes,
 ## TuttePolynomial
 
 InstallMethod( TuttePolynomial,
+		"for uniform matroids",
+		[ IsMatroid and HasIsUniform and IsUniform ],
+		20,
+
+ function( matroid )
+  local x, y, k, n;
+
+  n := SizeOfGroundSet( matroid );
+  k := RankOfMatroid( matroid );
+
+  x := Indeterminate( Integers, 1 );
+  y := Indeterminate( Integers, 2 );
+  if not HasIndeterminateName( FamilyObj(x), 1 ) and not HasIndeterminateName( FamilyObj(x), 2 ) then
+   SetIndeterminateName( FamilyObj(x), 1, "x" );
+   SetIndeterminateName( FamilyObj(x), 2, "y" );
+  fi;
+
+  return Sum( List( [ 0 .. k ], i -> Binomial( n, i ) (x-1)^(k-i) ) ) + Sum( List( [ k+1 .. n ], i -> Binomial( n, i ) (y-1)^(i-k) ) );
+ end
+
+);
+
+InstallMethod( TuttePolynomial,
 		"generic method for matroids",
 		[ IsMatroid ],
 
@@ -1026,6 +1049,8 @@ InstallMethod( Matroid,
   matroid := Objectify( TheTypeAbstractMatroid, rec( groundSet := gset, bases := baselist ) );
   SetRankOfMatroid( matroid, rk );
 
+  __alcove_MatroidStandardImplications( matroid );
+
   return matroid;
 
  end
@@ -1039,7 +1064,13 @@ InstallMethod( Matroid,
 		[ IsInt, IsList ],
 
  function( deg, baselist  )
-  return Objectify( TheTypeAbstractMatroid, rec( groundSet := Immutable([1..deg]), bases := Immutable(baselist) ) );
+  local matroid;
+
+  matroid := Objectify( TheTypeAbstractMatroid, rec( groundSet := Immutable([1..deg]), bases := Immutable(baselist) ) );
+
+  __alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
  end
 
 );
@@ -1075,6 +1106,8 @@ InstallMethod( Matroid,
   matroid := Objectify( TheTypeAbstractMatroid, rec( groundSet := Immutable(groundset), bases := baselist ) );
   SetRankOfMatroid( matroid, rk );
 
+  __alcove_MatroidStandardImplications( matroid );
+
   return matroid;
 
  end
@@ -1088,28 +1121,36 @@ InstallMethod( MatroidNC,
 		[ IsList, IsList ],
 
  function( groundset, baselist )
-  return Objectify( TheTypeAbstractMatroid, rec( groundSet := Immutable(groundset), bases := Immutable(baselist) ) );
+  local matroid;
+
+  matroid := Objectify( TheTypeAbstractMatroid, rec( groundSet := Immutable(groundset), bases := Immutable(baselist) ) );
+  __alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
  end
 
 );
 
 
 
-##
-InstallMethod( Matroid,
-		"by matrix",
-		[ IsMatrix ],
-		10,
-
- function( mat )
-  local matobj;
-
-  matobj := Immutable( MakeMatrix( mat ) );		## guess the base field and construct matrix object
-
-  return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := matobj ) );
- end
-
-);
+###						# SORT OUT HOW TO GUESS THE BASE FIELD AS AN IsHomalgRing!
+#InstallMethod( Matroid,
+#		"by matrix",
+#		[ IsMatrix ],
+#		10,
+#
+# function( mat )
+#  local matobj, matroid;
+#
+#  matobj := Immutable( MakeMatrix( mat ) );		## guess the base field and construct matrix object
+#
+#  matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := matobj ) );
+#   __alcove_MatroidStandardImplications( matroid );
+#
+#  return matroid;
+# end
+#
+#);
 
 
 ##
@@ -1118,9 +1159,11 @@ InstallMethod( Matroid,
 		[ IsGeneralizedRowVector and IsNearAdditiveElementWithInverse and IsAdditiveElement ],
 
  function( mat )
+  local matroid;
+
   if not IsEmpty( mat[1] ) then Error( "constructor for empty vector matroids called on non-empty matrix" ); fi;
 
-  return ObjectifyWithAttributes( rec( generatingMatrix := Immutable(mat) ),
+  matroid := ObjectifyWithAttributes( rec( generatingMatrix := Immutable( HomalgMatrix(mat,HomalgRingOfIntegers(2)) ) ),
 			TheTypeVectorMatroid,
 			SizeOfGroundSet, 0,
 			RankOfMatroid, 0
@@ -1130,18 +1173,30 @@ InstallMethod( Matroid,
 );
 
 
-##
-InstallMethod( Matroid,
-		"by matrix object",
-		[ IsMatrixObj ],
-		20,
-
- function( matobj )
-  if DimensionsMat( matobj )[2] = 0 then return Matroid( [[]] ); fi;		# call constructor for empty matrix
-  return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
- end
-
-);
+###						# SORT OUT HOW TO GUESS THE BASE FIELD AS AN IsHomalgRing!
+#InstallMethod( Matroid,
+#		"by matrix object",
+#		[ IsMatrixObj ],
+#		20,
+#
+# function( matobj )
+#  local matroid;
+#
+#  if DimensionsMat( matobj )[2] = 0 then
+#
+#   matroid := Matroid( [[]] );			# call constructor for empty matrix
+#
+#  else
+#
+#   matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
+#   __alcove_MatroidStandardImplications( matroid );
+#
+#  fi;
+#
+#  return matroid;
+# end
+#
+#);
 
 
 ##
@@ -1151,7 +1206,13 @@ InstallMethod( Matroid,
 		30,
 
  function( matobj )
-  return Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
+  local matroid;
+
+  matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
+
+  __alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
  end
 
 );
