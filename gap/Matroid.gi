@@ -427,11 +427,6 @@ InstallMethod( TuttePolynomial,
   x := Indeterminate( Integers, 1 );
   y := Indeterminate( Integers, 2 );
 
-# Check whether Tutte polynomial of dual matroid is already known:
-  if HasDualMatroid( matroid ) and HasTuttePolynomial( DualMatroid( matroid ) ) then
-   return Value( TuttePolynomial( DualMatroid( matroid ) ), [ x, y ], [ y, x ] );
-  fi;
-
   loopNum := Size( Loops( matroid ) );
   coloopNum := Size( Coloops( matroid ) );
 
@@ -463,13 +458,21 @@ InstallMethod( TuttePolynomial,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  local x, y, recursiveTutteCon, recursiveTutteDel, recursionStep, loopsColoops, minorMat;
+  local x, y, recursiveTutteCon, recursiveTutteDel, recursionStep, loopsColoops, minorMat, k, n;
 
   x := Indeterminate( Integers, 1 );
   y := Indeterminate( Integers, 2 );
   if not HasIndeterminateName( FamilyObj(x), 1 ) and not HasIndeterminateName( FamilyObj(x), 2 ) then
    SetIndeterminateName( FamilyObj(x), 1, "x" );
    SetIndeterminateName( FamilyObj(x), 2, "y" );
+  fi;
+
+# Uniformity test is cheap for vector matroids, so first do this:
+
+  if IsUniform( matroid ) then
+   k := RankOfMatroid( matroid );
+   n := SizeOfGroundSet( matroid );
+   return Sum( List( [ 0 .. k ], i -> Binomial( n, i ) * (x-1)^(k-i) ) ) + Sum( List( [ k+1 .. n ], i -> Binomial( n, i ) * (y-1)^(i-k) ) );
   fi;
 
 ##
@@ -609,7 +612,7 @@ InstallMethod( Loops,
 );
 
 
-########
+##########
 ## Coloops
 
 InstallMethod( Coloops,
@@ -655,6 +658,20 @@ InstallMethod( Coloops,
 );
 
 
+####################
+## AutomorphismGroup
+
+InstallMethod( AutomorphismGroup,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  local stuff;
+ end
+
+);
+
+
 ####################################
 ##
 ## Properties
@@ -678,6 +695,7 @@ InstallMethod( IsUniform,
 InstallMethod( IsUniform,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
+		10,
 
  function( matroid )
   local mat, k, remainingCols;

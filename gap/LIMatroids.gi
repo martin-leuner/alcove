@@ -61,10 +61,10 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
 # Set the rank:
 
   entry := ToDoListEntryWithListOfSources( [
-						[ matroid, "DualMatroid", function() return DualMatroid( matroid ); end ],
-						[ matroid, "RankOfMatroid", function() return RankOfMatroid( matroid ); end ]
+						[ matroid, "DualMatroid" ],
+						[ matroid, "RankOfMatroid" ]
 					],
-					function() return DualMatroid( matroid ); end,
+					[ DualMatroid, matroid ],
 					"RankOfMatroid",
 					function() return
 						SizeOfGroundSet( matroid ) - RankOfMatroid( matroid );
@@ -76,33 +76,52 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
 # Transfer uniformity:
 
   entry := ToDoListEntryWithListOfSources( [
-						[ matroid, "DualMatroid", function() return DualMatroid( matroid ); end ],
-						[ matroid, "IsUniform", function() return IsUniform( matroid ); end ]
+						[ matroid, "DualMatroid" ],
+						[ matroid, "IsUniform" ]
 					],
-					function() return DualMatroid( matroid ); end,
+					[ DualMatroid, matroid ],
 					"IsUniform",
-					function() return
-						IsUniform( matroid );
-					end );
+					[ IsUniform, matroid ] );
 
   SetDescriptionOfImplication( entry, "duals of uniform matroids are uniform" );
+  AddToToDoList( entry );
+
+# Transfer automorphism group:
+
+  entry := ToDoListEntryWithListOfSources( [
+						[ matroid, "DualMatroid" ],
+						[ matroid, "AutomorphismGroup" ]
+					],
+					[ DualMatroid, matroid ],
+					"AutomorphismGroup",
+					[ AutomorphismGroup, matroid ] );
+
+  SetDescriptionOfImplication( entry, "dual matroids have the same automorphism group" );
   AddToToDoList( entry );
 
 
 #######
 ## Implications for uniform matroids:
 
+##
 # Compute Tutte polynomial:
 
-  entry := ToDoListEntryWithPointers( matroid, "IsUniform", true, matroid, "TuttePolynomial", function() return TuttePolynomial( matroid ); end );
+  entry := ToDoListEntryWithListOfSources( [
+						[ matroid, "IsUniform", true ]
+					],
+					 matroid,
+					"TuttePolynomial",
+					[ TuttePolynomial, matroid ] );
+
   SetDescriptionOfImplication( entry, "we can write down Tutte polynomials of uniform matroids" );
   AddToToDoList( entry );
 
+##
 # Set simplicity:
 
   entry := ToDoListEntryWithListOfSources( [
-						[ matroid, "RankOfMatroid", function() return RankOfMatroid( matroid ); end ],
-						[ matroid, "IsUniform", function() return IsUniform( matroid ); end ]
+						[ matroid, "IsUniform", true ],
+						[ matroid, "RankOfMatroid" ]
 					],
 					matroid,
 					"IsSimpleMatroid",
@@ -113,6 +132,17 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
 					end );
 
   SetDescriptionOfImplication( entry, "uniform matroids are simple iff their rank is greater than one or they have a one-element ground set" );
+  AddToToDoList( entry );
+
+##
+# Set automorphism group:
+
+  entry := ToDoListEntryWithPointers( matroid, "IsUniform", true,
+					matroid,
+					"AutomorphismGroup",
+					SymmetricGroup( SizeOfGroundSet( matroid ) ) );
+
+  SetDescriptionOfImplication( entry, "the automorphism group of U_{k,n} is S_n" );
   AddToToDoList( entry );
 
  end
