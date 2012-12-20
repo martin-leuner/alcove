@@ -146,6 +146,9 @@ DeclareOperation( "Matroid",
 DeclareOperation( "Matroid",
 		[ IsMatrixObj ] );
 
+DeclareOperation( "MatroidNL",
+		[ IsMatrixObj ] );
+
 #DeclareOperation( "Matroid",		# implied by IsMatrixObj
 #		[ IsHomalgMatrix ] );
 

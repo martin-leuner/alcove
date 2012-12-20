@@ -412,7 +412,7 @@ InstallMethod( TuttePolynomial,
    SetIndeterminateName( FamilyObj(x), 2, "y" );
   fi;
 
-  return Sum( List( [ 0 .. k ], i -> Binomial( n, i ) * (x-1)^(k-i) ) ) + Sum( List( [ k+1 .. n ], i -> Binomial( n, i ) * (y-1)^(i-k) ) );
+  return Sum( [ 0 .. k ], i -> Binomial( n, i ) * (x-1)^(k-i) ) + Sum( [ k+1 .. n ], i -> Binomial( n, i ) * (y-1)^(i-k) );
  end
 
 );
@@ -472,7 +472,7 @@ InstallMethod( TuttePolynomial,
   if IsUniform( matroid ) then
    k := RankOfMatroid( matroid );
    n := SizeOfGroundSet( matroid );
-   return Sum( List( [ 0 .. k ], i -> Binomial( n, i ) * (x-1)^(k-i) ) ) + Sum( List( [ k+1 .. n ], i -> Binomial( n, i ) * (y-1)^(i-k) ) );
+   return Sum( [ 0 .. k ], i -> Binomial( n, i ) * (x-1)^(k-i) ) + Sum( [ k+1 .. n ], i -> Binomial( n, i ) * (y-1)^(i-k) );
   fi;
 
 ##
@@ -520,9 +520,9 @@ InstallMethod( TuttePolynomial,
    cdim := NrColumns( mat );
 
    if rdim = 1 then
-    return x - 1 + Sum( List( [ 1 .. cdim + 1 ], j -> Binomial(cdim+1,j) * (y-1)^(j-1) ) );
+    return x - 1 + Sum( [ 1 .. cdim + 1 ], j -> Binomial(cdim+1,j) * (y-1)^(j-1) );
    elif cdim = 1 then
-    return y - 1 + Sum( List( [ 0 .. rdim ], j -> Binomial(rdim+1,j) * (x-1)^(rdim-j) ) );
+    return y - 1 + Sum( [ 0 .. rdim ], j -> Binomial(rdim+1,j) * (x-1)^(rdim-j) );
    elif rdim = 0 then
     return y^cdim;
    elif cdim = 0 then
@@ -666,7 +666,13 @@ InstallMethod( AutomorphismGroup,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  local stuff;
+  local normalForm, nonUnitVecs, zeroesPerCol;
+
+  normalForm := NormalForm( matroid )[1];
+  nonUnitVecs := NormalForm( matroid )[2];
+
+  zeroesPerCol := List( [ 1 .. NrColumns( normalForm ) ], j ->
+		Size( List( [ 1 .. NrRows( normalForm ) ], i -> IsZero( MatElm( normalForm, i, j ) ) ) ) );
  end
 
 );
@@ -1215,6 +1221,23 @@ InstallMethod( Matroid,
 # end
 #
 #);
+
+
+##
+InstallMethod( MatroidNL,
+		"by homalg matrix, no logical implications",
+		[ IsHomalgMatrix ],
+		30,
+
+ function( matobj )
+  local matroid;
+
+  matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
+
+  return matroid;
+ end
+
+);
 
 
 ##

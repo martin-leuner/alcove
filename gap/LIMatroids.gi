@@ -140,7 +140,7 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
   entry := ToDoListEntryWithPointers( matroid, "IsUniform", true,
 					matroid,
 					"AutomorphismGroup",
-					SymmetricGroup( SizeOfGroundSet( matroid ) ) );
+					[ SymmetricGroup, SizeOfGroundSet( matroid ) ] );
 
   SetDescriptionOfImplication( entry, "the automorphism group of U_{k,n} is S_n" );
   AddToToDoList( entry );
