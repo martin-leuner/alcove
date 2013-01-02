@@ -145,10 +145,10 @@ InstallMethod( SimplifiedMatroid,
 );
 
 
-#############
-## NormalForm
+############################
+## NormalFormOfVectorMatroid
 
-InstallMethod( NormalForm,
+InstallMethod( NormalFormOfVectorMatroid,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
 
@@ -284,6 +284,39 @@ InstallMethod( ClosureFunction,
 );
 
 
+#######################
+## IndependenceFunction
+
+InstallMethod( IndependenceFunction,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  return
+	function( X )
+	 local nf, unitVecLabels, otherLabels, checkMat, unitVecsInX, nrCols;
+
+	 nf := NormalFormOfVectorMatroid( matroid );
+	 otherLabels := nf[2];
+	 unitVecLabels := Difference( GroundSet( matroid ), otherLabels );
+
+	 checkMat := CertainColumns( nf[1], List( Intersection2( X, otherLabels ), col -> Position( otherLabels, col ) ) );
+
+         nrCols := NrColumns( checkMat );
+         if nrCols = 0 then return true; fi;
+
+         unitVecsInX := Intersection2( X, unitVecLabels );
+         checkMat := CertainRows( checkMat, Difference( [ 1 .. NrRows( checkMat ) ], List( unitVecsInX, row -> Position( unitVecLabels, row ) ) ) );
+
+         if NrRows( checkMat ) < nrCols then return false; fi;
+
+         return ColumnRankOfMatrix( checkMat ) = nrCols;
+	end;
+ end
+
+);
+
+
 ########
 ## Bases
 
@@ -316,7 +349,7 @@ InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
 ###########
 ## Circuits
 
-InstallMethod( Circuits,
+InstallMethod( Circuits,		## recursive exponential time method
 		"for matroids",
 		[ IsMatroid ],
 
@@ -358,6 +391,106 @@ InstallMethod( Circuits,
   od;
 
   return Union2( circs, List( Loops( matroid ), l -> [l] ) );
+ end
+
+);
+
+
+InstallMethod( Circuits,		## incremental polynomial time method for vector matroids
+		"for vector matroids",
+		[ IsMatroid ],
+
+ function( matroid )
+  local	nf, unitVecLabels, otherLabels, corank, rank, i, j, isIndependent, superSet, ReduceDependentSetToCircuit,
+	newCircuits, oldCircuits, union, intersection, currentCircuit, otherCircuit;
+
+# Local function to find a circuit contained in a given set:
+
+  ReduceDependentSetToCircuit := function( dependentSet )
+   local element, furtherReduction, reducedSet;
+
+   repeat
+
+    furtherReduction := false;
+    for element in dependentSet do
+ 
+     reducedSet := Difference( dependentSet, [ element ] );
+ 
+     if not isIndependent( reducedSet ) then			# smaller dependent set found, start over
+      dependentSet := reducedSet;
+      furtherReduction := true;
+      break;
+     fi;
+
+    od;	# for element in dependentSet
+
+   until not furtherReduction;
+
+   return dependentSet;
+  end;
+
+# Initialise variables:
+
+  nf := NormalFormOfVectorMatroid( matroid )[1];
+  otherLabels := NormalFormOfVectorMatroid( matroid )[2];
+  unitVecLabels := Difference( GroundSet( matroid ), otherLabels );
+
+  rank := Rank( matroid );
+  corank := SizeOfGroundSet( matroid ) - rank;
+
+  isIndependent := IndependenceFunction( matroid );
+
+  newCircuits := [];
+  oldCircuits := [];
+
+# Compute fundamental circuits for basis corresponding to unit vectors in normal form:
+
+  for j in [ 1 .. corank ] do
+
+   currentCircuit := [];
+   for i in [ 1 .. rank ] do
+
+    if not IsZero( MatElm( nf, i, j ) ) then Add( currentCircuit, unitVecLabels[i] ); fi;
+
+   od;
+   AddSet( currentCircuit, otherLabels[j] );
+
+   newCircuits[j] := currentCircuit;
+
+  od;
+
+# Treat loops separately:
+
+  newCircuits := Filtered( newCircuits, circ -> Size(circ) > 1 );
+
+# Check circuit axiom on new circuits until no more new circuits are found:
+
+  while not IsEmpty( newCircuits ) do
+
+   currentCircuit := Remove( newCircuits );
+
+   for otherCircuit in oldCircuits do
+
+    union := Union2( currentCircuit, otherCircuit );
+    intersection := Intersection2( currentCircuit, otherCircuit );
+
+    for i in intersection do
+
+     superSet := Difference( union, [ i ] );
+
+     if not ForAny( oldCircuits, circ -> IsSubset( superSet, circ ) ) then
+      AddSet( newCircuits, ReduceDependentSetToCircuit( superSet ) );
+     fi;
+
+    od; # for i in intersection
+
+   od; # for otherCircuit in oldCircuits
+
+   Add( oldCircuits, currentCircuit );
+
+  od; # while not IsEmpty( newCircuits )
+
+  return Union2( oldCircuits, List( Loops( matroid ), loop -> [ loop ] ) );
  end
 
 );
@@ -561,7 +694,7 @@ InstallMethod( TuttePolynomial,
 
 # Prepare for recursion:
 
-  minorMat := NormalForm( matroid )[1];
+  minorMat := NormalFormOfVectorMatroid( matroid )[1];
   loopsColoops := Union2( Loops( matroid ), Coloops( matroid ) );
   minorMat := CertainRows( CertainColumns( minorMat, NonZeroColumns( minorMat ) ), NonZeroRows( minorMat ) );
 
@@ -639,12 +772,12 @@ InstallMethod( Coloops,
 
  function( matroid )
 
-  if HasNormalForm( matroid ) then
+  if HasNormalFormOfVectorMatroid( matroid ) then
 
-   if IsEmpty( NormalForm( matroid )[2] ) then
+   if IsEmpty( NormalFormOfVectorMatroid( matroid )[2] ) then
     return GroundSet( matroid );
    else
-    return List( ZeroRows( NormalForm( matroid )[1] ), i -> Difference( GroundSet( matroid ), NormalForm( matroid )[2] )[i] );
+    return List( ZeroRows( NormalFormOfVectorMatroid( matroid )[1] ), i -> Difference( GroundSet( matroid ), NormalFormOfVectorMatroid( matroid )[2] )[i] );
    fi;
 
   else
@@ -668,8 +801,8 @@ InstallMethod( AutomorphismGroup,
  function( matroid )
   local normalForm, nonUnitVecs, zeroesPerCol;
 
-  normalForm := NormalForm( matroid )[1];
-  nonUnitVecs := NormalForm( matroid )[2];
+  normalForm := NormalFormOfVectorMatroid( matroid )[1];
+  nonUnitVecs := NormalFormOfVectorMatroid( matroid )[2];
 
   zeroesPerCol := List( [ 1 .. NrColumns( normalForm ) ], j ->
 		Size( List( [ 1 .. NrRows( normalForm ) ], i -> IsZero( MatElm( normalForm, i, j ) ) ) ) );
@@ -710,7 +843,7 @@ InstallMethod( IsUniform,
 
   if k = 0 or k = SizeOfGroundSet( matroid ) then return true; fi;
 
-  mat := NormalForm( matroid )[1];
+  mat := NormalFormOfVectorMatroid( matroid )[1];
   remainingCols := NrColumns( mat );
 
   if k = 1 then
@@ -1063,7 +1196,7 @@ InstallMethod( Matroid,
 # Extract bases from indep list:
   baselist := Immutable( List( Filtered( [ 1 .. Size( indep ) ], i -> sizelist[i] = rk ), i -> Set( indep[i] ) ) );
 
-# Check base exchange axiom:
+# Check basis exchange axiom:
   if ForAny( baselist, b1 -> ForAny( baselist, b2 ->
 	ForAny( Difference(b1,b2), e -> ForAll( Difference(b2,b1), f ->
 		not Union2( Difference( b1, [e] ), [f] ) in baselist
@@ -1120,7 +1253,7 @@ InstallMethod( Matroid,
 # Extract bases from indep list:
   baselist := Immutable( List( Filtered( [ 1 .. Size( indep ) ], i -> sizelist[i] = rk ), i -> Set( indep[i] ) ) );
 
-# Check base exchange axiom:
+# Check basis exchange axiom:
   if ForAny( baselist, b1 -> ForAny( baselist, b2 ->
 	ForAny( Difference(b1,b2), e -> ForAll( Difference(b2,b1), f ->
 		not Union2( Difference( b1, [e] ), [f] ) in baselist
@@ -1278,7 +1411,7 @@ InstallMethod( RandomVectorMatroidOverRationals,
 		[ IsInt, IsInt ],
 
  function( k, n )
-  return Matroid( HomalgMatrix( RandomMat( k, n, Rationals ), HomalgFieldOfRationals ) );
+  return Matroid( HomalgMatrix( RandomMat( k, n, Rationals ), HomalgFieldOfRationals() ) );
  end
 
 );

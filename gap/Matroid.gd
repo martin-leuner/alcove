@@ -30,7 +30,7 @@ DeclareAttribute( "ParentAttr",
 DeclareAttribute( "SimplifiedMatroid",
 		IsMatroid );
 
-DeclareAttribute( "NormalForm",
+DeclareAttribute( "NormalFormOfVectorMatroid",
 		IsMatroid );
 
 DeclareAttribute( "SizeOfGroundSet",
@@ -43,6 +43,9 @@ DeclareAttribute( "RankFunction",
 		IsMatroid );
 
 DeclareAttribute( "ClosureFunction",
+		IsMatroid );
+
+DeclareAttribute( "IndependenceFunction",
 		IsMatroid );
 
 DeclareAttribute( "Bases",

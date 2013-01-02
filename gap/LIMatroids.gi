@@ -1,49 +1,3 @@
-#
-#
-#########################################################
-###
-### Tweet some properties and attributes to dual matroids
-### 
-#########################################################
-#
-#
-### IsUniform
-#
-#InstallImmediateMethod( Twitter,
-#			IsMatroid and HasDualMatroid and HasIsUniform,
-#			0,
-#
-# function( matroid )
-#
-#  SetIsUniform( DualMatroid( matroid ), IsUniform( matroid ) );
-#  TryNextMethod();
-#
-# end
-#
-#);
-#
-#
-### Rank
-#
-#InstallImmediateMethod( Twitter,
-#			IsMatroid and HasDualMatroid and HasRankOfMatroid,
-#			0,
-#
-# function( matroid )
-#
-#  SetRankOfMatroid( DualMatroid( matroid ), SizeOfGroundSet( matroid ) - RankOfMatroid( matroid ) );
-#  TryNextMethod();
-#
-# end
-#
-#);
-#
-
-## Launches a function:
-#
-# entry := ToDoListEntryWhichLaunchesAFunction( [ [ matroid, "IsUniform", true ] ], function() TuttePolynomial( matroid ); end );
-#
-
 
 ###################
 ## Standard implications for ALL matroids:
@@ -58,6 +12,7 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
 #######
 ## Implications for dual matroids:
 
+##
 # Set the rank:
 
   entry := ToDoListEntryWithListOfSources( [
@@ -73,6 +28,7 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
   SetDescriptionOfImplication( entry, "the rank of the dual is the co-rank" );
   AddToToDoList( entry );
 
+##
 # Transfer uniformity:
 
   entry := ToDoListEntryWithListOfSources( [
@@ -86,6 +42,7 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
   SetDescriptionOfImplication( entry, "duals of uniform matroids are uniform" );
   AddToToDoList( entry );
 
+##
 # Transfer automorphism group:
 
   entry := ToDoListEntryWithListOfSources( [
