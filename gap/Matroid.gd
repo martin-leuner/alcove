@@ -155,12 +155,6 @@ DeclareOperation( "MatroidNL",
 #DeclareOperation( "Matroid",		# implied by IsMatrixObj
 #		[ IsHomalgMatrix ] );
 
-DeclareOperation( "RandomVectorMatroidOverFinitePrimeField",
-		[ IsInt, IsInt, IsInt ] );
-
-DeclareOperation( "RandomVectorMatroidOverRationals",
-		[ IsInt, IsInt ] );
-
 DeclareOperation( "Matroid",
 		[ IsList, IsFunction ] );
 
@@ -172,3 +166,10 @@ DeclareOperation( "MatroidByRankFunction",
 
 DeclareOperation( "MatroidOfGraph",
 		[ IsMatrix ] );
+
+DeclareOperation( "RandomVectorMatroidOverFinitePrimeField",
+		[ IsInt, IsInt, IsInt ] );
+
+DeclareOperation( "RandomVectorMatroidOverRationals",
+		[ IsInt, IsInt ] );
+

@@ -339,8 +339,8 @@ InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], Rank( matroid ) ),
-		b -> RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid(matroid), b ) ) = Rank( matroid ) );
+  return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], RankOfMatroid( matroid ) ),
+		b -> RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid(matroid), b ) ) = RankOfMatroid( matroid ) );
  end
 
 );
@@ -361,7 +361,7 @@ InstallMethod( Circuits,		## recursive exponential time method
   if SizeOfGroundSet( matroid ) = 0 then return []; fi;
   if SizeOfGroundSet( matroid ) = 1 then return List( Loops( matroid ), i -> [i] ); fi;
 
-  if Rank( matroid ) = 0 then return List( GroundSet( matroid ), i -> [i] ); fi;
+  if RankOfMatroid( matroid ) = 0 then return List( GroundSet( matroid ), i -> [i] ); fi;
 
   loopsColoops := Union2( Loops( matroid ), Coloops( matroid ) );
 
@@ -397,8 +397,26 @@ InstallMethod( Circuits,		## recursive exponential time method
 
 
 InstallMethod( Circuits,		## incremental polynomial time method for vector matroids
+		"for uniform matroids",
+		[ IsVectorMatroidRep ],
+		10,
+
+ function( matroid )
+
+  if IsUniform( matroid ) then
+   return Combinations( GroundSet( matroid ), RankOfMatroid( matroid ) + 1 );
+  else
+   TryNextMethod();
+  fi;
+
+ end
+
+);
+
+
+InstallMethod( Circuits,		## incremental polynomial time method for vector matroids
 		"for vector matroids",
-		[ IsMatroid ],
+		[ IsVectorMatroidRep ],
 
  function( matroid )
   local	nf, unitVecLabels, otherLabels, corank, rank, i, j, isIndependent, superSet, ReduceDependentSetToCircuit,
@@ -435,7 +453,7 @@ InstallMethod( Circuits,		## incremental polynomial time method for vector matro
   otherLabels := NormalFormOfVectorMatroid( matroid )[2];
   unitVecLabels := Difference( GroundSet( matroid ), otherLabels );
 
-  rank := Rank( matroid );
+  rank := RankOfMatroid( matroid );
   corank := SizeOfGroundSet( matroid ) - rank;
 
   isIndependent := IndependenceFunction( matroid );
@@ -529,7 +547,7 @@ InstallMethod( Hyperplanes,
 
 InstallMethod( TuttePolynomial,
 		"for uniform matroids",
-		[ IsMatroid and HasIsUniform and IsUniform ],
+		[ IsMatroid and IsUniform ],
 		20,
 
  function( matroid )
@@ -549,6 +567,7 @@ InstallMethod( TuttePolynomial,
  end
 
 );
+
 
 InstallMethod( TuttePolynomial,
 		"generic method for matroids",
@@ -585,6 +604,7 @@ InstallMethod( TuttePolynomial,
  end
 
 );
+
 
 InstallMethod( TuttePolynomial,
 		"for vector matroids",
@@ -825,7 +845,7 @@ InstallMethod( IsUniform,
 		[ IsMatroid ],
 
  function( matroid )
-  return Size( Bases( matroid ) ) = Binomial( SizeOfGroundSet( matroid ), Rank( matroid ) );
+  return Size( Bases( matroid ) ) = Binomial( SizeOfGroundSet( matroid ), RankOfMatroid( matroid ) );
  end
 
 );
@@ -839,7 +859,7 @@ InstallMethod( IsUniform,
  function( matroid )
   local mat, k, remainingCols;
 
-  k := Rank( matroid );
+  k := RankOfMatroid( matroid );
 
   if k = 0 or k = SizeOfGroundSet( matroid ) then return true; fi;
 
@@ -1393,31 +1413,6 @@ InstallMethod( Matroid,
 
 
 ##
-InstallMethod( RandomVectorMatroidOverFinitePrimeField,
-		"of certain dimensions over a prime field",
-		[ IsInt, IsInt, IsInt ],
-
- function( k, n, p )
-  if not IsPrimeInt(p) then Error( "<p> must be prime" ); fi;
-  return Matroid( HomalgMatrix( RandomMat( k, n, [ 1 .. p ] ), HomalgRingOfIntegers(p) ) );
- end
-
-);
-
-
-##
-InstallMethod( RandomVectorMatroidOverRationals,
-		"of certain dimensions over a prime field",
-		[ IsInt, IsInt ],
-
- function( k, n )
-  return Matroid( HomalgMatrix( RandomMat( k, n, Rationals ), HomalgFieldOfRationals() ) );
- end
-
-);
-
-
-##
 InstallMethod( Matroid,
 		"given ground set and boolean function deciding independence of subsets",
 		[ IsList, IsFunction ],
@@ -1460,6 +1455,31 @@ InstallMethod( MatroidOfGraph,
 
  function( incidencemat )
 
+ end
+
+);
+
+
+##
+InstallMethod( RandomVectorMatroidOverFinitePrimeField,
+		"of certain dimensions over a prime field",
+		[ IsInt, IsInt, IsInt ],
+
+ function( k, n, p )
+  if not IsPrimeInt(p) then Error( "<p> must be prime" ); fi;
+  return Matroid( HomalgMatrix( RandomMat( k, n, [ 1 .. p ] ), HomalgRingOfIntegers(p) ) );
+ end
+
+);
+
+
+##
+InstallMethod( RandomVectorMatroidOverRationals,
+		"of certain dimensions over a prime field",
+		[ IsInt, IsInt ],
+
+ function( k, n )
+  return Matroid( HomalgMatrix( RandomMat( k, n, Rationals ), HomalgFieldOfRationals() ) );
  end
 
 );
