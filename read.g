@@ -8,7 +8,7 @@
 ##
 #############################################################################
 
-ReadPackage( "alcove", "gap/Workarounds" );
+#ReadPackage( "alcove", "gap/Workarounds" );
 
 ReadPackage( "alcove", "gap/Matroid.gi" );
 
