@@ -1649,6 +1649,8 @@ InstallMethod( UniformMatroid,
   local matroid;
 
   matroid := MatroidByRankFunctionNCL( n, function( X ) if Size(X) < k then return Size(X); else return k; fi; end );
+  SetRankOfMatroid( matroid, k );
+
   __alcove_MatroidStandardImplications( matroid );
 
   SetIsUniform( matroid, true );
@@ -1668,6 +1670,7 @@ InstallMethod( UniformMatroidNL,
   local matroid;
 
   matroid := MatroidByRankFunctionNCL( n, function( X ) if Size(X) < k then return Size(X); else return k; fi; end );
+  SetRankOfMatroid( matroid, k );
 
   SetIsUniform( matroid, true );
 
