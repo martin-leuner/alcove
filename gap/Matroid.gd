@@ -197,3 +197,9 @@ DeclareOperation( "MatroidByRankFunctionNCL",
 DeclareOperation( "RandomVectorMatroidOverPrimeField",
 		[ IsInt, IsInt, IsInt ] );
 
+DeclareOperation( "UniformMatroid",
+		[ IsInt, IsInt ] );
+
+DeclareOperation( "UniformMatroidNL",
+		[ IsInt, IsInt ] );
+
