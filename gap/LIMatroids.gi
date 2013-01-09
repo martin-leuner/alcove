@@ -106,3 +106,30 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
 
 );
 
+
+###################
+## Standard implications for vector matroids:
+
+InstallGlobalFunction( __alcove_VectorMatroidImplications,
+			[ IsMatroid ],
+
+ function( matroid )
+  local entry;
+
+##
+# If normal form is computed, set rank:
+
+  entry := ToDoListEntryWithPointers( matroid, "HasNormalFormOfVectorMatroid", true,
+					matroid,
+					"RankOfMatroid",
+					function() return
+						NrRows( NormalFormOfVectorMatroid( matroid )[1] );
+					end );
+
+  SetDescriptionOfImplication( entry, "the normal form determines the rank" );
+  AddToToDoList( entry );
+
+ end
+
+);
+

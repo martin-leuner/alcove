@@ -371,6 +371,21 @@ InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
 );
 
 
+#############
+## KnownBases
+
+##
+InstallMethod( KnownBases,
+		"for matroids",
+		[ IsMatroid ],
+
+ function( matroid )
+  return [];
+ end
+
+);
+
+
 ###########
 ## Circuits
 
@@ -539,6 +554,21 @@ InstallMethod( Circuits,		## incremental polynomial time method for vector matro
   od; # while not IsEmpty( newCircuits )
 
   return Union2( oldCircuits, List( Loops( matroid ), loop -> [ loop ] ) );
+ end
+
+);
+
+
+################
+## KnownCircuits
+
+##
+InstallMethod( KnownCircuits,
+		"for matroids",
+		[ IsMatroid ],
+
+ function( matroid )
+  return [];
  end
 
 );
@@ -857,6 +887,7 @@ InstallMethod( Coloops,
 InstallMethod( AutomorphismGroup,
 		"for uniform matroids",
 		[ IsMatroid and IsUniform ],
+		30,
 
  function( matroid )
   return SymmetricGroup( SizeOfGroundSet( matroid ) );
@@ -867,8 +898,8 @@ InstallMethod( AutomorphismGroup,
 
 ##
 InstallMethod( AutomorphismGroup,
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
+		"for matroids",
+		[ IsMatroid ],
 
  function( matroid )
 
@@ -1000,6 +1031,49 @@ InstallMethod( IsRegular,
 ## Methods
 ##
 ####################################
+
+############
+## SomeBasis
+
+##
+InstallMethod( SomeBasis,
+		"for matroids with bases",
+		[ IsMatroid and HasBases ],
+		30,
+
+ function( matroid )
+  return Bases( matroid )[1];
+ end
+
+);
+
+##
+InstallMethod( SomeBasis,
+		"for matroids with known bases",
+		[ IsMatroid and HasKnownBases ],
+		20,
+
+ function( matroid )
+  if not IsEmpty( KnownBases( matroid ) ) then
+   return KnownBases( matroid )[1];
+  else
+   TryNextMethod();
+  fi;
+ end
+
+);
+
+##
+InstallMethod( SomeBasis,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  return Difference( GroundSet( matroid ), NormalFormOfVectorMatroid( matroid )[2] );
+ end
+
+);
+
 
 ########################
 ## MatrixOfVectorMatroid
@@ -1261,6 +1335,10 @@ InstallMethod( Matroid,
 			SizeOfGroundSet, 0,
 			RankOfMatroid, 0
 	);
+
+  __alcove_MatroidStandardImplications( matroid );
+  __alcove_VectorMatroidImplications( matroid );
+
  end
 
 );
@@ -1321,6 +1399,7 @@ InstallMethod( Matroid,
   matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
 
   __alcove_MatroidStandardImplications( matroid );
+  __alcove_VectorMatroidImplications( matroid );
 
   return matroid;
  end
@@ -1648,6 +1727,8 @@ InstallMethod( UniformMatroid,
  function( k, n )
   local matroid;
 
+  if k > n then k := n; fi;
+
   matroid := MatroidByRankFunctionNCL( n, function( X ) if Size(X) < k then return Size(X); else return k; fi; end );
   SetRankOfMatroid( matroid, k );
 
@@ -1668,6 +1749,8 @@ InstallMethod( UniformMatroidNL,
 
  function( k, n )
   local matroid;
+
+  if k > n then k := n; fi;
 
   matroid := MatroidByRankFunctionNCL( n, function( X ) if Size(X) < k then return Size(X); else return k; fi; end );
   SetRankOfMatroid( matroid, k );

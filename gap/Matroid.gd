@@ -54,8 +54,16 @@ DeclareAttribute( "IndependenceFunction",
 DeclareAttribute( "Bases",
 		IsMatroid );
 
+DeclareAttribute( "KnownBases",
+		IsMatroid,
+		"mutable" );
+
 DeclareAttribute( "Circuits",
 		IsMatroid );
+
+DeclareAttribute( "KnownCircuits",
+		IsMatroid,
+		"mutable" );
 
 DeclareAttribute( "Cocircuits",
 		IsMatroid );
@@ -104,6 +112,9 @@ DeclareProperty( "IsRegular",
 ##
 ####################################
 
+DeclareOperation( "SomeBasis",
+		[ IsMatroid ] );
+
 DeclareOperation( "MatrixOfVectorMatroid",
 		[ IsMatroid ] );
 
@@ -118,6 +129,7 @@ DeclareOperation( "Contraction",
 
 DeclareOperation( "IsMinor",
 		[ IsMatroid, IsMinorOfMatroid ] );
+
 
 ####################################
 ##
