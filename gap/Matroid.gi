@@ -685,11 +685,11 @@ InstallMethod( TuttePolynomial,
    SetIndeterminateName( FamilyObj(x), 2, "y" );
   fi;
 
-# Uniformity test is cheap for vector matroids, so first do this:
-
-  if IsUniform( matroid ) then
-   return TuttePolynomial( UniformMatroidNL( RankOfMatroid( matroid ), SizeOfGroundSet( matroid ) ) );
-  fi;
+## Check uniformity:
+#
+#  if IsUniform( matroid ) then
+#   return TuttePolynomial( UniformMatroidNL( RankOfMatroid( matroid ), SizeOfGroundSet( matroid ) ) );
+#  fi;
 
 ##
 # Check after contraction:
@@ -903,9 +903,9 @@ InstallMethod( AutomorphismGroup,
 
  function( matroid )
 
-  if IsUniform( matroid ) then
-   return AutomorphismGroup( UniformMatroidNL( RankOfMatroid( matroid ), SizeOfGroundSet( matroid ) ) );
-  fi;
+#  if IsUniform( matroid ) then
+#   return AutomorphismGroup( UniformMatroidNL( RankOfMatroid( matroid ), SizeOfGroundSet( matroid ) ) );
+#  fi;
 
  end
 
@@ -923,8 +923,9 @@ InstallMethod( AutomorphismGroup,
 
 ##
 InstallMethod( IsUniform,
-		"for matroids",
-		[ IsMatroid ],
+		"for matroids with bases",
+		[ IsMatroid and HasBases ],
+		30,
 
  function( matroid )
   return Size( Bases( matroid ) ) = Binomial( SizeOfGroundSet( matroid ), RankOfMatroid( matroid ) );
@@ -935,49 +936,20 @@ InstallMethod( IsUniform,
 
 ##
 InstallMethod( IsUniform,
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
-		10,
+		"fallback method",
+		[ IsMatroid ],
 
  function( matroid )
-  local mat, k, remainingCols;
+  local k, isIndep, n;
 
+  n := SizeOfGroundSet( matroid );
   k := RankOfMatroid( matroid );
 
-  if k = 0 or k = SizeOfGroundSet( matroid ) then return true; fi;
+  if k = 0 or k = n then return true; fi;
 
-  mat := NormalFormOfVectorMatroid( matroid )[1];
-  remainingCols := NrColumns( mat );
+  isIndep := IndependenceFunction( matroid );
 
-  if k = 1 then
-   return not ForAny( [ 1 .. NrColumns( mat ) ], j -> IsZero( MatElm( mat, 1, j ) ) );
-  fi;
-
-  while remainingCols > k do
-
-   if NrRows( mat ) < k or
-	ForAny( [ 1 .. k ], i ->
-		ForAny( [ 1 .. remainingCols ], j ->
-			IsZero( MatElm( mat, i, j ) )
-		)
-	) then
-
-    return false;
-
-   fi;
-
-   mat := CertainColumns( RowReducedEchelonForm( mat ), [ k + 1 .. remainingCols ] );
-   remainingCols := remainingCols - k;
-
-  od;
-
-  return RowRankOfMatrix( mat ) = remainingCols and
-		not ForAny( [ 1 .. k ], i ->
-			ForAny( [ 1 .. remainingCols ], j ->
-				IsZero( MatElm( mat, i, j ) )
-			)
-		);
-
+  return ForAll( Combinations( [ 1 .. n ], k ), X -> isIndep(X) );
  end
 
 );
