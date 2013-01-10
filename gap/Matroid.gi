@@ -971,7 +971,12 @@ InstallMethod( IsUniform,
 
   od;
 
-  return RowRankOfMatrix( mat ) = remainingCols;
+  return RowRankOfMatrix( mat ) = remainingCols and
+		not ForAny( [ 1 .. k ], i ->
+			ForAny( [ 1 .. remainingCols ], j ->
+				IsZero( MatElm( mat, i, j ) )
+			)
+		);
 
  end
 
