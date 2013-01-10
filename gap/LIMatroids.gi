@@ -119,7 +119,7 @@ InstallGlobalFunction( __alcove_VectorMatroidImplications,
 ##
 # If normal form is computed, set rank:
 
-  entry := ToDoListEntryWithPointers( matroid, "HasNormalFormOfVectorMatroid", true,
+  entry := ToDoListEntryWithListOfSources( [ [ matroid, "NormalFormOfVectorMatroid" ] ],
 					matroid,
 					"RankOfMatroid",
 					function() return
