@@ -678,7 +678,7 @@ InstallMethod( Hyperplanes,
 InstallMethod( TuttePolynomial,
 		"for uniform matroids",
 		[ IsMatroid and IsUniform ],
-		20,
+		30,
 
  function( matroid )
   local x, y, k, n;
@@ -701,8 +701,22 @@ InstallMethod( TuttePolynomial,
 
 ##
 InstallMethod( TuttePolynomial,
-		"generic method for matroids",
+		"method for disconnected matroids",
 		[ IsMatroid ],
+
+ function( matroid )
+
+  return Product( DirectSumDecomposition( matroid ), comp -> TuttePolynomial( comp[2] ) );
+
+ end
+
+);
+
+
+##
+InstallMethod( TuttePolynomial,
+		"generic method for connected matroids",
+		[ IsMatroid and IsConnected ],
 
  function( matroid )
   local loopNum, coloopNum, loopsColoops, x, y, p, min, n;
@@ -739,8 +753,8 @@ InstallMethod( TuttePolynomial,
 
 ##
 InstallMethod( TuttePolynomial,
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
+		"for connected vector matroids",
+		[ IsVectorMatroidRep and IsConnected ],
 
  function( matroid )
   local x, y, recursiveTutteCon, recursiveTutteDel, recursionStep, loopsColoops, minorMat, k, n;
@@ -984,6 +998,17 @@ InstallMethod( AutomorphismGroup,
 
 ##
 InstallMethod( DirectSumDecomposition,
+		"for connected matroids",
+		[ IsMatroid and IsConnected ],
+
+ function( matroid )
+  return [ GroundSet(matroid), matroid ];
+ end
+
+);
+
+##
+InstallMethod( DirectSumDecomposition,
 		"for matroids",
 		[ IsMatroid ],
 
@@ -1023,7 +1048,13 @@ InstallMethod( DirectSumDecomposition,
 
   od;
 
-  return List( components, comp -> [ comp, MinorWithLogic( matroid, Difference(GroundSet(matroid),comp), [] ) ] );
+  components := List( components, comp -> [ comp, MinorWithLogic( matroid, Difference(GroundSet(matroid),comp), [] ) ] );
+
+  for currentComponent in components do
+   SetIsConnected( currentComponent[2], true );
+  od;
+
+  return components;
  end
 
 );

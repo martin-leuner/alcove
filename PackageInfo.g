@@ -6,7 +6,7 @@ PackageName := "alcove",
 Subtitle := "A package for algebraic combinatorics",
 
 Version :=  Maximum( [
-  "2013-01-09", ## Martin's version ## in case this package should ever be edited by more than one person
+  "2013-01-28", ## Martin's version ## in case this package should ever be edited by more than one person
 ] ),
 
 Date := ~.Version{[ 1 .. 10 ]},
