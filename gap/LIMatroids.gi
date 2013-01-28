@@ -2,7 +2,7 @@
 ###################
 ## Standard implications for ALL matroids:
 
-InstallGlobalFunction( __alcove_MatroidStandardImplications,
+InstallGlobalFunction( _alcove_MatroidStandardImplications,
 			[ IsMatroid ],
 
  function( matroid )
@@ -110,7 +110,7 @@ InstallGlobalFunction( __alcove_MatroidStandardImplications,
 ###################
 ## Standard implications for vector matroids:
 
-InstallGlobalFunction( __alcove_VectorMatroidImplications,
+InstallGlobalFunction( _alcove_VectorMatroidImplications,
 			[ IsMatroid ],
 
  function( matroid )

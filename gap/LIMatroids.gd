@@ -1,2 +1,2 @@
-DeclareGlobalFunction( "__alcove_MatroidStandardImplications" );
-DeclareGlobalFunction( "__alcove_VectorMatroidImplications" );
+DeclareGlobalFunction( "_alcove_MatroidStandardImplications" );
+DeclareGlobalFunction( "_alcove_VectorMatroidImplications" );

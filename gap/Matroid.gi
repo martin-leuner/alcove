@@ -349,14 +349,16 @@ InstallMethod( IndependenceFunction,
 ## Bases
 
 ##
-#InstallMethod( Bases,
-#		"for abstract matroids",
-#		[ IsAbstractMatroidRep ],
-#
-# function( matroid )
-# end
-#
-#);
+InstallMethod( Bases,
+		"for uniform matroids",
+		[ IsMatroid and IsUniform ],
+		30,
+
+ function( matroid )
+  return Combinations( GroundSet( matroid ), RankOfMatroid( matroid ) );
+ end
+
+);
 
 ##
 InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
@@ -423,7 +425,7 @@ InstallMethod( Circuits,		## recursive exponential time method
 
 # Shift labels according to deletion:
 
-  for l in loopsColoops do
+  for l in loopsColoops do			## FIXME: replace this procedure by i -> ParentAttr[2][i] after having thought about it for a while
    for h in circs do
     for t in [ 1 .. Size( h ) ] do
      if h[t] >= l then h[t] := h[t] + 1; fi;
@@ -458,7 +460,7 @@ InstallMethod( Circuits,		## incremental polynomial time method for vector matro
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  local	nf, unitVecLabels, otherLabels, corank, rank, i, j, isIndependent, superSet, ReduceDependentSetToCircuit,
+  local	corank, rank, i, j, isIndependent, superSet, ReduceDependentSetToCircuit,
 	newCircuits, oldCircuits, union, intersection, currentCircuit, otherCircuit;
 
 # If matroid is uniform, call method for uniform matroids:
@@ -494,33 +496,13 @@ InstallMethod( Circuits,		## incremental polynomial time method for vector matro
 
 # Initialise variables:
 
-  nf := NormalFormOfVectorMatroid( matroid )[1];
-  otherLabels := NormalFormOfVectorMatroid( matroid )[2];
-  unitVecLabels := Difference( GroundSet( matroid ), otherLabels );
-
   rank := RankOfMatroid( matroid );
   corank := SizeOfGroundSet( matroid ) - rank;
 
   isIndependent := IndependenceFunction( matroid );
 
-  newCircuits := [];
+  newCircuits := FundamentalCircuitsWithBasis( matroid )[1];
   oldCircuits := [];
-
-# Compute fundamental circuits for basis corresponding to unit vectors in normal form:
-
-  for j in [ 1 .. corank ] do
-
-   currentCircuit := [];
-   for i in [ 1 .. rank ] do
-
-    if not IsZero( MatElm( nf, i, j ) ) then Add( currentCircuit, unitVecLabels[i] ); fi;
-
-   od;
-   AddSet( currentCircuit, otherLabels[j] );
-
-   newCircuits[j] := currentCircuit;
-
-  od;
 
 # Treat loops separately:
 
@@ -554,6 +536,91 @@ InstallMethod( Circuits,		## incremental polynomial time method for vector matro
   od; # while not IsEmpty( newCircuits )
 
   return Union2( oldCircuits, List( Loops( matroid ), loop -> [ loop ] ) );
+ end
+
+);
+
+
+###############################
+## FundamentalCircuitsWithBasis
+
+##
+InstallMethod( FundamentalCircuitsWithBasis,
+		"for abstract matroids",
+		[ IsAbstractMatroidRep ],
+
+ function( matroid )
+  local basis, reduceDependentSetToCircuit, isIndependent, circs, known;
+
+  reduceDependentSetToCircuit := function( dependentSet )
+   local element, furtherReduction, reducedSet;
+
+   repeat
+
+    furtherReduction := false;
+    for element in dependentSet do
+ 
+     reducedSet := Difference( dependentSet, [ element ] );
+ 
+     if not isIndependent( reducedSet ) then			# smaller dependent set found, start over
+      dependentSet := reducedSet;
+      furtherReduction := true;
+      break;
+     fi;
+
+    od;	# for element in dependentSet
+
+   until not furtherReduction;
+
+   return dependentSet;
+  end;
+
+  basis := SomeBasis( matroid );
+  isIndependent := IndependenceFunction( matroid );
+
+  circs := List( Difference( GroundSet( matroid ), basis ), i -> reduceDependentSetToCircuit( Union2( basis, [i] ) ) );
+
+  SetKnownCircuits( matroid, Union2( KnownCircuits( matroid ), circs ) );
+
+  return [ circs, basis ];
+ end
+
+);
+
+##
+InstallMethod( FundamentalCircuitsWithBasis,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+  local nf, otherLabels, unitVecLabels, rank, corank, circs, currentCircuit, i, j;
+
+  nf := NormalFormOfVectorMatroid( matroid )[1];
+  otherLabels := NormalFormOfVectorMatroid( matroid )[2];
+  unitVecLabels := Difference( GroundSet( matroid ), otherLabels );
+
+  rank := RankOfMatroid( matroid );
+  corank := SizeOfGroundSet( matroid ) - rank;
+
+  circs := [];
+
+  for j in [ 1 .. corank ] do
+
+   currentCircuit := [];
+   for i in [ 1 .. rank ] do
+
+    if not IsZero( MatElm( nf, i, j ) ) then Add( currentCircuit, unitVecLabels[i] ); fi;
+
+   od;
+   AddSet( currentCircuit, otherLabels[j] );
+
+   circs[j] := currentCircuit;
+
+  od;
+
+  SetKnownCircuits( matroid, Union2( KnownCircuits( matroid ), circs ) );
+
+  return [ circs, unitVecLabels ];
  end
 
 );
@@ -912,6 +979,56 @@ InstallMethod( AutomorphismGroup,
 );
 
 
+#########################
+## DirectSumDecomposition
+
+##
+InstallMethod( DirectSumDecomposition,
+		"for matroids",
+		[ IsMatroid ],
+
+ function( matroid )
+  local fundcircs, circ, i, currentComponent, components, section, remainingPoints;
+
+  fundcircs := ShallowCopy( FundamentalCircuitsWithBasis( matroid )[1] );
+  remainingPoints := SizeOfGroundSet( matroid );
+  components := [];
+
+  while remainingPoints > 0 do
+
+   circ := Remove( fundcircs );
+   i := 1;
+   currentComponent := circ;
+
+   while i <= Size( fundcircs ) do
+    section := Intersection2( fundcircs[i], circ );
+
+    if not IsEmpty( section ) then
+
+     currentComponent := Union2( currentComponent, Remove(fundcircs,i) );
+     if Size( currentComponent ) = remainingPoints then
+      break;
+     fi;
+
+    else
+
+     i := i+1;
+
+    fi;
+
+   od;
+
+   remainingPoints := remainingPoints - Size( currentComponent );
+   AddSet( components, currentComponent );
+
+  od;
+
+  return List( components, comp -> [ comp, MinorWithLogic( matroid, Difference(GroundSet(matroid),comp), [] ) ] );
+ end
+
+);
+
+
 ####################################
 ##
 ## Properties
@@ -1003,6 +1120,23 @@ InstallMethod( IsRegular,
 );
 
 
+##############
+## IsConnected
+
+##
+InstallMethod( IsConnected,
+		"for matroids",
+		[ IsMatroid ],
+
+ function( matroid )
+
+  return Size( DirectSumDecomposition( matroid ) ) = 1;
+
+ end
+
+); 
+
+
 ####################################
 ##
 ## Methods
@@ -1046,7 +1180,12 @@ InstallMethod( SomeBasis,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  return Difference( GroundSet( matroid ), NormalFormOfVectorMatroid( matroid )[2] );
+  local basis;
+
+  basis := Difference( GroundSet( matroid ), NormalFormOfVectorMatroid( matroid )[2] );
+  AddSet( KnownBases( matroid ), basis );
+
+  return basis;
  end
 
 );
@@ -1094,7 +1233,7 @@ InstallMethod( Minor,
 		[ IsAbstractMatroidRep and HasBases, IsList, IsList ],
 
  function( matroid, del, contr )
-  local minorBases, t, sdel, scontr, minor, loopsColoops;
+  local minorBases, t, sdel, scontr, minor, loopsColoops, groundSetInParent;
 
   sdel := Set( del );
   scontr := Set( contr );
@@ -1126,9 +1265,22 @@ InstallMethod( Minor,
    fi;
   od;
 
-  minor := Objectify( TheTypeMinorOfAbstractMatroid,
-	rec( groundSet := Immutable( Difference( Difference( GroundSet( matroid ), sdel ), scontr ) ), bases := Immutable( minorBases ) ) );
-  SetParentAttr( minor, matroid );
+# Map bases to canonical ground set:
+
+  groundSetInParent := Difference( GroundSet( matroid ), Union2( sdel, scontr ) );
+  minorBases := List( minorBases, b -> List( b, i -> Position( groundSetInParent, i ) ) );
+
+# Construct minor:
+
+  minor := Objectify( TheTypeMinorOfAbstractMatroid, rec() );
+
+  SetSizeOfGroundSet( minor, Size( groundSetInParent ) );
+  SetBases( minor, minorBases );
+
+  SetParentAttr( minor, [
+	matroid,
+	groundSetInParent
+  ] );
 
   return minor;
  end
@@ -1201,9 +1353,50 @@ InstallMethod( Minor,
   fi;
 
   minor := Objectify( TheTypeMinorOfVectorMatroid, rec( generatingMatrix := Immutable( minorMat ) ) );
-  SetParentAttr( minor, matroid );
+  SetParentAttr( minor, [
+	matroid,
+	Difference( GroundSet( matroid ), Union2( sdel, scontr ) )
+  ] );
 
   return minor;
+ end
+
+);
+
+
+#################
+## MinorWithLogic
+
+##
+InstallMethod( MinorWithLogic,
+		"for abstract matroids",
+		[ IsMatroid, IsList, IsList ],
+
+ function( mat, del, con )
+  local min;
+
+  min := Minor( mat, del, con );
+  _alcove_MatroidStandardImplications( min );
+
+  return min;
+ end
+
+);
+
+##
+InstallMethod( MinorWithLogic,
+		"for vector matroids",
+		[ IsVectorMatroidRep, IsList, IsList ],
+		10,
+
+ function( mat, del, con )
+  local min;
+
+  min := Minor( mat, del, con );
+  _alcove_MatroidStandardImplications( min );
+  _alcove_VectorMatroidImplications( min );
+
+  return min;
  end
 
 );
@@ -1289,7 +1482,7 @@ InstallMethod( Matroid,
 #  matobj := Immutable( MakeMatrix( mat ) );		## guess the base field and construct matrix object
 #
 #  matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := matobj ) );
-#   __alcove_MatroidStandardImplications( matroid );
+#   _alcove_MatroidStandardImplications( matroid );
 #
 #  return matroid;
 # end
@@ -1313,8 +1506,8 @@ InstallMethod( Matroid,
 			RankOfMatroid, 0
 	);
 
-  __alcove_MatroidStandardImplications( matroid );
-  __alcove_VectorMatroidImplications( matroid );
+  _alcove_MatroidStandardImplications( matroid );
+  _alcove_VectorMatroidImplications( matroid );
 
  end
 
@@ -1337,7 +1530,7 @@ InstallMethod( Matroid,
 #  else
 #
 #   matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
-#   __alcove_MatroidStandardImplications( matroid );
+#   _alcove_MatroidStandardImplications( matroid );
 #
 #  fi;
 #
@@ -1375,8 +1568,8 @@ InstallMethod( Matroid,
 
   matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
 
-  __alcove_MatroidStandardImplications( matroid );
-  __alcove_VectorMatroidImplications( matroid );
+  _alcove_MatroidStandardImplications( matroid );
+  _alcove_VectorMatroidImplications( matroid );
 
   return matroid;
  end
@@ -1409,7 +1602,7 @@ InstallMethod( MatroidByBases,
   SetBases( matroid, baselist );
   SetSizeOfGroundSet( matroid, deg );
 
-  __alcove_MatroidStandardImplications( matroid );
+  _alcove_MatroidStandardImplications( matroid );
 
   return matroid;
 
@@ -1550,7 +1743,7 @@ InstallMethod( MatroidByCircuits,
   SetSizeOfGroundSet( matroid, size );
   SetCircuits( matroid, circs );
 
-  __alcove_MatroidStandardImplications( matroid );
+  _alcove_MatroidStandardImplications( matroid );
 
   return matroid;
  end
@@ -1709,7 +1902,7 @@ InstallMethod( UniformMatroid,
   matroid := MatroidByRankFunctionNCL( n, function( X ) if Size(X) < k then return Size(X); else return k; fi; end );
   SetRankOfMatroid( matroid, k );
 
-  __alcove_MatroidStandardImplications( matroid );
+  _alcove_MatroidStandardImplications( matroid );
 
   SetIsUniform( matroid, true );
 

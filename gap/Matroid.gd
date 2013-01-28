@@ -65,6 +65,9 @@ DeclareAttribute( "KnownCircuits",
 		IsMatroid,
 		"mutable" );
 
+DeclareAttribute( "FundamentalCircuitsWithBasis",
+		IsMatroid );
+
 DeclareAttribute( "Cocircuits",
 		IsMatroid );
 
@@ -86,6 +89,9 @@ DeclareAttribute( "Coloops",
 DeclareAttribute( "AutomorphismGroup",
 		IsMatroid );
 
+DeclareAttribute( "DirectSumDecomposition",
+		IsMatroid );
+
 
 ####################################
 ##
@@ -105,6 +111,9 @@ DeclareProperty( "IsGraphic",
 DeclareProperty( "IsRegular",
 		IsMatroid );
 
+DeclareProperty( "IsConnected",
+		IsMatroid );
+
 
 ####################################
 ##
@@ -119,6 +128,9 @@ DeclareOperation( "MatrixOfVectorMatroid",
 		[ IsMatroid ] );
 
 DeclareOperation( "Minor",
+		[ IsMatroid, IsList, IsList ] );
+
+DeclareOperation( "MinorWithLogic",
 		[ IsMatroid, IsList, IsList ] );
 
 DeclareOperation( "Deletion",
