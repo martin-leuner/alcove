@@ -253,21 +253,26 @@ InstallMethod( RankFunction,
 		[ IsAbstractMatroidRep and HasBases ],
 
  function( matroid )
-  return function( X )
-   local b, max, s;
+  return
+	function( X )
+	 local b, max, s;
 
-   max := 0;
+	 max := 0;
 
-   for b in Bases( matroid ) do
-    s := Size( Intersection2( b, X ) );
-    if s > max then
-     max := s;
-     if max = Size( X ) then return max; fi;
-    fi;
-   od;
+	 for b in Bases( matroid ) do
 
-   return max;
-  end;
+	  s := Size( Intersection2( b, X ) );
+	  if s > max then
+
+	   max := s;
+	   if max = Size( X ) then return max; fi;
+
+	  fi;
+
+	 od;
+
+	 return max;
+	end;
  end
 
 );
@@ -295,14 +300,11 @@ InstallMethod( ClosureFunction,
  function( matroid )
   return
 	function( X )
-	 local loopsOfMinor, x, i;
+	 local loopsOfMinor, minor;
 
-	 loopsOfMinor := ShallowCopy( Loops( Contraction( matroid, X ) ) );
-	 for x in X do
-          for i in [1..Size(loopsOfMinor)] do
-           if x <= loopsOfMinor[i] then loopsOfMinor[i] := loopsOfMinor[i]+1; fi;
-	  od;
-	 od;
+	 minor := Contraction( matroid, X );
+
+	 loopsOfMinor := List( Loops( minor ), l -> ParentAttr(minor)[2][l];
 
 	 return Union2( X, loopsOfMinor );
 	end;
@@ -438,7 +440,6 @@ InstallMethod( Circuits,		## recursive exponential time method
 
 );
 
-
 ##
 InstallMethod( Circuits,
 		"for uniform matroids",
@@ -452,7 +453,6 @@ InstallMethod( Circuits,
  end
 
 );
-
 
 ##
 InstallMethod( Circuits,		## incremental polynomial time method for vector matroids
@@ -698,7 +698,6 @@ InstallMethod( TuttePolynomial,
 
 );
 
-
 ##
 InstallMethod( TuttePolynomial,
 		"method for disconnected matroids",
@@ -711,7 +710,6 @@ InstallMethod( TuttePolynomial,
  end
 
 );
-
 
 ##
 InstallMethod( TuttePolynomial,
@@ -750,7 +748,6 @@ InstallMethod( TuttePolynomial,
 
 );
 
-
 ##
 InstallMethod( TuttePolynomial,
 		"for connected vector matroids",
@@ -765,12 +762,6 @@ InstallMethod( TuttePolynomial,
    SetIndeterminateName( FamilyObj(x), 1, "x" );
    SetIndeterminateName( FamilyObj(x), 2, "y" );
   fi;
-
-## Check uniformity:
-#
-#  if IsUniform( matroid ) then
-#   return TuttePolynomial( UniformMatroidNL( RankOfMatroid( matroid ), SizeOfGroundSet( matroid ) ) );
-#  fi;
 
 ##
 # Check after contraction:
@@ -963,7 +954,6 @@ InstallMethod( Coloops,
 ####################
 ## AutomorphismGroup
 
-
 ##
 InstallMethod( AutomorphismGroup,
 		"for uniform matroids",
@@ -976,7 +966,6 @@ InstallMethod( AutomorphismGroup,
 
 );
 
-
 ##
 InstallMethod( AutomorphismGroup,
 		"for matroids",
@@ -984,9 +973,6 @@ InstallMethod( AutomorphismGroup,
 
  function( matroid )
 
-#  if IsUniform( matroid ) then
-#   return AutomorphismGroup( UniformMatroidNL( RankOfMatroid( matroid ), SizeOfGroundSet( matroid ) ) );
-#  fi;
 
  end
 
@@ -1080,7 +1066,6 @@ InstallMethod( IsUniform,
  end
 
 );
-
 
 ##
 InstallMethod( IsUniform,
@@ -1490,6 +1475,8 @@ InstallMethod( IsMinor,
 ##
 ####################################
 
+########
+## Copy:
 
 ##
 InstallMethod( Matroid,
@@ -1501,25 +1488,8 @@ InstallMethod( Matroid,
 );
 
 
-###						# SORT OUT HOW TO GUESS THE BASE FIELD AS AN IsHomalgRing!
-#InstallMethod( Matroid,
-#		"by matrix",
-#		[ IsMatrix ],
-#		10,
-#
-# function( mat )
-#  local matobj, matroid;
-#
-#  matobj := Immutable( MakeMatrix( mat ) );		## guess the base field and construct matrix object
-#
-#  matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := matobj ) );
-#   _alcove_MatroidStandardImplications( matroid );
-#
-#  return matroid;
-# end
-#
-#);
-
+###################
+## Vector matroids:
 
 ##
 InstallMethod( Matroid,
@@ -1544,33 +1514,6 @@ InstallMethod( Matroid,
 
 );
 
-
-###						# SORT OUT HOW TO GUESS THE BASE FIELD AS AN IsHomalgRing!
-#InstallMethod( Matroid,
-#		"by matrix object",
-#		[ IsMatrixObj ],
-#		20,
-#
-# function( matobj )
-#  local matroid;
-#
-#  if DimensionsMat( matobj )[2] = 0 then
-#
-#   matroid := Matroid( [[]] );			# call constructor for empty matrix
-#
-#  else
-#
-#   matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
-#   _alcove_MatroidStandardImplications( matroid );
-#
-#  fi;
-#
-#  return matroid;
-# end
-#
-#);
-
-
 ##
 InstallMethod( MatroidNL,
 		"by homalg matrix, no logical implications",
@@ -1586,7 +1529,6 @@ InstallMethod( MatroidNL,
  end
 
 );
-
 
 ##
 InstallMethod( Matroid,
@@ -1607,6 +1549,9 @@ InstallMethod( Matroid,
 
 );
 
+
+#####################
+## Abstract matroids:
 
 ##
 InstallMethod( MatroidByBases,
@@ -1658,7 +1603,6 @@ InstallMethod( MatroidByBasesNCL,
 
 );
 
-
 ##
 InstallMethod( MatroidByBases,
 		"by ground set and list of bases",
@@ -1669,7 +1613,6 @@ InstallMethod( MatroidByBases,
  end
 
 );
-
 
 ##
 InstallMethod( MatroidByBasesNCL,
@@ -1682,7 +1625,6 @@ InstallMethod( MatroidByBasesNCL,
 
 );
 
-
 ##
 InstallMethod( MatroidByIndependenceFunction,
 		"given size of ground set and boolean function deciding independence of subsets",
@@ -1693,7 +1635,6 @@ InstallMethod( MatroidByIndependenceFunction,
  end
 
 );
-
 
 ##
 InstallMethod( MatroidByIndependenceFunctionNCL,
@@ -1712,7 +1653,6 @@ InstallMethod( MatroidByIndependenceFunctionNCL,
 
 );
 
-
 ##
 InstallMethod( MatroidByIndependenceFunction,
 		"given ground set and boolean function deciding independence of subsets",
@@ -1728,7 +1668,6 @@ InstallMethod( MatroidByIndependenceFunction,
 
 );
 
-
 ##
 InstallMethod( MatroidByIndependenceFunctionNCL,
 		"given ground set and boolean function deciding independence of subsets, no checks or logical implications",
@@ -1743,7 +1682,6 @@ InstallMethod( MatroidByIndependenceFunctionNCL,
  end
 
 );
-
 
 ##
 InstallMethod( MatroidByCircuits,
@@ -1781,7 +1719,6 @@ InstallMethod( MatroidByCircuits,
 
 );
 
-
 ##
 InstallMethod( MatroidByCircuitsNCL,
 		"given size of ground set and list of circuits no checks or logical implications",
@@ -1799,7 +1736,6 @@ InstallMethod( MatroidByCircuitsNCL,
 
 );
 
-
 ##
 InstallMethod( MatroidByCircuits,
 		"given ground set and list of circuits",
@@ -1810,7 +1746,6 @@ InstallMethod( MatroidByCircuits,
  end
 
 );
-
 
 ##
 InstallMethod( MatroidByCircuitsNCL,
@@ -1823,7 +1758,6 @@ InstallMethod( MatroidByCircuitsNCL,
 
 );
 
-
 ##
 InstallMethod( MatroidByRankFunction,
 		"given size of ground set and integer valued function",
@@ -1834,7 +1768,6 @@ InstallMethod( MatroidByRankFunction,
  end
 
 );
-
 
 ##
 InstallMethod( MatroidByRankFunctionNCL,
@@ -1853,7 +1786,6 @@ InstallMethod( MatroidByRankFunctionNCL,
 
 );
 
-
 ##
 InstallMethod( MatroidByRankFunction,
 		"given size of ground set and integer valued function",
@@ -1868,7 +1800,6 @@ InstallMethod( MatroidByRankFunction,
  end
 
 );
-
 
 ##
 InstallMethod( MatroidByRankFunctionNCL,
@@ -1886,6 +1817,9 @@ InstallMethod( MatroidByRankFunctionNCL,
 );
 
 
+####################
+## Graphic matroids:
+
 ###
 #InstallMethod( MatroidOfGraph,
 #		"given an incidence matrix",
@@ -1897,6 +1831,9 @@ InstallMethod( MatroidByRankFunctionNCL,
 #
 #);
 
+
+########################
+## Special constructors:
 
 ##
 InstallMethod( RandomVectorMatroidOverPrimeField,
@@ -1919,7 +1856,6 @@ InstallMethod( RandomVectorMatroidOverPrimeField,
 
 );
 
-
 ##
 InstallMethod( UniformMatroid,
 		"as an abstract matroid",
@@ -1941,7 +1877,6 @@ InstallMethod( UniformMatroid,
  end
 
 );
-
 
 ##
 InstallMethod( UniformMatroidNL,
