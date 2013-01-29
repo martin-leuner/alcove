@@ -8,8 +8,6 @@
 ##
 #############################################################################
 
-#ReadPackage( "alcove", "gap/Workarounds" );
-
 ReadPackage( "alcove", "gap/Matroid.gi" );
 
 ReadPackage( "alcove", "gap/AssociationScheme.gi" );
