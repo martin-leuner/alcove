@@ -1,0 +1,3 @@
+listOfDocFiles := [
+         "../gap/AutoDocEntries.g"
+         ];

@@ -6,7 +6,7 @@ PackageName := "alcove",
 Subtitle := "A package for algebraic combinatorics",
 
 Version :=  Maximum( [
-  "2013-01-28", ## Martin's version ## in case this package should ever be edited by more than one person
+  "2013-01-29", ## Martin's version ## in case this package should ever be edited by more than one person
 ] ),
 
 Date := ~.Version{[ 1 .. 10 ]},
@@ -53,7 +53,7 @@ Status := "dev",
 #                 "It is capable of communicating with the CAS polymake via the package PolymakeInterface",
 #                 " and also provides several methods by itself." ),
 
-#PackageWWWHome := "http://wwwb.math.rwth-aachen.de/~gutsche/gap_packages/Convex/",
+PackageWWWHome := "https://github.com/martin-leuner/alcove",
 #               
 #PackageDoc := rec(
 #  BookName  := "alcove",
@@ -68,7 +68,14 @@ Status := "dev",
 
 Dependencies := rec(
   GAP := ">=4.5",
-  NeededOtherPackages := [ [ "MatricesForHomalg", ">=0" ], [ "RingsForHomalg", ">=0" ], [ "GaussForHomalg", ">=0" ], [ "ToolsForHomalg", ">=2012.12.01" ] ],
+  NeededOtherPackages := [
+	 [ "MatricesForHomalg", ">=2012.10.25" ],
+	 [ "RingsForHomalg", ">=2012.10.22" ],
+	 [ "GaussForHomalg", ">=2012.10.22" ],
+	 [ "ToolsForHomalg", ">=2012.12.01" ],
+	 [ "GAPDoc", ">= 1.0" ],
+	 [ "AutoDoc", ">=2012.07.29" ]
+	],
   SuggestedOtherPackages := [],
   ExternalConditions := []
                       

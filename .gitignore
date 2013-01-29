@@ -8,3 +8,5 @@
 *.spl
 *.swp
 *.sty
+gap/AutoDocEntries.g
+doc

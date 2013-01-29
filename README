@@ -1,0 +1,14 @@
+The GAP 4 package `alcove'
+--------------------------
+
+This package aims at providing an implementation of matroids
+and association schemes as GAP objects. Efficient computation
+of their structural properties and certain invariants is a
+key goal of the package, partly using powerful logical methods
+from the homalg project.
+
+All this is in an early development state and nowhere near
+complete. Bug reports and other feedback are welcome. The
+latest version can be found at
+
+     > https://github.com/martin-leuner/alcove <

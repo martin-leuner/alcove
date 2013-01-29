@@ -302,9 +302,9 @@ InstallMethod( ClosureFunction,
 	function( X )
 	 local loopsOfMinor, minor;
 
-	 minor := Contraction( matroid, X );
+	 minor := MinorNL( matroid, [], X );
 
-	 loopsOfMinor := List( Loops( minor ), l -> ParentAttr(minor)[2][l];
+	 loopsOfMinor := List( Loops( minor ), l -> ParentAttr(minor)[2][l] );
 
 	 return Union2( X, loopsOfMinor );
 	end;
@@ -414,11 +414,11 @@ InstallMethod( Circuits,		## recursive exponential time method
 
 # Delete loops and coloops and start recursion:
 
-  loopColoopFree := Deletion( matroid, loopsColoops );
+  loopColoopFree := MinorNL( matroid, loopsColoops, [] );
   t := SizeOfGroundSet( loopColoopFree );
 
-  delCircs := Circuits( Deletion( loopColoopFree, [t] ) );
-  conCircs := Circuits( Contraction( loopColoopFree, [t] ) );
+  delCircs := Circuits( MinorNL( loopColoopFree, [t], [] ) );
+  conCircs := Circuits( MinorNL( loopColoopFree, [], [t] ) );
 
 # Combine results:
 
@@ -739,11 +739,11 @@ InstallMethod( TuttePolynomial,
 
   loopsColoops := Union2( Loops( matroid ), Coloops( matroid ) );
 
-  min := Deletion( matroid, loopsColoops );
+  min := MinorNL( matroid, loopsColoops, [] );
 
   n := GroundSet( min )[1];
 
-  return p * ( TuttePolynomial( Deletion( min, [n] ) ) + TuttePolynomial( Contraction( min, [n] ) ) );
+  return p * ( TuttePolynomial( MinorNL( min, [n], [] ) ) + TuttePolynomial( MinorNL( min, [], [n] ) ) );
  end
 
 );
@@ -1034,7 +1034,7 @@ InstallMethod( DirectSumDecomposition,
 
   od;
 
-  components := List( components, comp -> [ comp, MinorWithLogic( matroid, Difference(GroundSet(matroid),comp), [] ) ] );
+  components := List( components, comp -> [ comp, Minor( matroid, Difference(GroundSet(matroid),comp), [] ) ] );
 
   for currentComponent in components do
    SetIsConnected( currentComponent[2], true );
@@ -1228,11 +1228,11 @@ InstallMethod( MatrixOfVectorMatroid,
 );
 
 
-########
-## Minor
+##########
+## MinorNL
 
 ##
-InstallOtherMethod( Minor,
+InstallOtherMethod( MinorNL,
 		"for empty arguments",
 		[ IsMatroid, IsList and IsEmpty, IsList and IsEmpty ],
 		20,
@@ -1244,7 +1244,7 @@ InstallOtherMethod( Minor,
 );
 
 ##
-InstallMethod( Minor,
+InstallMethod( MinorNL,
 		"for matroids with bases",
 		[ IsAbstractMatroidRep and HasBases, IsList, IsList ],
 
@@ -1304,7 +1304,7 @@ InstallMethod( Minor,
 );
 
 ##
-InstallMethod( Minor,
+InstallMethod( MinorNL,
 		"for vector matroids",
 		[ IsVectorMatroidRep, IsList, IsList ],
 
@@ -1380,18 +1380,18 @@ InstallMethod( Minor,
 );
 
 
-#################
-## MinorWithLogic
+########
+## Minor
 
 ##
-InstallMethod( MinorWithLogic,
+InstallMethod( Minor,
 		"for abstract matroids",
 		[ IsMatroid, IsList, IsList ],
 
  function( mat, del, con )
   local min;
 
-  min := Minor( mat, del, con );
+  min := MinorNL( mat, del, con );
   _alcove_MatroidStandardImplications( min );
 
   return min;
@@ -1400,7 +1400,7 @@ InstallMethod( MinorWithLogic,
 );
 
 ##
-InstallMethod( MinorWithLogic,
+InstallMethod( Minor,
 		"for vector matroids",
 		[ IsVectorMatroidRep, IsList, IsList ],
 		10,
@@ -1408,7 +1408,7 @@ InstallMethod( MinorWithLogic,
  function( mat, del, con )
   local min;
 
-  min := Minor( mat, del, con );
+  min := MinorNL( mat, del, con );
   _alcove_MatroidStandardImplications( min );
   _alcove_VectorMatroidImplications( min );
 
@@ -1458,11 +1458,11 @@ InstallMethod( IsMinor,
 
  function( matroid, minor )
   local parent;
-  parent := ParentAttr( minor );
+  parent := ParentAttr( minor )[1];
   if IsMinorOfMatroid( parent ) then
    return IsMinor( matroid, parent );
   else
-   return matroid = parent;
+   return IsIdenticalObj( matroid, parent );
   fi;
  end
 

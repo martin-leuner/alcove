@@ -21,8 +21,13 @@ DeclareCategory( "IsMinorOfMatroid",
 ##
 ####################################
 
-DeclareAttribute( "DualMatroid",
-		IsMatroid );
+DeclareAttributeWithDocumentation( "DualMatroid",
+				IsMatroid,
+		 		[ "Computes the dual matroid of <A>mat</A>. If possible, it will be given in the same representation." ],
+				"a matroid",
+				"mat",
+				[ "Matroids", "Constructions" ]
+			);
 
 DeclareAttribute( "ParentAttr",
 		IsMinorOfMatroid );
@@ -51,8 +56,13 @@ DeclareAttribute( "ClosureFunction",
 DeclareAttribute( "IndependenceFunction",
 		IsMatroid );
 
-DeclareAttribute( "Bases",
-		IsMatroid );
+DeclareAttributeWithDocumentation( "Bases",
+				IsMatroid,
+				[ "Computes the bases of <A>mat</A>. For larger matroids this may take a very long time." ],
+				"a list of bases",
+				"mat",
+				[ "Matroids", "Bases,_circuits_and_all_their_companions" ]
+			);
 
 DeclareAttribute( "KnownBases",
 		IsMatroid,
@@ -127,17 +137,32 @@ DeclareOperation( "SomeBasis",
 DeclareOperation( "MatrixOfVectorMatroid",
 		[ IsMatroid ] );
 
-DeclareOperation( "Minor",
+DeclareOperationWithDocumentation( "Minor",
+				[ IsMatroid, IsList, IsList ],
+				[ "Computes the minor <A>mat</A> \ <A>del</A> / <A>con</A> where <A>del</A> and <A>con</A> are subsets of the ground set of <A>mat</A>." ],
+				"a matroid",
+				"mat,del,con",
+				[ "Matroids", "Constructions" ]
+			);
+
+DeclareOperation( "MinorNL",
 		[ IsMatroid, IsList, IsList ] );
 
-DeclareOperation( "MinorWithLogic",
-		[ IsMatroid, IsList, IsList ] );
+DeclareOperationWithDocumentation( "Deletion",
+				[ IsMatroid, IsList ],
+				[ "Computes the minor <A>mat</A> \ <A>del</A> where <A>del</A> is a subset of the ground set of <A>mat</A>." ],
+				"a matroid",
+				"mat,del",
+				[ "Matroids", "Constructions" ]
+			);
 
-DeclareOperation( "Deletion",
-		[ IsMatroid, IsList ] );
-
-DeclareOperation( "Contraction",
-		[ IsMatroid, IsList ] );
+DeclareOperationWithDocumentation( "Contraction",
+				[ IsMatroid, IsList ],
+				[ "Computes the minor <A>mat</A> / <A>con</A> where <A>con</A> is a subset of the ground set of <A>mat</A>." ],
+				"a matroid",
+				"mat,con",
+				[ "Matroids", "Constructions" ]
+			);
 
 DeclareOperation( "IsMinor",
 		[ IsMatroid, IsMinorOfMatroid ] );
