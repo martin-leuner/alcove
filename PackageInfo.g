@@ -54,16 +54,16 @@ Status := "dev",
 #                 " and also provides several methods by itself." ),
 
 PackageWWWHome := "https://github.com/martin-leuner/alcove",
-#               
-#PackageDoc := rec(
-#  BookName  := "alcove",
-#  ArchiveURLSubset := ["doc"],
-#  HTMLStart := "doc/chap0.html",
-#  PDFFile   := "doc/manual.pdf",
-#  SixFile   := "doc/manual.six",
-#  LongTitle := "alcove - Objects in Algebraic Combinatorics",
-#  Autoload  := false
-#),
+
+PackageDoc := rec(
+  BookName  := "alcove",
+  ArchiveURLSubset := ["doc"],
+  HTMLStart := "doc/chap0.html",
+  PDFFile   := "doc/manual.pdf",
+  SixFile   := "doc/manual.six",
+  LongTitle := "alcove - Objects in Algebraic Combinatorics",
+  Autoload  := true
+),
 
 
 Dependencies := rec(
@@ -85,7 +85,7 @@ AvailabilityTest := ReturnTrue,
     
 Autoload := false,
 
-Keywords := [ "Algebraic combinatorics", "Matroid", "Association scheme", "Tutte polynomial", "C-algebra" ]
+Keywords := [ "Algebraic combinatorics", "Matroid", "Association scheme", "Tutte polynomial" ]
 
 ));
 

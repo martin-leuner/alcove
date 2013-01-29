@@ -14,160 +14,6 @@ DeclareCategory( "IsMatroid",
 DeclareCategory( "IsMinorOfMatroid",
 		IsMatroid );
 
-
-####################################
-##
-## Attributes
-##
-####################################
-
-DeclareAttributeWithDocumentation( "DualMatroid",
-				IsMatroid,
-		 		[ "Computes the dual matroid of <A>mat</A>. If possible, it will be given in the same representation." ],
-				"a matroid",
-				"mat",
-				[ "Matroids", "Constructions" ]
-			);
-
-DeclareAttribute( "ParentAttr",
-		IsMinorOfMatroid );
-
-DeclareAttribute( "SimplifiedMatroid",
-		IsMatroid );
-
-DeclareAttribute( "NormalFormOfVectorMatroid",
-		IsMatroid );
-
-DeclareOperation( "GroundSet",
-		[ IsMatroid ] );
-
-DeclareAttribute( "SizeOfGroundSet",
-		IsMatroid );
-
-DeclareAttribute( "RankOfMatroid",
-		IsMatroid );
-
-DeclareAttribute( "RankFunction",
-		IsMatroid );
-
-DeclareAttribute( "ClosureFunction",
-		IsMatroid );
-
-DeclareAttribute( "IndependenceFunction",
-		IsMatroid );
-
-DeclareAttributeWithDocumentation( "Bases",
-				IsMatroid,
-				[ "Computes the bases of <A>mat</A>. For larger matroids this may take a very long time." ],
-				"a list of bases",
-				"mat",
-				[ "Matroids", "Bases,_circuits_and_all_their_companions" ]
-			);
-
-DeclareAttribute( "KnownBases",
-		IsMatroid,
-		"mutable" );
-
-DeclareAttribute( "Circuits",
-		IsMatroid );
-
-DeclareAttribute( "KnownCircuits",
-		IsMatroid,
-		"mutable" );
-
-DeclareAttribute( "FundamentalCircuitsWithBasis",
-		IsMatroid );
-
-DeclareAttribute( "Cocircuits",
-		IsMatroid );
-
-DeclareAttribute( "Hyperplanes",
-		IsMatroid );
-
-DeclareAttribute( "TuttePolynomial",
-		IsMatroid );
-
-DeclareAttribute( "RankGeneratingPolynomial",
-		IsMatroid );
-
-DeclareAttribute( "Loops",
-		IsMatroid );
-
-DeclareAttribute( "Coloops",
-		IsMatroid );
-
-DeclareAttribute( "AutomorphismGroup",
-		IsMatroid );
-
-DeclareAttribute( "DirectSumDecomposition",
-		IsMatroid );
-
-
-####################################
-##
-## Properties
-##
-####################################
-
-DeclareProperty( "IsUniform",
-		IsMatroid );
-
-DeclareProperty( "IsSimpleMatroid",
-		IsMatroid );
-
-DeclareProperty( "IsGraphic",
-		IsMatroid );
-
-DeclareProperty( "IsRegular",
-		IsMatroid );
-
-DeclareProperty( "IsConnected",
-		IsMatroid );
-
-
-####################################
-##
-## Methods
-##
-####################################
-
-DeclareOperation( "SomeBasis",
-		[ IsMatroid ] );
-
-DeclareOperation( "MatrixOfVectorMatroid",
-		[ IsMatroid ] );
-
-DeclareOperationWithDocumentation( "Minor",
-				[ IsMatroid, IsList, IsList ],
-				[ "Computes the minor <A>mat</A> \ <A>del</A> / <A>con</A> where <A>del</A> and <A>con</A> are subsets of the ground set of <A>mat</A>." ],
-				"a matroid",
-				"mat,del,con",
-				[ "Matroids", "Constructions" ]
-			);
-
-DeclareOperation( "MinorNL",
-		[ IsMatroid, IsList, IsList ] );
-
-DeclareOperationWithDocumentation( "Deletion",
-				[ IsMatroid, IsList ],
-				[ "Computes the minor <A>mat</A> \ <A>del</A> where <A>del</A> is a subset of the ground set of <A>mat</A>." ],
-				"a matroid",
-				"mat,del",
-				[ "Matroids", "Constructions" ]
-			);
-
-DeclareOperationWithDocumentation( "Contraction",
-				[ IsMatroid, IsList ],
-				[ "Computes the minor <A>mat</A> / <A>con</A> where <A>con</A> is a subset of the ground set of <A>mat</A>." ],
-				"a matroid",
-				"mat,con",
-				[ "Matroids", "Constructions" ]
-			);
-
-DeclareOperation( "IsMinor",
-		[ IsMatroid, IsMinorOfMatroid ] );
-
-
 ####################################
 ##
 ## Constructors
@@ -243,6 +89,8 @@ DeclareOperation( "MatroidByRankFunctionNCL",
 #DeclareOperation( "MatroidOfGraph",
 #		[ IsMatrix ] );
 
+## Special matroids:
+
 DeclareOperation( "RandomVectorMatroidOverPrimeField",
 		[ IsInt, IsInt, IsInt ] );
 
@@ -251,4 +99,164 @@ DeclareOperation( "UniformMatroid",
 
 DeclareOperation( "UniformMatroidNL",
 		[ IsInt, IsInt ] );
+
+
+####################################
+##
+## Attributes
+##
+####################################
+
+DeclareAttributeWithDocumentation( "DualMatroid",
+				IsMatroid,
+		 		[ "Computes the dual matroid of <A>mat</A>. If possible, it will be given in the same representation." ],
+				"a matroid",
+				"mat",
+				[ "Matroids", "Constructions" ]
+			);
+
+DeclareAttribute( "ParentAttr",
+		IsMinorOfMatroid );
+
+DeclareAttribute( "SimplifiedMatroid",
+		IsMatroid );
+
+DeclareAttribute( "NormalFormOfVectorMatroid",
+		IsMatroid );
+
+DeclareOperation( "GroundSet",
+		[ IsMatroid ] );
+
+DeclareAttribute( "SizeOfGroundSet",
+		IsMatroid );
+
+DeclareAttribute( "RankOfMatroid",
+		IsMatroid );
+
+DeclareAttribute( "RankFunction",
+		IsMatroid );
+
+DeclareAttribute( "ClosureFunction",
+		IsMatroid );
+
+DeclareAttribute( "IndependenceFunction",
+		IsMatroid );
+
+DeclareAttributeWithDocumentation( "Bases",
+				IsMatroid,
+				[ "Computes the bases of <A>mat</A>. For larger matroids this may take a very long time." ],
+				"a list of bases",
+				"mat",
+				[ "Matroids", "Bases,_circuits_and_all_their_companions" ]
+			);
+
+DeclareAttribute( "KnownBases",
+		IsMatroid,
+		"mutable" );
+
+DeclareAttributeWithDocumentation( "Circuits",
+				IsMatroid,
+				[ "Computes the circuits of <A>mat</A>. This is done using an incremental polynomial time",
+				  "algorithm, so for matroids with many circuits this may take a long time." ],
+				"a list of circuits",
+				"mat",
+				[ "Matroids", "Bases,_circuits_and_all_their_companions" ]
+			);
+
+DeclareAttribute( "KnownCircuits",
+		IsMatroid,
+		"mutable" );
+
+DeclareAttribute( "FundamentalCircuitsWithBasis",
+		IsMatroid );
+
+DeclareAttribute( "Cocircuits",
+		IsMatroid );
+
+DeclareAttribute( "Hyperplanes",
+		IsMatroid );
+
+DeclareAttribute( "TuttePolynomial",
+		IsMatroid );
+
+DeclareAttribute( "RankGeneratingPolynomial",
+		IsMatroid );
+
+DeclareAttribute( "Loops",
+		IsMatroid );
+
+DeclareAttribute( "Coloops",
+		IsMatroid );
+
+DeclareAttribute( "AutomorphismGroup",
+		IsMatroid );
+
+DeclareAttribute( "DirectSumDecomposition",
+		IsMatroid );
+
+
+####################################
+##
+## Properties
+##
+####################################
+
+DeclareProperty( "IsUniform",
+		IsMatroid );
+
+DeclareProperty( "IsSimpleMatroid",
+		IsMatroid );
+
+DeclareProperty( "IsGraphic",
+		IsMatroid );
+
+DeclareProperty( "IsRegular",
+		IsMatroid );
+
+DeclareProperty( "IsConnected",
+		IsMatroid );
+
+
+####################################
+##
+## Methods
+##
+####################################
+
+DeclareOperation( "SomeBasis",
+		[ IsMatroid ] );
+
+DeclareOperation( "MatrixOfVectorMatroid",
+		[ IsMatroid ] );
+
+DeclareOperationWithDocumentation( "Minor",
+				[ IsMatroid, IsList, IsList ],
+				[ "Computes the minor <A>mat</A> \\ <A>del</A> / <A>con</A> where <A>del</A> and <A>con</A> are subsets of the ground set of <A>mat</A>." ],
+				"a matroid",
+				"mat,del,con",
+				[ "Matroids", "Constructions" ]
+			);
+
+DeclareOperation( "MinorNL",
+		[ IsMatroid, IsList, IsList ] );
+
+DeclareOperationWithDocumentation( "Deletion",
+				[ IsMatroid, IsList ],
+				[ "Computes the minor <A>mat</A> \\ <A>del</A> where <A>del</A> is a subset of the ground set of <A>mat</A>." ],
+				"a matroid",
+				"mat,del",
+				[ "Matroids", "Constructions" ]
+			);
+
+DeclareOperationWithDocumentation( "Contraction",
+				[ IsMatroid, IsList ],
+				[ "Computes the minor <A>mat</A> / <A>con</A> where <A>con</A> is a subset of the ground set of <A>mat</A>." ],
+				"a matroid",
+				"mat,con",
+				[ "Matroids", "Constructions" ]
+			);
+
+DeclareOperation( "IsMinor",
+		[ IsMatroid, IsMinorOfMatroid ] );
+
 
