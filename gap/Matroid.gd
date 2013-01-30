@@ -31,10 +31,10 @@ DeclareOperation( "Matroid",
 		[ IsGeneralizedRowVector and IsNearAdditiveElementWithInverse and IsAdditiveElement ] );
 
 DeclareOperation( "Matroid",
-		[ IsMatrixObj ] );
+		[ IsHomalgMatrix ] );
 
 DeclareOperation( "MatroidNL",
-		[ IsMatrixObj ] );
+		[ IsHomalgMatrix ] );
 
 ## Abstract matroids:
 
@@ -100,6 +100,15 @@ DeclareOperation( "UniformMatroid",
 DeclareOperation( "UniformMatroidNL",
 		[ IsInt, IsInt ] );
 
+
+####################################
+##
+## Operators
+##
+####################################
+
+DeclareOperation( "\+",
+		[ IsMatroid, IsMatroid ] );
 
 ####################################
 ##
@@ -258,5 +267,14 @@ DeclareOperationWithDocumentation( "Contraction",
 
 DeclareOperation( "IsMinor",
 		[ IsMatroid, IsMinorOfMatroid ] );
+
+DeclareOperationWithDocumentation( "DirectSumOfMatroids",
+				[ IsMatroid, IsMatroid ],
+				[ "Computes the direct sum <A>M1</A> + <A>M2</A> as an abstract matroid.\n\n",
+				"DirectSumOfMatroids silently applies DirectSumDecomposition to its arguments." ],
+				"a matroid",
+				"M1,M2",
+				[ "Matroids", "Constructions" ]
+			);
 
 

@@ -320,6 +320,7 @@ InstallMethod( ClosureFunction,
 InstallMethod( IndependenceFunction,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
+		30,
 
  function( matroid )
   return
@@ -341,6 +342,36 @@ InstallMethod( IndependenceFunction,
          if NrRows( checkMat ) < nrCols then return false; fi;
 
          return ColumnRankOfMatrix( checkMat ) = nrCols;
+	end;
+ end
+
+);
+
+##
+InstallMethod( IndependenceFunction,
+		"for matroids with bases",
+		[ IsMatroid and HasBases ],
+		10,
+
+ function( matroid )
+  return
+	function( X )
+	 return ForAny( Bases( matroid ), b -> IsSubset( b, X ) );
+	end;
+ end
+
+);
+
+##
+InstallMethod( IndependenceFunction,
+		"for matroids with circuits",
+		[ IsMatroid and HasCircuits ],
+		20,
+
+ function( matroid )
+  return
+	function( X )
+	 return ForAll( Circuits( matroid ), c -> not IsSubset( X, c ) );
 	end;
  end
 
@@ -1002,8 +1033,10 @@ InstallMethod( DirectSumDecomposition,
   local fundcircs, circ, i, currentComponent, components, section, remainingPoints;
 
   fundcircs := ShallowCopy( FundamentalCircuitsWithBasis( matroid )[1] );
-  remainingPoints := SizeOfGroundSet( matroid );
+  remainingPoints := SizeOfGroundSet( matroid ) - Size( Coloops( matroid ) );
   components := [];
+
+# Determine partition of ground set by fundamental circuits:
 
   while remainingPoints > 0 do
 
@@ -1033,6 +1066,10 @@ InstallMethod( DirectSumDecomposition,
    AddSet( components, currentComponent );
 
   od;
+
+# Add components consisting of coloops:
+
+  components := Union2( components, List( Coloops(matroid), l -> [l] ) );
 
   components := List( components, comp -> [ comp, Minor( matroid, Difference(GroundSet(matroid),comp), [] ) ] );
 
@@ -1469,6 +1506,119 @@ InstallMethod( IsMinor,
 );
 
 
+######################
+## DirectSumOfMatroids
+
+##
+InstallMethod( DirectSumOfMatroids,
+		"for matroids",
+		[ IsMatroid, IsMatroid ],
+
+ function( m1, m2 )
+  local sum, size1, subs;
+
+  size1 := SizeOfGroundSet(m1);
+  subs := List( GroundSet(m2), i -> i+size1 );
+
+  sum := rec();
+  ObjectifyWithAttributes( sum, TheTypeAbstractMatroid,
+			SizeOfGroundSet, size1 + SizeOfGroundSet(m2),
+			RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2),
+			DirectSumDecomposition, Concatenation( DirectSumDecomposition(m1),
+								List( DirectSumDecomposition(m2), tup -> [ List(tup[1],j->subs[j]), tup[2] ] ) ),
+			IsConnected, false );
+
+  _alcove_MatroidStandardImplications( sum );
+
+  return sum;
+
+ end
+
+);
+
+
+####################################
+##
+## Operators
+##
+####################################
+
+############
+## Addition:
+
+##
+InstallMethod( \+,
+		"direct sum of matroids",
+		[ IsMatroid, IsMatroid ],
+
+ DirectSumOfMatroids
+
+);
+
+
+#########
+## Equal:
+
+##
+InstallMethod( \=,
+		"for matroids with bases",
+		[ IsMatroid and IsConnected and HasBases, IsMatroid and IsConnected and HasBases ],
+		20,
+
+ function( m1, m2 )
+
+  return SizeOfGroundSet(m1) = SizeOfGroundSet(m2) and Bases(m1) = Bases(m2);
+
+ end
+
+);
+
+##
+InstallMethod( \=,
+		"for matroids with circuits",
+		[ IsMatroid and IsConnected and HasCircuits, IsMatroid and IsConnected and HasCircuits ],
+		30,
+
+ function( m1, m2 )
+
+  return SizeOfGroundSet(m1) = SizeOfGroundSet(m2) and Circuits(m1) = Circuits(m2);
+
+ end
+
+);
+
+##													## NAIVE METHOD
+InstallMethod( \=,
+		"fallback method",
+		[ IsMatroid and IsConnected, IsMatroid and IsConnected ],
+		10,
+
+ function( m1, m2 )
+
+  if SizeOfGroundSet(m1) <> SizeOfGroundSet(m2) then return false; fi;
+  if RankOfMatroid(m1) <> RankOfMatroid(m2) then return false; fi;
+
+  return Circuits(m1) = Circuits(m2);
+
+ end
+
+);
+
+##
+InstallMethod( \=,
+		"for disconnected matroids",
+		[ IsMatroid, IsMatroid ],
+		0,
+
+ function( m1, m2 )
+
+  return DirectSumDecomposition( m1 ) = DirectSumDecomposition( m2 );
+
+ end
+
+);
+
+
 ####################################
 ##
 ## Constructors
@@ -1501,8 +1651,8 @@ InstallMethod( Matroid,
 
   if not IsEmpty( mat[1] ) then Error( "constructor for empty vector matroids called on non-empty matrix" ); fi;
 
-  matroid := ObjectifyWithAttributes( rec( generatingMatrix := Immutable( HomalgMatrix(mat,HomalgRingOfIntegers(2)) ) ),
-			TheTypeVectorMatroid,
+  matroid := rec( generatingMatrix := Immutable( HomalgMatrix(mat,HomalgRingOfIntegers(2)) ) );
+  ObjectifyWithAttributes( matroid, TheTypeVectorMatroid,
 			SizeOfGroundSet, 0,
 			RankOfMatroid, 0
 	);

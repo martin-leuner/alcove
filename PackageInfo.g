@@ -12,10 +12,10 @@ Version :=  Maximum( [
 Date := ~.Version{[ 1 .. 10 ]},
 Date := Concatenation( ~.Date{[ 9, 10 ]}, ".", ~.Date{[ 6, 7 ]}, ".", ~.Date{[ 1 .. 4 ]} ),
 
-ArchiveURL := 
-          Concatenation( "http://wwwb.math.rwth-aachen.de/~leuner/gap/", ~.PackageName, "/", ~.PackageName, "-", ~.Version ),
-
-ArchiveFormats := ".tar.gz",
+#ArchiveURL := 
+#          Concatenation( "http://wwwb.math.rwth-aachen.de/~leuner/gap/", ~.PackageName, "/", ~.PackageName, "-", ~.Version ),
+#
+#ArchiveFormats := ".tar.gz",
 
 
 
