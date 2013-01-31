@@ -108,7 +108,15 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
   entry := ToDoListEntryWithPointers( matroid, "IsUniform", true,
 					matroid,
 					"IsConnected",
-					1 < RankOfMatroid( matroid ) and RankOfMatroid( matroid ) < SizeOfGroundSet( matroid ) );
+					function() return
+						SizeOfGroundSet( matroid ) <= 1
+						or
+						(
+							0 < RankOfMatroid( matroid )
+							and
+							RankOfMatroid( matroid ) < SizeOfGroundSet( matroid )
+						);
+					end );
 
   SetDescriptionOfImplication( entry, "U_{k,n} is connected if and only if 1 < k < n" );
   AddToToDoList( entry );

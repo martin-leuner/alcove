@@ -1067,7 +1067,9 @@ InstallMethod( Loops,
 		[ IsAbstractMatroidRep and HasBases ],
 
  function( matroid )
+
   return Coloops( DualMatroid( matroid ) );
+
  end
 
 );
@@ -1078,7 +1080,24 @@ InstallMethod( Loops,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
+
   return ZeroColumns( MatrixOfVectorMatroid( matroid ) );
+
+ end
+
+);
+
+##
+InstallMethod( Loops,
+		"fallback method",
+		[ IsMatroid ],
+
+ function( matroid )
+  local isIndep;
+
+  isIndep := IndependenceFunction( matroid );
+
+  return Filtered( GroundSet( matroid ), l -> not isIndep( [l] ) );
  end
 
 );
@@ -1091,6 +1110,7 @@ InstallMethod( Loops,
 InstallMethod( Coloops,
 		"for matroids with bases",
 		[ IsAbstractMatroidRep and HasBases ],
+		30,
 
  function( matroid )
   local is, b;
@@ -1110,15 +1130,20 @@ InstallMethod( Coloops,
 InstallMethod( Coloops,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
+		40,
 
  function( matroid )
 
   if HasNormalFormOfVectorMatroid( matroid ) then
 
    if IsEmpty( NormalFormOfVectorMatroid( matroid )[2] ) then
+
     return GroundSet( matroid );
+
    else
+
     return List( ZeroRows( NormalFormOfVectorMatroid( matroid )[1] ), i -> Difference( GroundSet( matroid ), NormalFormOfVectorMatroid( matroid )[2] )[i] );
+
    fi;
 
   else
@@ -1126,6 +1151,42 @@ InstallMethod( Coloops,
    return Loops( DualMatroid( matroid ) );
 
   fi;
+
+ end
+
+);
+
+##
+InstallMethod( Coloops,
+		"for uniform matroids",
+		[ IsMatroid and IsUniform ],
+		50,
+
+ function( matroid )
+
+  if RankOfMatroid( matroid ) = SizeOfGroundSet( matroid ) then
+
+   return GroundSet( matroid );
+
+  else
+
+   return [];
+
+  fi;
+
+ end
+
+);
+
+##
+InstallMethod( Coloops,
+		"fallback method",
+		[ IsMatroid ],
+		0,
+
+ function( matroid )
+
+  return Loops( DualMatroid( matroid ) );
 
  end
 
