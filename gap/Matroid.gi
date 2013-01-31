@@ -83,8 +83,9 @@ BindGlobal( "TheTypeMinorOfVectorMatroid",
 
 ##
 InstallMethod( DualMatroid,
-		"for matroids with bases",
-		[ IsAbstractMatroidRep and HasBases ],
+		"for connected matroids with bases",
+		[ IsAbstractMatroidRep and HasBases and IsConnected ],
+		10,
 
  function( matroid )
   local dualbases, dual;
@@ -93,6 +94,7 @@ InstallMethod( DualMatroid,
 
   dual := MatroidByBasesNCL( GroundSet( matroid ), dualbases );
   SetDualMatroid( dual, matroid );
+  _alcove_MatroidStandardImplications( dual );
 
   return dual;
 
@@ -102,8 +104,9 @@ InstallMethod( DualMatroid,
 
 ##
 InstallMethod( DualMatroid,
-		"for vector matroids",
-		[ IsVectorMatroidRep ],
+		"for connected vector matroids",
+		[ IsVectorMatroidRep and IsConnected ],
+		10,
 
  function( matroid )
   local dualmatrix, dual, mat;
@@ -116,6 +119,27 @@ InstallMethod( DualMatroid,
 
   return dual;
 
+ end
+
+);
+
+##
+InstallMethod( DualMatroid,
+		"for disconnected matroids",
+		[ IsMatroid ],
+		0,
+
+ function( matroid )
+  local dual;
+
+  dual := rec();
+  ObjectifyWithAttributes( dual, TheTypeAbstractMatroid,
+			SizeOfGroundSet, SizeOfGroundSet( matroid ),
+			DirectSumDecomposition, List( DirectSumDecomposition(matroid), s -> [ s[1], DualMatroid(s[2]) ] ),
+			DualMatroid, matroid );
+  _alcove_MatroidStandardImplications( dual );
+
+  return dual;
  end
 
 );
@@ -209,16 +233,19 @@ InstallMethod( SizeOfGroundSet,
 );
 
 
-#######
-## Rank
+################
+## RankOfMatroid
 
 ##
 InstallMethod( RankOfMatroid,
 		"for matroids with bases",
 		[ IsAbstractMatroidRep and HasBases ],
+		40,
 
  function( matroid )
+
   return Size( Bases(matroid)[1] );
+
  end
 
 );
@@ -227,9 +254,40 @@ InstallMethod( RankOfMatroid,
 InstallMethod( RankOfMatroid,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
+		20,
 
  function( matroid )
+
   return RowRankOfMatrix( MatrixOfVectorMatroid(matroid) );
+
+ end
+
+);
+
+##
+InstallMethod( RankOfMatroid,
+		"for disconnected matroids",
+		[ IsMatroid ],
+		0,
+
+ function( matroid )
+
+  return Sum( DirectSumDecomposition(matroid), s -> RankOfMatroid(s[2]) );
+
+ end
+
+);
+
+##
+InstallMethod( RankOfMatroid,
+		"fallback method for connected matroids",
+		[ IsMatroid and IsConnected ],
+		10,
+
+ function( matroid )
+
+  return Size( SomeBasis( matroid ) );
+
  end
 
 );
@@ -244,8 +302,8 @@ InstallMethod( Rank,
 );
 
 
-################
-## Rank function
+###############
+## RankFunction
 
 ##
 InstallMethod( RankFunction,
@@ -254,18 +312,18 @@ InstallMethod( RankFunction,
 
  function( matroid )
   return
-	function( X )
+	function( x )
 	 local b, max, s;
 
 	 max := 0;
 
 	 for b in Bases( matroid ) do
 
-	  s := Size( Intersection2( b, X ) );
+	  s := Size( Intersection2( b, x ) );
 	  if s > max then
 
 	   max := s;
-	   if max = Size( X ) then return max; fi;
+	   if max = Size( x ) then return max; fi;
 
 	  fi;
 
@@ -283,7 +341,7 @@ InstallMethod( RankFunction,
 		[ IsVectorMatroidRep ],
 
  function( matroid )
-  return function( X ) return RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid( matroid ), X ) ); end;
+  return function( x ) return RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid( matroid ), x ) ); end;
  end
 
 );
@@ -299,14 +357,14 @@ InstallMethod( ClosureFunction,
 
  function( matroid )
   return
-	function( X )
+	function( x )
 	 local loopsOfMinor, minor;
 
-	 minor := MinorNL( matroid, [], X );
+	 minor := MinorNL( matroid, [], x );
 
 	 loopsOfMinor := List( Loops( minor ), l -> ParentAttr(minor)[2][l] );
 
-	 return Union2( X, loopsOfMinor );
+	 return Union2( x, loopsOfMinor );
 	end;
  end
 
@@ -320,23 +378,23 @@ InstallMethod( ClosureFunction,
 InstallMethod( IndependenceFunction,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
-		30,
+		40,
 
  function( matroid )
   return
-	function( X )
+	function( x )
 	 local nf, unitVecLabels, otherLabels, checkMat, unitVecsInX, nrCols;
 
 	 nf := NormalFormOfVectorMatroid( matroid );
 	 otherLabels := nf[2];
 	 unitVecLabels := Difference( GroundSet( matroid ), otherLabels );
 
-	 checkMat := CertainColumns( nf[1], List( Intersection2( X, otherLabels ), col -> Position( otherLabels, col ) ) );
+	 checkMat := CertainColumns( nf[1], List( Intersection2( x, otherLabels ), col -> Position( otherLabels, col ) ) );
 
          nrCols := NrColumns( checkMat );
          if nrCols = 0 then return true; fi;
 
-         unitVecsInX := Intersection2( X, unitVecLabels );
+         unitVecsInX := Intersection2( x, unitVecLabels );
          checkMat := CertainRows( checkMat, Difference( [ 1 .. NrRows( checkMat ) ], List( unitVecsInX, row -> Position( unitVecLabels, row ) ) ) );
 
          if NrRows( checkMat ) < nrCols then return false; fi;
@@ -351,12 +409,12 @@ InstallMethod( IndependenceFunction,
 InstallMethod( IndependenceFunction,
 		"for matroids with bases",
 		[ IsMatroid and HasBases ],
-		10,
+		0,
 
  function( matroid )
   return
-	function( X )
-	 return ForAny( Bases( matroid ), b -> IsSubset( b, X ) );
+	function( x )
+	 return ForAny( Bases( matroid ), b -> IsSubset( b, x ) );
 	end;
  end
 
@@ -366,13 +424,68 @@ InstallMethod( IndependenceFunction,
 InstallMethod( IndependenceFunction,
 		"for matroids with circuits",
 		[ IsMatroid and HasCircuits ],
-		20,
+		10,
 
  function( matroid )
   return
-	function( X )
-	 return ForAll( Circuits( matroid ), c -> not IsSubset( X, c ) );
+	function( x )
+	 return ForAll( Circuits( matroid ), c -> not IsSubset( x, c ) );
 	end;
+ end
+
+);
+
+##
+InstallMethod( IndependenceFunction,
+		"for matroids with a rank function",
+		[ IsMatroid and HasRankFunction ],
+		30,
+
+ function( matroid )
+  return
+	function( x )
+
+	 return RankFunction(matroid)(x) = Size(x);
+
+	end;
+ end
+
+);
+
+##
+InstallMethod( IndependenceFunction,
+		"for uniform matroids",
+		[ IsMatroid and IsUniform ],
+		50,
+
+ function( matroid )
+  return
+	function( x )
+
+	 return Size(x) <= RankOfMatroid( matroid );
+
+	end;
+ end
+
+);
+
+##
+InstallMethod( IndependenceFunction,
+		"for disconnected matroids",
+		[ IsMatroid and HasDirectSumDecomposition ],
+		20,
+
+ function( matroid )
+
+  if IsConnected( matroid ) then TryNextMethod(); fi;
+
+  return
+	function( x )
+
+	 return ForAll( DirectSumDecomposition( matroid ), s -> IndependenceFunction(s[2])(Intersection2(s[1],x)) );
+
+	end;
+
  end
 
 );
@@ -385,10 +498,12 @@ InstallMethod( IndependenceFunction,
 InstallMethod( Bases,
 		"for uniform matroids",
 		[ IsMatroid and IsUniform ],
-		30,
+		50,
 
  function( matroid )
+
   return Combinations( GroundSet( matroid ), RankOfMatroid( matroid ) );
+
  end
 
 );
@@ -396,11 +511,27 @@ InstallMethod( Bases,
 ##
 InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
 		"for vector matroids",
-		[ IsVectorMatroidRep ],
+		[ IsVectorMatroidRep and IsConnected ],
 
  function( matroid )
+
   return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], RankOfMatroid( matroid ) ),
 		b -> RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid(matroid), b ) ) = RankOfMatroid( matroid ) );
+
+ end
+
+);
+
+##
+InstallMethod( Bases,
+		"for disconnected matroids",
+		[ IsMatroid ],
+		0,
+
+ function( matroid )
+
+  return List( Cartesian( List( DirectSumDecomposition(matroid), s -> Bases(s[2]) ) ), Union );
+
  end
 
 );
@@ -427,7 +558,8 @@ InstallMethod( KnownBases,
 ##
 InstallMethod( Circuits,		## recursive exponential time method
 		"for matroids",
-		[ IsMatroid ],
+		[ IsMatroid and IsConnected ],
+		10,
 
  function( matroid )
   local loopsColoops, loopColoopFree, delCircs, conCircs, t, h, l, circs;
@@ -475,7 +607,7 @@ InstallMethod( Circuits,		## recursive exponential time method
 InstallMethod( Circuits,
 		"for uniform matroids",
 		[ IsMatroid and IsUniform ],
-		10,
+		50,
 
  function( matroid )
 
@@ -488,7 +620,8 @@ InstallMethod( Circuits,
 ##
 InstallMethod( Circuits,		## incremental polynomial time method for vector matroids
 		"for vector matroids",
-		[ IsVectorMatroidRep ],
+		[ IsVectorMatroidRep and IsConnected ],
+		20,
 
  function( matroid )
   local	corank, rank, i, j, isIndependent, superSet, ReduceDependentSetToCircuit,
@@ -567,6 +700,20 @@ InstallMethod( Circuits,		## incremental polynomial time method for vector matro
   od; # while not IsEmpty( newCircuits )
 
   return Union2( oldCircuits, List( Loops( matroid ), loop -> [ loop ] ) );
+ end
+
+);
+
+##
+InstallMethod( Circuits,
+		"for disconnected matroids",
+		[ IsMatroid ],
+		0,
+
+ function( matroid )
+
+  return Union( List( DirectSumDecomposition(matroid), s -> Circuits(s[2]) ) );
+
  end
 
 );
@@ -731,8 +878,9 @@ InstallMethod( TuttePolynomial,
 
 ##
 InstallMethod( TuttePolynomial,
-		"method for disconnected matroids",
+		"for disconnected matroids",
 		[ IsMatroid ],
+		0,
 
  function( matroid )
 
@@ -746,6 +894,7 @@ InstallMethod( TuttePolynomial,
 InstallMethod( TuttePolynomial,
 		"generic method for connected matroids",
 		[ IsMatroid and IsConnected ],
+		10,
 
  function( matroid )
   local loopNum, coloopNum, loopsColoops, x, y, p, min, n;
@@ -783,6 +932,7 @@ InstallMethod( TuttePolynomial,
 InstallMethod( TuttePolynomial,
 		"for connected vector matroids",
 		[ IsVectorMatroidRep and IsConnected ],
+		20,
 
  function( matroid )
   local x, y, recursiveTutteCon, recursiveTutteDel, recursionStep, loopsColoops, minorMat, k, n;
@@ -913,8 +1063,8 @@ InstallMethod( RankGeneratingPolynomial,
 
 ##
 InstallMethod( Loops,
-		"for abstract matroids",
-		[ IsAbstractMatroidRep ],
+		"for matroids with bases",
+		[ IsAbstractMatroidRep and HasBases ],
 
  function( matroid )
   return Coloops( DualMatroid( matroid ) );
@@ -1017,9 +1167,10 @@ InstallMethod( AutomorphismGroup,
 InstallMethod( DirectSumDecomposition,
 		"for connected matroids",
 		[ IsMatroid and IsConnected ],
+		30,
 
  function( matroid )
-  return [ GroundSet(matroid), matroid ];
+  return [ [ GroundSet(matroid), matroid ] ];
  end
 
 );
@@ -1028,6 +1179,7 @@ InstallMethod( DirectSumDecomposition,
 InstallMethod( DirectSumDecomposition,
 		"for matroids",
 		[ IsMatroid ],
+		0,
 
  function( matroid )
   local fundcircs, circ, i, currentComponent, components, section, remainingPoints;
@@ -1045,7 +1197,7 @@ InstallMethod( DirectSumDecomposition,
    currentComponent := circ;
 
    while i <= Size( fundcircs ) do
-    section := Intersection2( fundcircs[i], circ );
+    section := Intersection2( fundcircs[i], currentComponent );
 
     if not IsEmpty( section ) then
 
@@ -1119,7 +1271,7 @@ InstallMethod( IsUniform,
 
   isIndep := IndependenceFunction( matroid );
 
-  return ForAll( Combinations( [ 1 .. n ], k ), X -> isIndep(X) );
+  return ForAll( Combinations( [ 1 .. n ], k ), x -> isIndep(x) );
  end
 
 );
@@ -1201,12 +1353,28 @@ InstallMethod( IsConnected,
 
 ##
 InstallMethod( SomeBasis,
+		"for uniform matroids",
+		[ IsMatroid and IsUniform ],
+		30,
+
+ function( matroid )
+
+  return [1..RankOfMatroid(matroid)];
+
+ end
+
+);
+
+##
+InstallMethod( SomeBasis,
 		"for matroids with bases",
 		[ IsMatroid and HasBases ],
 		30,
 
  function( matroid )
+
   return Bases( matroid )[1];
+
  end
 
 );
@@ -1218,11 +1386,13 @@ InstallMethod( SomeBasis,
 		20,
 
  function( matroid )
+
   if not IsEmpty( KnownBases( matroid ) ) then
    return KnownBases( matroid )[1];
   else
    TryNextMethod();
   fi;
+
  end
 
 );
@@ -1231,6 +1401,7 @@ InstallMethod( SomeBasis,
 InstallMethod( SomeBasis,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
+		10, 
 
  function( matroid )
   local basis;
@@ -1239,6 +1410,33 @@ InstallMethod( SomeBasis,
   AddSet( KnownBases( matroid ), basis );
 
   return basis;
+ end
+
+);
+
+##
+InstallMethod( SomeBasis,
+		"fallback method",
+		[ IsMatroid ],
+		0,
+
+ function( matroid )
+  local indep, tmp, i, isIndep;
+
+  indep := [];
+  i := 1;
+
+  while i <= SizeOfGroundSet( matroid ) do
+
+   tmp := Union2( indep, [i] );
+
+   if isIndep( tmp ) then indep := tmp; fi;
+
+  od;
+
+  AddSet( KnownBases( matroid ), indep );
+
+  return indep;
  end
 
 );
@@ -1368,36 +1566,44 @@ InstallMethod( MinorNL,
 
 # Contraction:
 
-  actRows := [ 1 .. DimensionsMat( minorMat )[1] ];
-  for col in scontr do
+  if NrRows(mat) > 0 then
 
-   actCols := Difference( actCols, [ col ] );
-   foundRow := 0;
-   for row in actRows do
-
-    rowCoeff := minorMat[row][col];
-    if not IsZero( rowCoeff ) then
-
-     if foundRow = 0 then
-
-      foundRow := row;
-      foundCoeff := rowCoeff;
-
-     else
-
-      rowCoeff := rowCoeff/foundCoeff;
-      for calcCol in actCols do
-       minorMat[row][calcCol] := minorMat[row][calcCol] - rowCoeff * minorMat[foundRow][calcCol];
-      od;
-
+   actRows := [ 1 .. DimensionsMat( minorMat )[1] ];
+   for col in scontr do
+ 
+    actCols := Difference( actCols, [ col ] );
+    foundRow := 0;
+    for row in actRows do
+ 
+     rowCoeff := minorMat[row][col];
+     if not IsZero( rowCoeff ) then
+ 
+      if foundRow = 0 then
+ 
+       foundRow := row;
+       foundCoeff := rowCoeff;
+ 
+      else
+ 
+       rowCoeff := rowCoeff/foundCoeff;
+       for calcCol in actCols do
+        minorMat[row][calcCol] := minorMat[row][calcCol] - rowCoeff * minorMat[foundRow][calcCol];
+       od;
+ 
+      fi;
+ 
      fi;
-
-    fi;
-
+ 
+    od;
+    actRows := Difference( actRows, [ foundRow ] );
+ 
    od;
-   actRows := Difference( actRows, [ foundRow ] );
 
-  od;
+  else
+
+   actRows := [];
+
+  fi;
 
   if IsEmpty( actRows ) then
    minorMat := HomalgMatrix( [], 0, Size( actCols ), HomalgRing( mat ) );
@@ -1660,6 +1866,7 @@ InstallMethod( Matroid,
   _alcove_MatroidStandardImplications( matroid );
   _alcove_VectorMatroidImplications( matroid );
 
+  return matroid;
  end
 
 );
@@ -2016,7 +2223,7 @@ InstallMethod( UniformMatroid,
 
   if k > n then k := n; fi;
 
-  matroid := MatroidByRankFunctionNCL( n, function( X ) if Size(X) < k then return Size(X); else return k; fi; end );
+  matroid := MatroidByRankFunctionNCL( n, function( x ) if Size(x) < k then return Size(x); else return k; fi; end );
   SetRankOfMatroid( matroid, k );
 
   _alcove_MatroidStandardImplications( matroid );
@@ -2038,7 +2245,7 @@ InstallMethod( UniformMatroidNL,
 
   if k > n then k := n; fi;
 
-  matroid := MatroidByRankFunctionNCL( n, function( X ) if Size(X) < k then return Size(X); else return k; fi; end );
+  matroid := MatroidByRankFunctionNCL( n, function( x ) if Size(x) < k then return Size(x); else return k; fi; end );
   SetRankOfMatroid( matroid, k );
 
   SetIsUniform( matroid, true );
@@ -2084,7 +2291,6 @@ InstallMethod( PrintObj,
     Print( " vector" );
    fi;
  
-   ## Print( " matroid on ", SizeOfGroundSet( matroid ), " elements>" );
    Print( " matroid>" );
 
   fi;
@@ -2095,31 +2301,82 @@ InstallMethod( PrintObj,
 
 ##
 InstallMethod( Display,
-		"for matroids",
-		[ IsMatroid ],
+		"for abstract matroids",
+		[ IsAbstractMatroidRep ],
+
+ function( matroid )
+  local printList, i, pSize;
+
+  if HasDirectSumDecomposition(matroid) and Size(DirectSumDecomposition(matroid)) = 1 and not IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+
+   Display( DirectSumDecomposition(matroid)[1][2] );
+
+  else
+
+   Print( "A rank ", RankOfMatroid(matroid), " abstract matroid on ", SizeOfGroundSet(matroid), " elements.\n" );
+   printList := [];
+   if HasBases(matroid) then Add(printList,"bases"); fi;
+   if HasCircuits(matroid) then Add(printList,"circuits"); fi;
+   if HasRankFunction(matroid) then Add(printList,"rank function"); fi;
+ 
+   if IsEmpty( printList ) then
+ 
+    if HasDirectSumDecomposition( matroid ) then
+     Print( "It is the direct sum of ", Size(DirectSumDecomposition(matroid)), " connected components.\n" );
+    else
+     Print( "It is pretty much an empty prototype of a matroid, knowing neither its bases, nor its circuits, nor its rank function.\n" );
+    fi;
+ 
+   else
+ 
+    pSize := Size(printList);
+ 
+    Print( "Its " );
+ 
+    Print( printList[1] );
+ 
+    for i in [2..pSize-1] do
+     Print( ", ", printList[i] );
+    od;
+ 
+    if pSize > 1 then
+     Print( "and ", printList[pSize] );
+    fi;
+ 
+    if pSize = 1 and printList[1][1] = 'r' then
+     Print( " is known.\n" );
+    else
+     Print( " are known.\n" );
+    fi;
+ 
+   fi;
+
+  fi;
+
+ end
+
+);
+
+##
+InstallMethod( Display,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
 
  function( matroid )
   local mat;
 
-  if IsVectorMatroidRep( matroid ) then
+  if SizeOfGroundSet( matroid ) = 0 then
 
-   if SizeOfGroundSet( matroid ) = 0 then
-    Print( "The vector matroid of the empty matrix." );
-   else
-    mat := MatrixOfVectorMatroid( matroid );
-
-    Print( "The vector matroid of this matrix over " );
-    View( HomalgRing(mat) );
-    Print( ":\n" );
-    Display( mat );
-   fi;
+   Print( "The vector matroid of the empty matrix." );
 
   else
 
-   Print( "The abstract matroid on the ground set\n" );
-   Display( GroundSet( matroid ) );
-   Print( "with bases\n" );
-   Display( Bases( matroid ) );
+   mat := MatrixOfVectorMatroid( matroid );
+
+   Print( "The vector matroid of this matrix over " );
+   View( HomalgRing(mat) );
+   Print( ":\n" );
+   Display( mat );
 
   fi;
 

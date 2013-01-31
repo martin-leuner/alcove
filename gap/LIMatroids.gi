@@ -102,6 +102,17 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
   SetDescriptionOfImplication( entry, "the automorphism group of U_{k,n} is S_n" );
   AddToToDoList( entry );
 
+##
+# Connectedness:
+
+  entry := ToDoListEntryWithPointers( matroid, "IsUniform", true,
+					matroid,
+					"IsConnected",
+					1 < RankOfMatroid( matroid ) and RankOfMatroid( matroid ) < SizeOfGroundSet( matroid ) );
+
+  SetDescriptionOfImplication( entry, "U_{k,n} is connected if and only if 1 < k < n" );
+  AddToToDoList( entry );
+
  end
 
 );
