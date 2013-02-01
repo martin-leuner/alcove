@@ -74,14 +74,14 @@ DeclareOperationWithDocumentation( "MatroidByBases",
 DeclareOperation( "MatroidByBasesNCL",
 		[ IsInt, IsList ] );
 
-DeclareOperation( "MatroidByIndependenceFunction",
-		[ IsList, IsFunction ] );
+#DeclareOperation( "MatroidByIndependenceFunction",
+#		[ IsList, IsFunction ] );
 
 DeclareOperation( "MatroidByIndependenceFunctionNCL",
 		[ IsList, IsFunction ] );
 
-DeclareOperation( "MatroidByIndependenceFunction",
-		[ IsInt, IsFunction ] );
+#DeclareOperation( "MatroidByIndependenceFunction",
+#		[ IsInt, IsFunction ] );
 
 DeclareOperation( "MatroidByIndependenceFunctionNCL",
 		[ IsInt, IsFunction ] );
@@ -92,7 +92,7 @@ DeclareOperationWithDocumentation( "MatroidByCircuits",
 				  "the list <A>circs</A> as list of circuits. ",
 				  "The elements of <A>circs</A> must be subsets of <A>gset</A>. ",
 				  "The method checks the circuit elimination axiom. To construct an abstract ",
-				  "matroid with circuits without any checks, use the method MatroidByCircuits." ],
+				  "matroid with circuits without any checks, use the method MatroidByCircuitsNCL." ],
 				"an abstract matroid with circuits",
 				"gset,circs",
 				[ "Matroids", "Construction" ]
@@ -107,7 +107,7 @@ DeclareOperationWithDocumentation( "MatroidByCircuits",
 				  "<A>circs</A> as list of circuits. ",
 				  "The elements of <A>circs</A> must be subsets of [ 1 .. <A>n</A> ]. ",
 				  "The method checks the circuit elimination axiom. To construct an abstract ",
-				  "matroid with circuits without any checks, use the method MatroidByCircuits." ],
+				  "matroid with circuits without any checks, use the method MatroidByCircuitsNCL." ],
 				"an abstract matroid with circuits",
 				"n,circs",
 				[ "Matroids", "Construction" ]
@@ -116,14 +116,35 @@ DeclareOperationWithDocumentation( "MatroidByCircuits",
 DeclareOperation( "MatroidByCircuitsNCL",
 		[ IsInt, IsList ] );
 
-DeclareOperation( "MatroidByRankFunction",
-		[ IsList, IsFunction ] );
+DeclareOperationWithDocumentation( "MatroidByRankFunction",
+				[ IsList, IsFunction ],
+				[ "Returns the abstract matroid having the list <A>gset</A> as ground set and ",
+				  "the function <A>rk</A> as rank function. ",
+				  "<A>rk</A> must be well-defined on the power set of <A>gset</A>. ",
+				  "The method checks whether <A>rk</A> is submodular and respects inclusion. ",
+				  "These checks are extremely expensive. To construct an abstract matroid ",
+				  "with rank function without any checks, use the method MatroidByRankFunctionNCL." ],
+				"an abstract matroid with rank function",
+				"gset,rk",
+				[ "Matroids", "Construction" ]
+			);
+
 
 DeclareOperation( "MatroidByRankFunctionNCL",
 		[ IsList, IsFunction ] );
 
-DeclareOperation( "MatroidByRankFunction",
-		[ IsInt, IsFunction ] );
+DeclareOperationWithDocumentation( "MatroidByRankFunction",
+				[ IsInt, IsFunction ],
+				[ "Returns the abstract matroid on <A>n</A> elements having the function ",
+				  "<A>rk</A> as rank function. ",
+				  "<A>rk</A> must be well-defined on the power set of [ 1 .. <A>n</A> ]. ",
+				  "The method checks whether <A>rk</A> is submodular and respects inclusion. ",
+				  "These checks are extremely expensive. To construct an abstract matroid ",
+				  "with rank function without any checks, use the method MatroidByRankFunctionNCL." ],
+				"an abstract matroid with rank function",
+				"n,rk",
+				[ "Matroids", "Construction" ]
+			);
 
 DeclareOperation( "MatroidByRankFunctionNCL",
 		[ IsInt, IsFunction ] );
@@ -342,6 +363,9 @@ DeclareOperationWithDocumentation( "Contraction",
 
 DeclareOperation( "IsMinor",
 		[ IsMatroid, IsMinorOfMatroid ] );
+
+DeclareOperation( "DirectSumOfMatroidsNL",
+		[ IsMatroid, IsMatroid ] );
 
 DeclareOperationWithDocumentation( "DirectSumOfMatroids",
 				[ IsMatroid, IsMatroid ],

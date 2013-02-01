@@ -83,9 +83,27 @@ BindGlobal( "TheTypeMinorOfVectorMatroid",
 
 ##
 InstallMethod( DualMatroid,
+		"for uniform matroids",
+		[ IsMatroid and IsUniform ],
+		50,
+
+ function( matroid )
+  local dual;
+
+  dual := UniformMatroid( SizeOfGroundSet(matroid) - RankOfMatroid(matroid), SizeOfGroundSet(matroid) );
+
+  SetDualMatroid( dual, matroid );
+
+  return dual;
+ end
+
+);
+
+##
+InstallMethod( DualMatroid,
 		"for connected matroids with bases",
 		[ IsAbstractMatroidRep and HasBases and IsConnected ],
-		10,
+		30,
 
  function( matroid )
   local dualbases, dual;
@@ -97,7 +115,6 @@ InstallMethod( DualMatroid,
   _alcove_MatroidStandardImplications( dual );
 
   return dual;
-
  end
 
 );
@@ -106,7 +123,7 @@ InstallMethod( DualMatroid,
 InstallMethod( DualMatroid,
 		"for connected vector matroids",
 		[ IsVectorMatroidRep and IsConnected ],
-		10,
+		30,
 
  function( matroid )
   local dualmatrix, dual, mat;
@@ -140,6 +157,22 @@ InstallMethod( DualMatroid,
   _alcove_MatroidStandardImplications( dual );
 
   return dual;
+ end
+
+);
+
+##
+InstallMethod( DualMatroid,
+		"fallback method for connected matroids",
+		[ IsMatroid and IsConnected ],
+		0,
+
+ function( matroid )
+
+  Bases( matroid );
+
+  return DualMatroid( matroid );
+
  end
 
 );
@@ -482,7 +515,7 @@ InstallMethod( IndependenceFunction,
   return
 	function( x )
 
-	 return ForAll( DirectSumDecomposition( matroid ), s -> IndependenceFunction(s[2])(Intersection2(s[1],x)) );
+	 return ForAll( DirectSumDecomposition( matroid ), s -> IndependenceFunction(s[2])( List( Intersection2(s[1],x), i -> Position(s[1],i) ) ) );
 
 	end;
 
@@ -530,7 +563,7 @@ InstallMethod( Bases,
 
  function( matroid )
 
-  return List( Cartesian( List( DirectSumDecomposition(matroid), s -> Bases(s[2]) ) ), Union );
+  return List( Cartesian( List( DirectSumDecomposition(matroid), s -> List( Bases(s[2]), b -> List( b, i -> s[1][i] ) ) ) ), Union );
 
  end
 
@@ -712,7 +745,7 @@ InstallMethod( Circuits,
 
  function( matroid )
 
-  return Union( List( DirectSumDecomposition(matroid), s -> Circuits(s[2]) ) );
+  return Union( List( DirectSumDecomposition(matroid), s -> List( Circuits(s[2]), c -> List( c, i -> s[1][i] ) ) ) );
 
  end
 
@@ -1552,10 +1585,10 @@ InstallMethod( MatrixOfVectorMatroid,
 ## MinorNL
 
 ##
-InstallOtherMethod( MinorNL,
+InstallMethod( MinorNL,
 		"for empty arguments",
 		[ IsMatroid, IsList and IsEmpty, IsList and IsEmpty ],
-		20,
+		50,
 
  function( matroid, del, contr )
   return matroid;
@@ -1565,8 +1598,47 @@ InstallOtherMethod( MinorNL,
 
 ##
 InstallMethod( MinorNL,
-		"for matroids with bases",
-		[ IsAbstractMatroidRep and HasBases, IsList, IsList ],
+		"fallback method for connected matroids",
+		[ IsMatroid and IsConnected, IsList, IsList ],
+		0,
+
+ function( matroid, del, contr )
+
+  Bases( matroid );
+
+  return MinorNL( matroid, del, contr );
+
+ end
+
+);
+
+##
+InstallMethod( MinorNL,
+		"for disconnected matroids",
+		[ IsMatroid, IsList, IsList ],
+		0,
+
+ function( matroid, del, contr )
+  local minor;
+
+  minor := Iterated( List( DirectSumDecomposition(matroid), s -> MinorNL( s[2],
+							List( Intersection2(del,s[1]), i -> Position(s[1],i) ),
+							List( Intersection2(contr,s[1]), i -> Position(s[1],i) ) ) ),
+		DirectSumOfMatroidsNL );
+
+  ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
+			ParentAttr, [ matroid, Difference( GroundSet(matroid), Union2(del,contr) ) ] );
+
+  return minor;
+ end
+
+);
+
+##
+InstallMethod( MinorNL,
+		"for connected matroids with bases",
+		[ IsAbstractMatroidRep and IsConnected and HasBases, IsList, IsList ],
+		30,
 
  function( matroid, del, contr )
   local minorBases, t, sdel, scontr, minor, loopsColoops, groundSetInParent;
@@ -1801,7 +1873,7 @@ InstallMethod( IsMinor,
 ## DirectSumOfMatroids
 
 ##
-InstallMethod( DirectSumOfMatroids,
+InstallMethod( DirectSumOfMatroidsNL,
 		"for matroids",
 		[ IsMatroid, IsMatroid ],
 
@@ -1819,10 +1891,25 @@ InstallMethod( DirectSumOfMatroids,
 								List( DirectSumDecomposition(m2), tup -> [ List(tup[1],j->subs[j]), tup[2] ] ) ),
 			IsConnected, false );
 
+  return sum;
+
+ end
+
+);
+
+##
+InstallMethod( DirectSumOfMatroids,
+		"for matroids",
+		[ IsMatroid, IsMatroid ],
+
+ function( m1, m2 )
+  local sum;
+
+  sum := DirectSumOfMatroidsNL(m1,m2);
+
   _alcove_MatroidStandardImplications( sum );
 
   return sum;
-
  end
 
 );
@@ -2070,26 +2157,26 @@ InstallMethod( MatroidByBasesNCL,
 
 );
 
-##
-InstallMethod( MatroidByIndependenceFunction,
-		"given size of ground set and boolean function deciding independence of subsets",
-		[ IsInt, IsFunction ],
-
- function( size, isIndep )
-  local matroid;
-
-  #####
-  ## Checks go here!
-  #####
-
-  matroid := MatroidByIndependenceFunctionNCL( size, isIndep );
-
-  _alcove_MatroidStandardImplications( matroid );
-
-  return matroid;
- end
-
-);
+###
+#InstallMethod( MatroidByIndependenceFunction,
+#		"given size of ground set and boolean function deciding independence of subsets",
+#		[ IsInt, IsFunction ],
+#
+# function( size, isIndep )
+#  local matroid;
+#
+#  #####
+#  ## Checks go here!
+#  #####
+#
+#  matroid := MatroidByIndependenceFunctionNCL( size, isIndep );
+#
+#  _alcove_MatroidStandardImplications( matroid );
+#
+#  return matroid;
+# end
+#
+#);
 
 ##
 InstallMethod( MatroidByIndependenceFunctionNCL,
@@ -2109,26 +2196,26 @@ InstallMethod( MatroidByIndependenceFunctionNCL,
 
 );
 
-##
-InstallMethod( MatroidByIndependenceFunction,
-		"given ground set and boolean function deciding independence of subsets",
-		[ IsList, IsFunction ],
-
- function( groundSet, isIndep )
-
-  if groundSet = [ 1 .. Size( groundSet ) ] then
-
-   return MatroidByIndependenceFunction( Size( groundSet ), isIndep );
-
-  else
-
-   return MatroidByIndependenceFunction( Size( groundSet ), function(i) return isIndep( groundSet[i] ); end );
-
-  fi;
-
- end
-
-);
+###
+#InstallMethod( MatroidByIndependenceFunction,
+#		"given ground set and boolean function deciding independence of subsets",
+#		[ IsList, IsFunction ],
+#
+# function( groundSet, isIndep )
+#
+#  if groundSet = [ 1 .. Size( groundSet ) ] then
+#
+#   return MatroidByIndependenceFunction( Size( groundSet ), isIndep );
+#
+#  else
+#
+#   return MatroidByIndependenceFunction( Size( groundSet ), function(i) return isIndep( groundSet[i] ); end );
+#
+#  fi;
+#
+# end
+#
+#);
 
 ##
 InstallMethod( MatroidByIndependenceFunctionNCL,
@@ -2503,7 +2590,7 @@ InstallMethod( Display,
     od;
  
     if pSize > 1 then
-     Print( "and ", printList[pSize] );
+     Print( " and ", printList[pSize] );
     fi;
  
     if pSize = 1 and printList[1][1] = 'r' then
