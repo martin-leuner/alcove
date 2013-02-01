@@ -1615,11 +1615,13 @@ InstallMethod( MinorNL,
 ##
 InstallMethod( MinorNL,
 		"for disconnected matroids",
-		[ IsMatroid, IsList, IsList ],
-		0,
+		[ IsMatroid and HasDirectSumDecomposition, IsList, IsList ],
+		30,
 
  function( matroid, del, contr )
   local minor;
+
+  if IsConnected( matroid ) then TryNextMethod(); fi;		# prevent this method from calling itself on the same arguments
 
   minor := Iterated( List( DirectSumDecomposition(matroid), s -> MinorNL( s[2],
 							List( Intersection2(del,s[1]), i -> Position(s[1],i) ),
@@ -1636,9 +1638,31 @@ InstallMethod( MinorNL,
 
 ##
 InstallMethod( MinorNL,
-		"for connected matroids with bases",
-		[ IsAbstractMatroidRep and IsConnected and HasBases, IsList, IsList ],
+		"for uniform matroids",
+		[ IsMatroid and HasIsUniform and IsUniform, IsList, IsList ],
 		30,
+
+ function( matroid, del, contr )
+  local minor, minSize, minRank;
+
+  minSize := SizeOfGroundSet(matroid) - Size(del) - Size(contr);
+  minRank := Maximum( Minimum( RankOfMatroid(matroid) - Size(contr), minSize ), 0 );
+
+  minor := UniformMatroid( minRank, minSize );
+
+  ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
+			ParentAttr, [ matroid, Difference( GroundSet(matroid), Union2(del,contr) ) ] );
+
+  return minor;
+ end
+
+);
+
+##
+InstallMethod( MinorNL,
+		"for matroids with bases",
+		[ IsAbstractMatroidRep and HasBases, IsList, IsList ],
+		10,
 
  function( matroid, del, contr )
   local minorBases, t, sdel, scontr, minor, loopsColoops, groundSetInParent;
@@ -1768,11 +1792,10 @@ InstallMethod( MinorNL,
    minorMat := CertainColumns( CertainRows( HomalgMatrix( minorMat, HomalgRing( mat ) ), actRows ), actCols );
   fi;
 
-  minor := Objectify( TheTypeMinorOfVectorMatroid, rec( generatingMatrix := Immutable( minorMat ) ) );
-  SetParentAttr( minor, [
-	matroid,
-	Difference( GroundSet( matroid ), Union2( sdel, scontr ) )
-  ] );
+  minor := rec( generatingMatrix := Immutable( minorMat ) );
+  ObjectifyWithAttributes( minor, TheTypeMinorOfVectorMatroid,
+  			ParentAttr( minor, [ matroid, Difference( GroundSet( matroid ), Union2( sdel, scontr ) ) ] )
+		);
 
   return minor;
  end
