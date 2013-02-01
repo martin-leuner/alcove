@@ -1321,6 +1321,7 @@ InstallMethod( IsUniform,
 InstallMethod( IsUniform,
 		"fallback method",
 		[ IsMatroid ],
+		0,
 
  function( matroid )
   local k, isIndep, n;
@@ -1484,6 +1485,7 @@ InstallMethod( SomeBasis,
  function( matroid )
   local indep, tmp, i, isIndep;
 
+  isIndep := IndependenceFunction( matroid );
   indep := [];
   i := 1;
 
@@ -1992,9 +1994,7 @@ InstallMethod( MatroidByBases,
 	) )
   ) ) then Error( "bases must satisfy the exchange axiom" ); fi;
 
-  matroid := Objectify( TheTypeAbstractMatroid, rec() );
-  SetBases( matroid, baselist );
-  SetSizeOfGroundSet( matroid, deg );
+  matroid := MatroidByBasesNCL( deg, baselist );
 
   _alcove_MatroidStandardImplications( matroid );
 
@@ -2012,9 +2012,10 @@ InstallMethod( MatroidByBasesNCL,
  function( deg, baselist  )
   local matroid;
 
-  matroid := Objectify( TheTypeAbstractMatroid, rec() );
-  SetBases( matroid, baselist );
-  SetSizeOfGroundSet( matroid, deg );
+  matroid := rec();
+  ObjectifyWithAttributes( matroid, TheTypeAbstractMatroid,
+			Bases, baselist,
+			SizeOfGroundSet, deg );
 
   return matroid;
  end
@@ -2027,7 +2028,9 @@ InstallMethod( MatroidByBases,
 		[ IsList, IsList ],
 
  function( groundSet, bases )
+
   return MatroidByBases( Size( groundSet ), List( bases, b -> List( b, e -> Position( groundSet, e ) ) ) );
+
  end
 
 );
@@ -2038,7 +2041,9 @@ InstallMethod( MatroidByBasesNCL,
 		[ IsList, IsList ],
 
  function( groundSet, bases )
+
   return MatroidByBasesNCL( Size( groundSet ), List( bases, b -> List( b, e -> Position( groundSet, e ) ) ) );
+
  end
 
 );
@@ -2049,7 +2054,17 @@ InstallMethod( MatroidByIndependenceFunction,
 		[ IsInt, IsFunction ],
 
  function( size, isIndep )
+  local matroid;
 
+  #####
+  ## Checks go here!
+  #####
+
+  matroid := MatroidByIndependenceFunctionNCL( size, isIndep );
+
+  _alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
  end
 
 );
@@ -2062,9 +2077,10 @@ InstallMethod( MatroidByIndependenceFunctionNCL,
  function( size, isIndep )
   local matroid;
 
-  matroid := Objectify( TheTypeAbstractMatroid, rec() );
-  SetSizeOfGroundSet( matroid, size );
-  SetIndependenceFunction( matroid, isIndep );
+  matroid := rec();
+  ObjectifyWithAttributes( matroid, TheTypeAbstractMatroid,
+			SizeOfGroundSet, size,
+			IndependenceFunction, isIndep );
 
   return matroid;
  end
@@ -2077,11 +2093,17 @@ InstallMethod( MatroidByIndependenceFunction,
 		[ IsList, IsFunction ],
 
  function( groundSet, isIndep )
+
   if groundSet = [ 1 .. Size( groundSet ) ] then
+
    return MatroidByIndependenceFunction( Size( groundSet ), isIndep );
+
   else
+
    return MatroidByIndependenceFunction( Size( groundSet ), function(i) return isIndep( groundSet[i] ); end );
+
   fi;
+
  end
 
 );
@@ -2092,11 +2114,17 @@ InstallMethod( MatroidByIndependenceFunctionNCL,
 		[ IsList, IsFunction ],
 
  function( groundSet, isIndep )
+
   if groundSet = [ 1 .. Size( groundSet ) ] then
+
    return MatroidByIndependenceFunctionNCL( Size( groundSet ), isIndep );
+
   else
+
    return MatroidByIndependenceFunctionNCL( Size( groundSet ), function(i) return isIndep( groundSet[i] ); end );
+
   fi;
+
  end
 
 );
@@ -2126,9 +2154,7 @@ InstallMethod( MatroidByCircuits,
    Error( "circuits must satisfy the circuit elimination axiom" );
   fi;
 
-  matroid := Objectify( TheTypeAbstractMatroid, rec() );
-  SetSizeOfGroundSet( matroid, size );
-  SetCircuits( matroid, circs );
+  matroid := MatroidByCircuitsNCL( size, circs );
 
   _alcove_MatroidStandardImplications( matroid );
 
@@ -2145,9 +2171,10 @@ InstallMethod( MatroidByCircuitsNCL,
  function( size, circs )
   local matroid;
 
-  matroid := Objectify( TheTypeAbstractMatroid, rec() );
-  SetSizeOfGroundSet( matroid, size );
-  SetCircuits( matroid, circs );
+  matroid := rec();
+  ObjectifyWithAttributes( matroid, TheTypeAbstractMatroid,
+			SizeOfGroundSet, size,
+			Circuits, circs );
 
   return matroid;
  end
@@ -2160,7 +2187,9 @@ InstallMethod( MatroidByCircuits,
 		[ IsList, IsList ],
 
  function( groundSet, circs )
+
   return MatroidByCircuits( Size( groundSet ), List( circs, b -> List( b, e -> Position( groundSet, e ) ) ) );
+
  end
 
 );
@@ -2171,7 +2200,9 @@ InstallMethod( MatroidByCircuitsNCL,
 		[ IsList, IsList ],
 
  function( groundSet, circs )
+
   return MatroidByCircuitsNCL( Size( groundSet ), List( circs, b -> List( b, e -> Position( groundSet, e ) ) ) );
+
  end
 
 );
@@ -2182,7 +2213,43 @@ InstallMethod( MatroidByRankFunction,
 		[ IsInt, IsFunction ],
 
  function( size, rankFunc )
+  local x, xIter, rx, y, yIter, ry, matroid;
 
+  if rankFunc( [] ) <> 0 then Error( "the empty set must have rank 0" ); fi;
+
+# Naive check for sane rank function:
+
+  xIter := IteratorOfCombinations( [1..size] );
+  for x in xIter do
+
+   rx := rankFunc(x);
+   if rx > Size(x) then Error( "the rank of a set must not exceed its size" ); fi;
+
+   yIter := ShallowCopy(xIter);		# do not test both (x,y) and (y,x)
+   for y in yIter do
+
+    ry := rankFunc(y);
+
+    if ( rx > ry and IsSubset( y, x ) ) or ( rx < ry and IsSubset( x, y ) ) then	# the iterator will probably never produce
+											# the case IsSubset( x, y ), but this is not guaranteed
+     Error( "for sets x \subset y the rank of x must be at most the rank of y" );
+    fi;
+
+    if rankFunc( Union2( x, y ) ) + rankFunc( Intersection2( x, y ) ) > rx + ry then
+     Error( "<rankFunc> is not submodular" );
+    fi;
+
+   od;
+
+  od;
+
+# Construction:
+
+  matroid := MatroidByRankFunctionNCL( size, rankFunc );
+
+  _alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
  end
 
 );
@@ -2195,9 +2262,10 @@ InstallMethod( MatroidByRankFunctionNCL,
  function( size, rankFunc )
   local matroid;
 
-  matroid := Objectify( TheTypeAbstractMatroid, rec() );
-  SetSizeOfGroundSet( matroid, size );
-  SetRankFunction( matroid, rankFunc );
+  matroid := rec();
+  ObjectifyWithAttributes( matroid, TheTypeAbstractMatroid,
+			SizeOfGroundSet, size,
+			RankFunction, rankFunc );
 
   return matroid;
  end
@@ -2210,11 +2278,17 @@ InstallMethod( MatroidByRankFunction,
 		[ IsList, IsFunction ],
 
  function( groundSet, rankFunc )
+
   if groundSet = [ 1 .. Size( groundSet ) ] then
+
    return MatroidByRankFunction( Size( groundSet ), rankFunc );
+
   else
+
    return MatroidByRankFunction( Size( groundSet ), function(i) return rankFunc( groundSet[i] ); end );
+
   fi;
+
  end
 
 );
@@ -2225,11 +2299,17 @@ InstallMethod( MatroidByRankFunctionNCL,
 		[ IsList, IsFunction ],
 
  function( groundSet, rankFunc )
+
   if groundSet = [ 1 .. Size( groundSet ) ] then
+
    return MatroidByRankFunctionNCL( Size( groundSet ), rankFunc );
+
   else
+
    return MatroidByRankFunctionNCL( Size( groundSet ), function(i) return rankFunc( groundSet[i] ); end );
+
   fi;
+
  end
 
 );
