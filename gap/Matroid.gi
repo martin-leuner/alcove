@@ -1180,13 +1180,27 @@ InstallMethod( Coloops,
 
 ##
 InstallMethod( Coloops,
+		"for matroids with known duals",
+		[ IsMatroid and HasDualMatroid ],
+		10,
+
+ function( matroid )
+
+  return Loops( DualMatroid( matroid ) );
+
+ end
+
+);
+
+##
+InstallMethod( Coloops,
 		"fallback method",
 		[ IsMatroid ],
 		0,
 
  function( matroid )
 
-  return Loops( DualMatroid( matroid ) );
+  return Difference( GroundSet( matroid ), Union( FundamentalCircuitsWithBasis( matroid )[1] ) );
 
  end
 
@@ -1324,7 +1338,7 @@ InstallMethod( IsUniform,
 		0,
 
  function( matroid )
-  local k, isIndep, n;
+  local k, isIndep, n, potIter, x;
 
   n := SizeOfGroundSet( matroid );
   k := RankOfMatroid( matroid );
@@ -1333,7 +1347,13 @@ InstallMethod( IsUniform,
 
   isIndep := IndependenceFunction( matroid );
 
-  return ForAll( Combinations( [ 1 .. n ], k ), x -> isIndep(x) );
+  potIter := IteratorOfCombinations( [ 1 .. n ], k );
+
+  for x in potIter do
+   if not isIndep(x) then return false; fi;
+  od;
+
+  return true;
  end
 
 );
@@ -1494,6 +1514,8 @@ InstallMethod( SomeBasis,
    tmp := Union2( indep, [i] );
 
    if isIndep( tmp ) then indep := tmp; fi;
+
+   i := i + 1;
 
   od;
 
