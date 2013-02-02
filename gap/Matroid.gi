@@ -1290,40 +1290,45 @@ InstallMethod( DirectSumDecomposition,
 		0,
 
  function( matroid )
-  local fundcircs, circ, i, currentComponent, components, section, remainingPoints;
+  local fundcircs, circ, i, j, currentComponent, components, section;
 
   fundcircs := ShallowCopy( FundamentalCircuitsWithBasis( matroid )[1] );
-  remainingPoints := SizeOfGroundSet( matroid ) - Size( Coloops( matroid ) );
   components := [];
 
 # Determine partition of ground set by fundamental circuits:
 
-  while remainingPoints > 0 do
+  while not IsEmpty( fundcircs ) do
 
    circ := Remove( fundcircs );
    i := 1;
-   currentComponent := circ;
+   currentComponent := [ circ ];
 
-   while i <= Size( fundcircs ) do
-    section := Intersection2( fundcircs[i], currentComponent );
+   while i <= Size( currentComponent ) do
 
-    if not IsEmpty( section ) then
+    circ := currentComponent[i];
+    j := 1;
 
-     currentComponent := Union2( currentComponent, Remove(fundcircs,i) );
-     if Size( currentComponent ) = remainingPoints then
-      break;
+    while j <= Size( fundcircs ) do
+
+     section := Intersection2( fundcircs[j], circ );
+
+     if not IsEmpty( section ) then
+ 
+      Add( currentComponent, Remove(fundcircs,j) );
+ 
+     else
+
+      j := j + 1;
+
      fi;
 
-    else
-
-     i := i+1;
-
-    fi;
+    od;
+ 
+    i := i+1;
 
    od;
 
-   remainingPoints := remainingPoints - Size( currentComponent );
-   AddSet( components, currentComponent );
+   AddSet( components, Union( currentComponent ) );
 
   od;
 
@@ -1794,7 +1799,7 @@ InstallMethod( MinorNL,
 
   minor := rec( generatingMatrix := Immutable( minorMat ) );
   ObjectifyWithAttributes( minor, TheTypeMinorOfVectorMatroid,
-  			ParentAttr( minor, [ matroid, Difference( GroundSet( matroid ), Union2( sdel, scontr ) ) ] )
+  			ParentAttr, [ matroid, Difference( GroundSet( matroid ), Union2( sdel, scontr ) ) ]
 		);
 
   return minor;

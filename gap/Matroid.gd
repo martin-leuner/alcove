@@ -369,8 +369,10 @@ DeclareOperation( "DirectSumOfMatroidsNL",
 
 DeclareOperationWithDocumentation( "DirectSumOfMatroids",
 				[ IsMatroid, IsMatroid ],
-				[ "Computes the direct sum <A>M1</A> + <A>M2</A> as an abstract matroid.",
-				  "DirectSumOfMatroids silently applies DirectSumDecomposition to its arguments." ],
+				[ "Computes the direct sum <A>M1</A> + <A>M2</A> as an abstract matroid. ",
+				  "DirectSumOfMatroids silently applies DirectSumDecomposition to its arguments. ",
+				  "The operator \\+ (and consequently the function Sum) may also be used to ",
+				  "construct direct sums of matroids." ],
 				"a matroid",
 				"M1,M2",
 				[ "Matroids", "Construction" ]
