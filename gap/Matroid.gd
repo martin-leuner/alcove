@@ -291,6 +291,13 @@ DeclareAttribute( "AutomorphismGroup",
 DeclareAttribute( "DirectSumDecomposition",
 		IsMatroid );
 
+DeclareAttribute( "Flats",
+		IsMatroid );
+
+DeclareAttribute( "FlatsOfRank",
+		IsMatroid,
+		"mutable" );
+
 
 ####################################
 ##

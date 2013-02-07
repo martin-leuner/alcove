@@ -135,7 +135,6 @@ InstallMethod( DualMatroid,
   SetDualMatroid( dual, matroid );
 
   return dual;
-
  end
 
 );
@@ -1256,12 +1255,13 @@ InstallMethod( AutomorphismGroup,
 );
 
 ##
-InstallMethod( AutomorphismGroup,
-		"for matroids",
+InstallMethod( AutomorphismGroup,		# this is a HORRIBLE method
+		"fallback method",
 		[ IsMatroid ],
 
  function( matroid )
 
+  return Stabiliser( SymmetricGroup( SizeOfGroundSet(matroid) ), Bases(matroid), OnSetsSets );
 
  end
 
@@ -1644,7 +1644,7 @@ InstallMethod( MinorNL,
 ##
 InstallMethod( MinorNL,
 		"for uniform matroids",
-		[ IsMatroid and HasIsUniform and IsUniform, IsList, IsList ],
+		[ IsMatroid and IsUniform, IsList, IsList ],
 		30,
 
  function( matroid, del, contr )
