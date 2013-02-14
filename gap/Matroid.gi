@@ -101,8 +101,8 @@ InstallMethod( DualMatroid,
 
 ##
 InstallMethod( DualMatroid,
-		"for connected matroids with bases",
-		[ IsAbstractMatroidRep and HasBases and IsConnected ],
+		"for matroids with bases",
+		[ IsAbstractMatroidRep and HasBases ],
 		30,
 
  function( matroid )
@@ -1348,6 +1348,20 @@ InstallMethod( DirectSumDecomposition,
 );
 
 
+######################
+## TwoSumDecomposition
+
+##
+#InstallMethod( TwoSumDecomposition,
+#		"for matroids",
+#		[ IsMatroid ],
+#
+# function( matroid )
+# end
+#
+#);
+
+
 ####################################
 ##
 ## Properties
@@ -1460,6 +1474,20 @@ InstallMethod( IsConnected,
  end
 
 ); 
+
+
+###############
+## Is3Connected
+
+##
+#InstallMethod( Is3Connected,
+#		"for matroids",
+#		[ IsMatroid ],
+#
+# function( matroid )
+# end
+#
+#);
 
 
 ####################################
@@ -1920,7 +1948,6 @@ InstallMethod( DirectSumOfMatroidsNL,
 			IsConnected, false );
 
   return sum;
-
  end
 
 );
@@ -1939,6 +1966,68 @@ InstallMethod( DirectSumOfMatroids,
 
   return sum;
  end
+
+);
+
+
+###################
+## TwoSumOfMatroids
+
+##
+InstallMethod( TwoSumOfMatroidsNL,
+		"for matroids",
+		[ IsMatroid, IsInt, IsMatroid, IsInt ],
+
+ function( m1, p1, m2, p2 )
+  local sum, size1, size2;
+
+  size1 := SizeOfGroundSet( m1 );
+  size2 := SizeOfGroundSet( m2 );
+
+  sum := rec();
+  ObjectifyWithAttributes( sum, TheTypeAbstractMatroid,
+			SizeOfGroundSet, size1 + size2 - 2,
+			RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2) - 1,
+			TwoSumDecomposition, [ m1, p1, [ 1 .. size1-1 ], m2, p2, [ size1 .. size1+size2-2 ] ],
+			Is3Connected, false );
+
+  return sum;
+ end
+
+);
+
+##
+InstallMethod( TwoSumOfMatroids,
+		"for matroids",
+		[ IsMatroid, IsInt, IsMatroid, IsInt ],
+
+ function( m1, p1, m2, p2 )
+  local sum;
+
+  sum := TwoSumOfMatroidsNL( m1, p1, m2, p2 );
+
+  _alcove_MatroidStandardImplications( sum );
+
+  return sum;
+ end
+
+);
+
+##
+InstallMethod( TwoSum,
+		"for matroids",
+		[ IsMatroid, IsInt, IsMatroid, IsInt ],
+
+ TwoSumOfMatroids
+
+);
+
+##
+InstallMethod( TwoSumNL,
+		"for matroids",
+		[ IsMatroid, IsInt, IsMatroid, IsInt ],
+
+ TwoSumOfMatroidsNL
 
 );
 
@@ -2118,6 +2207,9 @@ InstallMethod( MatroidByBases,
  function( deg, baselist  )
   local matroid;
 
+# Convert lists to sets if necessary:
+  baselist := Set( List( baselist, Set ) );
+
   if IsEmpty( baselist ) then Error( "the list of bases must be non-empty" ); fi;
 
   if ForAny( baselist, i -> not IsSubset( [1..deg], i ) ) then
@@ -2273,6 +2365,9 @@ InstallMethod( MatroidByCircuits,
 
  function( size, circs )
   local matroid;
+
+# Convert lists to sets if necessary:
+  circs := Set( List( circs, Set ) );
 
 # Check circuit axioms:
   if [] in circs then Error( "the empty set must not be a circuit" ); fi;

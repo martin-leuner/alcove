@@ -291,6 +291,9 @@ DeclareAttribute( "AutomorphismGroup",
 DeclareAttribute( "DirectSumDecomposition",
 		IsMatroid );
 
+DeclareAttribute( "TwoSumDecomposition",
+		IsMatroid );
+
 DeclareAttribute( "Flats",
 		IsMatroid );
 
@@ -318,6 +321,9 @@ DeclareProperty( "IsRegular",
 		IsMatroid );
 
 DeclareProperty( "IsConnected",
+		IsMatroid );
+
+DeclareProperty( "Is3Connected",
 		IsMatroid );
 
 
@@ -385,4 +391,25 @@ DeclareOperationWithDocumentation( "DirectSumOfMatroids",
 				[ "Matroids", "Construction" ]
 			);
 
+DeclareOperationWithDocumentation( "TwoSumOfMatroids",
+				[ IsMatroid, IsInt, IsMatroid, IsInt ],
+				[ "Computes the 2-sum <A>M1</A> +_2 <A>M2</A> as an abstract matroid. ",
+				  "To obtain it, consider the parallel connection P(<A>M1</A>,<A>M2</A>) ",
+				  "identifying the elements <A>p1</A> and <A>p2</A> and delete the ",
+				  "common element. Note that <A>p1</A> must be neither a loop nor a coloop ",
+				  "of <A>M1</A> and the same holds for <A>p2</A> in <A>M2</A>. ",
+				  "Moreover, <A>M1</A> and <A>M2</A> need to have at least 3 elements." ],
+				"a matroid",
+				"M1,p1,M2,p2",
+				[ "Matroids", "Construction" ]
+			);
+
+DeclareOperation( "TwoSumOfMatroidsNL",
+		[ IsMatroid, IsInt, IsMatroid, IsInt ] );
+
+DeclareOperation( "TwoSum",
+		[ IsMatroid, IsInt, IsMatroid, IsInt ] );
+
+DeclareOperation( "TwoSumNL",
+		[ IsMatroid, IsInt, IsMatroid, IsInt ] );
 
