@@ -413,3 +413,11 @@ DeclareOperation( "TwoSum",
 DeclareOperation( "TwoSumNL",
 		[ IsMatroid, IsInt, IsMatroid, IsInt ] );
 
+DeclareOperationWithDocumentation( "HomalgRing",
+				[ IsMatroid ],
+				[ "The underlying homalg ring of <A>mat</A>." ],
+				"a vector matroid",
+				"mat",
+				[ "Matroids", "Accessing_attributes" ]
+			);
+

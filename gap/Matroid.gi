@@ -142,11 +142,15 @@ InstallMethod( DualMatroid,
 ##
 InstallMethod( DualMatroid,
 		"for disconnected matroids",
-		[ IsMatroid ],
+		[ IsMatroid and HasDirectSumDecomposition ],
 		0,
 
  function( matroid )
   local dual;
+
+  if IsConnected( matroid ) then
+   TryNextMethod();
+  fi;
 
   dual := rec();
   ObjectifyWithAttributes( dual, TheTypeAbstractMatroid,
@@ -169,6 +173,22 @@ InstallMethod( DualMatroid,
  function( matroid )
 
   Bases( matroid );
+
+  return DualMatroid( matroid );
+
+ end
+
+);
+
+##
+InstallMethod( DualMatroid,
+		"fallback method",
+		[ IsMatroid ],
+		0,
+
+ function( matroid )
+
+  DirectSumDecomposition( matroid );
 
   return DualMatroid( matroid );
 
@@ -1614,6 +1634,23 @@ InstallMethod( MatrixOfVectorMatroid,
 );
 
 
+#############
+## HomalgRing
+
+##
+InstallMethod( HomalgRing,
+		"for vector matroids",
+		[ IsVectorMatroidRep ],
+
+ function( matroid )
+
+  return HomalgRing( MatrixOfVectorMatroid( matroid ) );
+
+ end
+
+);
+
+
 ##########
 ## MinorNL
 
@@ -1756,6 +1793,7 @@ InstallMethod( MinorNL,
 InstallMethod( MinorNL,
 		"for vector matroids",
 		[ IsVectorMatroidRep, IsList, IsList ],
+		12,
 
  function( matroid, del, contr )
   local loopsColoops, sdel, scontr, minorMat, minor, col, row, actRows, actCols, foundRow, foundCoeff, rowCoeff, calcCol, t, mat;
@@ -1984,8 +2022,125 @@ InstallMethod( TwoSumOfMatroidsNL,
   size1 := SizeOfGroundSet( m1 );
   size2 := SizeOfGroundSet( m2 );
 
+  if size1 < 3 or size2 < 3 then
+   Error( "both matroids must have at least 3 elements" );
+  fi;
+
+  if p1 in Loops( m1 ) or p1 in Coloops( m1 ) or p2 in Loops( m2 ) or p2 in Coloops( m2 ) then
+   Error( "base points must be neither loops nor coloops in their respective matroids" );
+  fi;
+
   sum := rec();
   ObjectifyWithAttributes( sum, TheTypeAbstractMatroid,
+			SizeOfGroundSet, size1 + size2 - 2,
+			RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2) - 1,
+			TwoSumDecomposition, [ m1, p1, [ 1 .. size1-1 ], m2, p2, [ size1 .. size1+size2-2 ] ],
+			Is3Connected, false );
+
+  return sum;
+ end
+
+);
+
+##
+InstallMethod( TwoSumOfMatroidsNL,
+		"for vector matroids",
+		[ IsVectorMatroidRep, IsInt, IsVectorMatroidRep, IsInt ],
+
+ function( m1, p1, m2, p2 )
+  local sum, size1, size2, ring, mat1, mat2, source, r0, r, c;
+
+  ring := HomalgRing( m1 );
+  if not IsIdenticalObj( ring, HomalgRing( m2 ) ) then					## FIGURE OUT HOW TO SOLVE THIS PROPERLY
+   Error( "please make sure that the underlying rings of the matroids' matrices are identical" );
+#   TryNextMethod();
+  fi;
+
+  size1 := SizeOfGroundSet( m1 );
+  size2 := SizeOfGroundSet( m2 );
+
+  if size1 < 3 or size2 < 3 then
+   Error( "both matroids must have at least 3 elements" );
+  fi;
+
+  if p1 in Loops( m1 ) or p1 in Coloops( m1 ) or p2 in Loops( m2 ) or p2 in Coloops( m2 ) then
+   Error( "base points must be neither loops nor coloops in their respective matroids" );
+  fi;
+
+# Compute equivalent matrix for m1 having p1 as unit vector:
+
+  source := MatrixOfVectorMatroid( m1 );
+  mat1 := EntriesOfHomalgMatrixAsListList( CertainColumns( source, Difference( [1..size1], [p1] ) ) );
+
+  r0 := 0;
+  for r in Reversed( [ 1 .. Size( mat1 ) ] ) do
+
+   c := MatElm( source, r, p1 );
+
+   if not IsZero( c ) then
+
+    if r0 = 0 then
+     r0 := r;
+     mat1[r] := 1/c * mat1[r];
+    else
+     mat1[r] := mat1[r] - c * mat1[r0];
+    fi;
+   
+   fi;
+
+  od;
+
+# Swap rows:
+
+  if r0 <> Size(mat1) then
+   r := mat1[Size(mat1)];
+   mat1[Size(mat1)] := mat1[r0];
+   mat1[r0] := r;
+  fi;
+
+  mat1 := HomalgMatrix( mat1, ring );
+  
+# Compute equivalent matrix for m2 having p2 as unit vector:
+
+  source := MatrixOfVectorMatroid( m2 );
+  mat2 := EntriesOfHomalgMatrixAsListList( CertainColumns( source, Difference( [1..size2], [p2] ) ) );
+
+  r0 := 0;
+  for r in [ 1 .. Size( mat2 ) ] do
+
+   c := MatElm( source, r, p2 );
+
+   if not IsZero( c ) then
+
+    if r0 = 0 then
+     r0 := r;
+     mat2[r] := 1/c * mat2[r];
+    else
+     mat2[r] := mat2[r] - c * mat2[r0];
+    fi;
+   
+   fi;
+
+  od;
+
+# Swap rows:
+
+  if r0 <> 1 then
+   r := mat2[1];
+   mat2[1] := mat2[r0];
+   mat2[r0] := r;
+  fi;
+
+  mat2 := HomalgMatrix( mat2, ring );
+ 
+# Build new matrix and create object:
+
+  sum := rec( generatingMatrix := UnionOfColumns(
+		UnionOfRows( mat1, HomalgZeroMatrix( NrRows(mat2)-1, NrColumns(mat1), ring ) ),
+		UnionOfRows( HomalgZeroMatrix( NrRows(mat1)-1, NrColumns(mat2), ring ), mat2 ) )
+	 );
+
+  ObjectifyWithAttributes( sum, TheTypeVectorMatroid,
 			SizeOfGroundSet, size1 + size2 - 2,
 			RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2) - 1,
 			TwoSumDecomposition, [ m1, p1, [ 1 .. size1-1 ], m2, p2, [ size1 .. size1+size2-2 ] ],
