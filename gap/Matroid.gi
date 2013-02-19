@@ -765,7 +765,7 @@ InstallMethod( KnownBases,
 
 ##
 InstallMethod( Circuits,		## recursive exponential time method
-		"for matroids",
+		"for connected matroids",
 		[ IsMatroid and IsConnected ],
 		10,
 
@@ -921,6 +921,50 @@ InstallMethod( Circuits,
  function( matroid )
 
   return Union( List( DirectSumDecomposition(matroid), s -> List( Circuits(s[2]), c -> List( c, i -> s[1][i] ) ) ) );
+
+ end
+
+);
+
+##
+InstallMethod( Circuits,
+		"for 2-sums of matroids",
+		[ IsMatroid and IsConnected ],
+		0,
+
+ function( matroid )
+  local two, c1base, c1nobase, c2base, c2nobase, i;
+
+  two := TwoSumDecomposition( matroid );
+  c1nobase := [];
+  c1base := Circuits( two[1] );
+  c2nobase := [];
+  c2base := Circuits( two[4] );
+
+  for i in Reversed( [ 1 .. Size(c1base) ] ) do
+   if not two[2] in c1base[i] then
+
+    AddSet( c1nobase, Remove( c1base, i ) );
+
+   fi;
+  od;
+
+  for i in Reversed( [ 1 .. Size(c2base) ] ) do
+   if not two[5] in c2base[i] then
+
+    AddSet( c2nobase, Remove( c2base, i ) );
+
+   fi;
+  od;
+
+  c1base := List( c1base, c -> Difference( c, two[2] ) );
+  c2base := List( c2base, c -> Difference( c, two[5] ) );
+
+  return Union(
+		List( c1nobase, c -> List( c, i -> two[3][i] ) ),
+		List( c2nobase, c -> List( c, i -> two[6][i] ) ),
+		List( Cartesian( c1base, c2base ), Union )
+	);
 
  end
 
