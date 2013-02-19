@@ -606,6 +606,56 @@ InstallMethod( IndependenceOracle,
 );
 
 
+################
+## CircuitOracle
+
+##
+InstallMethod( CircuitOracle,
+		"for uniform matroids",
+		[ IsMatroid and IsUniform ],
+		50,
+
+ function( matroid )
+  return function(x)
+		return Size(x) = RankOfMatroid(matroid)+1;
+	end;
+ end
+
+);
+
+##
+InstallMethod( CircuitOracle,
+		"for matroids with known circuits",
+		[ IsMatroid and HasCircuits ],
+		40,
+
+ function( matroid )
+  return function(x)
+		return x in Circuits( matroid );
+	end;
+ end
+
+);
+
+##
+InstallMethod( CircuitOracle,
+		"fallback method",
+		[ IsMatroid ],
+		0,
+
+ function( matroid )
+  return function(x)
+		local isIndep;
+
+		isIndep := IndependenceOracle( matroid );
+
+		return not isIndep(x) and ForAll( x, i -> isIndep( Difference( x, [i] ) ) );
+	end;
+ end
+
+);
+
+
 ########
 ## Bases
 
