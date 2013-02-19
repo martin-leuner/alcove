@@ -361,6 +361,7 @@ InstallMethod( Rank,
 InstallMethod( RankFunction,
 		"for matroids with bases",
 		[ IsAbstractMatroidRep and HasBases ],
+		10,
 
  function( matroid )
   return
@@ -391,9 +392,64 @@ InstallMethod( RankFunction,
 InstallMethod( RankFunction,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
+		30,
 
  function( matroid )
   return function( x ) return RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid( matroid ), x ) ); end;
+ end
+
+);
+
+##
+InstallMethod( RankFunction,
+		"for disconnected matroids",
+		[ IsMatroid and HasDirectSumDecomposition ],
+		30,
+
+ function( matroid )
+
+  if IsConnected( matroid ) then TryNextMethod(); fi;
+
+  return function( x ) return Sum( DirectSumDecomposition( matroid ), s -> RankFunction(s[2])( Intersection2( s[1], x ) ) ); end;
+
+ end
+
+);
+
+##
+InstallMethod( RankFunction,
+		"for 2-sums of matroids",
+		[ IsMatroid and HasTwoSumDecomposition ],
+		30,
+
+ function( matroid )
+
+  if Is3Connected( matroid ) then TryNextMethod(); fi;
+
+  return function( x )
+	 local two, res1, res2, rk1, rk2, r1x, r2x;
+
+	 two := TwoSumDecomposition( matroid );
+	 res1 := Intersection2( two[3], x );
+	 res2 := Intersection2( two[6], x );
+	 rk1 := RankFunction( two[1] );
+	 rk2 := RankFunction( two[4] );
+
+	 r1x := rk1( res1 );
+	 r2x := rk2( res2 );
+
+	 if r1x = rk1( Union2( res1, [two[2]] ) ) and
+	    r2x = rk2( Union2( res2, [two[5]] ) ) then
+
+	  return r1x + r2x - 1;
+
+	 else
+
+	  return r1x + r2x;
+
+	 fi;
+	end;
+
  end
 
 );
@@ -424,10 +480,10 @@ InstallMethod( ClosureFunction,
 
 
 #######################
-## IndependenceFunction
+## IndependenceOracle
 
 ##
-InstallMethod( IndependenceFunction,
+InstallMethod( IndependenceOracle,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
 		40,
@@ -458,7 +514,7 @@ InstallMethod( IndependenceFunction,
 );
 
 ##
-InstallMethod( IndependenceFunction,
+InstallMethod( IndependenceOracle,
 		"for matroids with bases",
 		[ IsMatroid and HasBases ],
 		0,
@@ -473,7 +529,7 @@ InstallMethod( IndependenceFunction,
 );
 
 ##
-InstallMethod( IndependenceFunction,
+InstallMethod( IndependenceOracle,
 		"for matroids with circuits",
 		[ IsMatroid and HasCircuits ],
 		10,
@@ -488,7 +544,7 @@ InstallMethod( IndependenceFunction,
 );
 
 ##
-InstallMethod( IndependenceFunction,
+InstallMethod( IndependenceOracle,
 		"for matroids with a rank function",
 		[ IsMatroid and HasRankFunction ],
 		30,
@@ -496,16 +552,14 @@ InstallMethod( IndependenceFunction,
  function( matroid )
   return
 	function( x )
-
 	 return RankFunction(matroid)(x) = Size(x);
-
 	end;
  end
 
 );
 
 ##
-InstallMethod( IndependenceFunction,
+InstallMethod( IndependenceOracle,
 		"for uniform matroids",
 		[ IsMatroid and IsUniform ],
 		50,
@@ -513,16 +567,14 @@ InstallMethod( IndependenceFunction,
  function( matroid )
   return
 	function( x )
-
 	 return Size(x) <= RankOfMatroid( matroid );
-
 	end;
  end
 
 );
 
 ##
-InstallMethod( IndependenceFunction,
+InstallMethod( IndependenceOracle,
 		"for disconnected matroids",
 		[ IsMatroid and HasDirectSumDecomposition ],
 		20,
@@ -533,11 +585,22 @@ InstallMethod( IndependenceFunction,
 
   return
 	function( x )
-
-	 return ForAll( DirectSumDecomposition( matroid ), s -> IndependenceFunction(s[2])( List( Intersection2(s[1],x), i -> Position(s[1],i) ) ) );
-
+	 return ForAll( DirectSumDecomposition( matroid ), s -> IndependenceOracle(s[2])( List( Intersection2(s[1],x), i -> Position(s[1],i) ) ) );
 	end;
 
+ end
+
+);
+
+##
+InstallMethod( IndependenceOracle,
+		"fallback method",
+		[ IsMatroid ],
+		0,
+
+ function( matroid )
+  RankFunction( matroid );
+  return IndependenceOracle( matroid );
  end
 
 );
@@ -577,12 +640,55 @@ InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
 ##
 InstallMethod( Bases,
 		"for disconnected matroids",
-		[ IsMatroid ],
+		[ IsMatroid and HasDirectSumDecomposition ],
 		0,
 
  function( matroid )
 
+  if IsConnected( matroid ) then TryNextMethod(); fi;
+
   return List( Cartesian( List( DirectSumDecomposition(matroid), s -> List( Bases(s[2]), b -> List( b, i -> s[1][i] ) ) ) ), Union );
+
+ end
+
+);
+
+##
+InstallMethod( Bases,
+		"for 2-sums of matroids",
+		[ IsMatroid and HasTwoSumDecomposition ],
+		0,
+
+ function( matroid )
+  local twosum;
+
+  if Is3Connected( matroid ) then TryNextMethod(); fi;
+
+  twosum := TwoSumDecomposition( matroid );
+
+  return Union2(
+		List(	Cartesian(
+				List(
+					Filtered( Bases( twosum[1] ), b -> not twosum[2] in b ),
+					b -> List( b, i -> twosum[3][i] )
+				),
+				List(
+					Filtered( Bases( twosum[4] ), b -> twosum[5] in b ),
+					b -> List( Difference(b,[twosum[5]]), i -> twosum[6][i] )
+				)
+			), Union ),
+
+		List(	Cartesian(
+				List(
+					Filtered( Bases( twosum[1] ), b -> twosum[2] in b ),
+					b -> List( Difference(b,[twosum[2]]), i -> twosum[3][i] )
+				),
+				List(
+					Filtered( Bases( twosum[4] ), b -> not twosum[5] in b ),
+					b -> List( b, i -> twosum[6][i] )
+				)
+			), Union )
+	);
 
  end
 
@@ -715,7 +821,7 @@ InstallMethod( Circuits,		## incremental polynomial time method for vector matro
   rank := RankOfMatroid( matroid );
   corank := SizeOfGroundSet( matroid ) - rank;
 
-  isIndependent := IndependenceFunction( matroid );
+  isIndependent := IndependenceOracle( matroid );
 
   newCircuits := FundamentalCircuitsWithBasis( matroid )[1];
   oldCircuits := [];
@@ -806,7 +912,7 @@ InstallMethod( FundamentalCircuitsWithBasis,
   end;
 
   basis := SomeBasis( matroid );
-  isIndependent := IndependenceFunction( matroid );
+  isIndependent := IndependenceOracle( matroid );
 
   circs := List( Difference( GroundSet( matroid ), basis ), i -> reduceDependentSetToCircuit( Union2( basis, [i] ) ) );
 
@@ -1147,7 +1253,7 @@ InstallMethod( Loops,
  function( matroid )
   local isIndep;
 
-  isIndep := IndependenceFunction( matroid );
+  isIndep := IndependenceOracle( matroid );
 
   return Filtered( GroundSet( matroid ), l -> not isIndep( [l] ) );
  end
@@ -1417,7 +1523,7 @@ InstallMethod( IsUniform,
 
   if k = 0 or k = n then return true; fi;
 
-  isIndep := IndependenceFunction( matroid );
+  isIndep := IndependenceOracle( matroid );
 
   potIter := IteratorOfCombinations( [ 1 .. n ], k );
 
@@ -1591,7 +1697,7 @@ InstallMethod( SomeBasis,
  function( matroid )
   local indep, tmp, i, isIndep;
 
-  isIndep := IndependenceFunction( matroid );
+  isIndep := IndependenceOracle( matroid );
   indep := [];
   i := 1;
 
@@ -2034,7 +2140,8 @@ InstallMethod( TwoSumOfMatroidsNL,
   ObjectifyWithAttributes( sum, TheTypeAbstractMatroid,
 			SizeOfGroundSet, size1 + size2 - 2,
 			RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2) - 1,
-			TwoSumDecomposition, [ m1, p1, [ 1 .. size1-1 ], m2, p2, [ size1 .. size1+size2-2 ] ],
+			TwoSumDecomposition, [ 	m1, p1, Concatenation( [ 1 .. p1-1 ], [0], [ p1 .. size1-1 ] ),
+						m2, p2, Concatenation( [ size1 .. size1+p2-2 ], [0], [ size1+p2-1 .. size1+size2-2 ] ) ],
 			Is3Connected, false );
 
   return sum;
@@ -2143,7 +2250,8 @@ InstallMethod( TwoSumOfMatroidsNL,
   ObjectifyWithAttributes( sum, TheTypeVectorMatroid,
 			SizeOfGroundSet, size1 + size2 - 2,
 			RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2) - 1,
-			TwoSumDecomposition, [ m1, p1, [ 1 .. size1-1 ], m2, p2, [ size1 .. size1+size2-2 ] ],
+			TwoSumDecomposition, [ 	m1, p1, Concatenation( [ 1 .. p1-1 ], [0], [ p1 .. size1-1 ] ),
+						m2, p2, Concatenation( [ size1 .. size1+p2-2 ], [0], [ size1+p2-1 .. size1+size2-2 ] ) ],
 			Is3Connected, false );
 
   return sum;
@@ -2433,7 +2541,7 @@ InstallMethod( MatroidByBasesNCL,
 );
 
 ###
-#InstallMethod( MatroidByIndependenceFunction,
+#InstallMethod( MatroidByIndependenceOracle,
 #		"given size of ground set and boolean function deciding independence of subsets",
 #		[ IsInt, IsFunction ],
 #
@@ -2444,7 +2552,7 @@ InstallMethod( MatroidByBasesNCL,
 #  ## Checks go here!
 #  #####
 #
-#  matroid := MatroidByIndependenceFunctionNCL( size, isIndep );
+#  matroid := MatroidByIndependenceOracleNCL( size, isIndep );
 #
 #  _alcove_MatroidStandardImplications( matroid );
 #
@@ -2454,7 +2562,7 @@ InstallMethod( MatroidByBasesNCL,
 #);
 
 ##
-InstallMethod( MatroidByIndependenceFunctionNCL,
+InstallMethod( MatroidByIndependenceOracleNCL,
 		"given size of ground set and boolean function deciding independence of subsets, no checks or logical implications",
 		[ IsInt, IsFunction ],
 
@@ -2464,7 +2572,7 @@ InstallMethod( MatroidByIndependenceFunctionNCL,
   matroid := rec();
   ObjectifyWithAttributes( matroid, TheTypeAbstractMatroid,
 			SizeOfGroundSet, size,
-			IndependenceFunction, isIndep );
+			IndependenceOracle, isIndep );
 
   return matroid;
  end
@@ -2472,7 +2580,7 @@ InstallMethod( MatroidByIndependenceFunctionNCL,
 );
 
 ###
-#InstallMethod( MatroidByIndependenceFunction,
+#InstallMethod( MatroidByIndependenceOracle,
 #		"given ground set and boolean function deciding independence of subsets",
 #		[ IsList, IsFunction ],
 #
@@ -2480,11 +2588,11 @@ InstallMethod( MatroidByIndependenceFunctionNCL,
 #
 #  if groundSet = [ 1 .. Size( groundSet ) ] then
 #
-#   return MatroidByIndependenceFunction( Size( groundSet ), isIndep );
+#   return MatroidByIndependenceOracle( Size( groundSet ), isIndep );
 #
 #  else
 #
-#   return MatroidByIndependenceFunction( Size( groundSet ), function(i) return isIndep( groundSet[i] ); end );
+#   return MatroidByIndependenceOracle( Size( groundSet ), function(i) return isIndep( groundSet[i] ); end );
 #
 #  fi;
 #
@@ -2493,7 +2601,7 @@ InstallMethod( MatroidByIndependenceFunctionNCL,
 #);
 
 ##
-InstallMethod( MatroidByIndependenceFunctionNCL,
+InstallMethod( MatroidByIndependenceOracleNCL,
 		"given ground set and boolean function deciding independence of subsets, no checks or logical implications",
 		[ IsList, IsFunction ],
 
@@ -2501,11 +2609,11 @@ InstallMethod( MatroidByIndependenceFunctionNCL,
 
   if groundSet = [ 1 .. Size( groundSet ) ] then
 
-   return MatroidByIndependenceFunctionNCL( Size( groundSet ), isIndep );
+   return MatroidByIndependenceOracleNCL( Size( groundSet ), isIndep );
 
   else
 
-   return MatroidByIndependenceFunctionNCL( Size( groundSet ), function(i) return isIndep( groundSet[i] ); end );
+   return MatroidByIndependenceOracleNCL( Size( groundSet ), function(i) return isIndep( groundSet[i] ); end );
 
   fi;
 
@@ -2849,8 +2957,10 @@ InstallMethod( Display,
  
    if IsEmpty( printList ) then
  
-    if HasDirectSumDecomposition( matroid ) then
+    if HasDirectSumDecomposition( matroid ) and not IsConnected( matroid ) then
      Print( "It is the direct sum of ", Size(DirectSumDecomposition(matroid)), " connected components.\n" );
+    elif HasTwoSumDecomposition( matroid ) and not Is3Connected( matroid ) then
+     Print( "It is a 2-sum of two known minors.\n" );
     else
      Print( "It is pretty much an empty prototype of a matroid, knowing neither its bases, nor its circuits, nor its rank function.\n" );
     fi;

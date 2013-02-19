@@ -74,16 +74,16 @@ DeclareOperationWithDocumentation( "MatroidByBases",
 DeclareOperation( "MatroidByBasesNCL",
 		[ IsInt, IsList ] );
 
-#DeclareOperation( "MatroidByIndependenceFunction",
+#DeclareOperation( "MatroidByIndependenceOracle",
 #		[ IsList, IsFunction ] );
 
-DeclareOperation( "MatroidByIndependenceFunctionNCL",
+DeclareOperation( "MatroidByIndependenceOracleNCL",
 		[ IsList, IsFunction ] );
 
-#DeclareOperation( "MatroidByIndependenceFunction",
+#DeclareOperation( "MatroidByIndependenceOracle",
 #		[ IsInt, IsFunction ] );
 
-DeclareOperation( "MatroidByIndependenceFunctionNCL",
+DeclareOperation( "MatroidByIndependenceOracleNCL",
 		[ IsInt, IsFunction ] );
 
 DeclareOperationWithDocumentation( "MatroidByCircuits",
@@ -234,7 +234,10 @@ DeclareAttribute( "RankFunction",
 DeclareAttribute( "ClosureFunction",
 		IsMatroid );
 
-DeclareAttribute( "IndependenceFunction",
+DeclareAttribute( "IndependenceOracle",
+		IsMatroid );
+
+DeclareAttribute( "CircuitOracle",
 		IsMatroid );
 
 DeclareAttributeWithDocumentation( "Bases",
