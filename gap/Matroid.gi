@@ -24,6 +24,11 @@ DeclareRepresentation( "IsVectorMatroidRep",
 	[ "generatingMatrix" ]
 );
 
+DeclareRepresentation( "IsRepresentationMatroidRep",
+	IsMatroid and IsAttributeStoringRep,
+	[ "representation", "baseColumn" ]
+);
+
 #DeclareRepresentation( "IsGraphicMatroidRep",
 #	IsMatroid and IsAttributeStoringRep,
 #	[ "incidenceMatrix" ]
@@ -58,6 +63,16 @@ BindGlobal( "TheTypeVectorMatroid",
 BindGlobal( "TheTypeMinorOfVectorMatroid",
 	NewType( TheFamilyOfMatroids,
 		IsVectorMatroidRep and IsMinorOfMatroid )
+);
+
+BindGlobal( "TheTypeRepresentationMatroid",
+	NewType( TheFamilyOfMatroids,
+		IsRepresentationMatroidRep )
+);
+
+BindGlobal( "TheTypeMinorOfRepresentationMatroid",
+	NewType( TheFamilyOfMatroids,
+		IsRepresentationMatroidRep and IsMinorOfMatroid )
 );
 
 #BindGlobal( "TheTypeGraphicMatroid",
@@ -121,6 +136,37 @@ InstallMethod( DualMatroid,
 
 ##
 InstallMethod( DualMatroid,
+		"for matroids with a rank function",
+		[ IsAbstractMatroidRep and HasRankFunction ],
+		20,
+
+ function( matroid )
+  local dualRkFunc, dual, corank, rkFunc, gset;
+
+  gset := GroundSet( matroid );
+  rkFunc := RankFunction( matroid );
+  corank := Size( gset ) - RankOfMatroid( matroid );
+
+  dualRkFunc :=
+	function( x )
+	 local compl;
+
+	 compl := Difference( gset, x );
+
+	 return corank + rkFunc( compl ) - Size( compl );
+	end;
+
+  dual := MatroidByRankFunctionNCL( gset, dualRkFunc );
+  SetDualMatroid( dual, matroid );
+  _alcove_MatroidStandardImplications( dual );
+
+  return dual;
+ end
+
+);
+
+##
+InstallMethod( DualMatroid,
 		"for connected vector matroids",
 		[ IsVectorMatroidRep and IsConnected ],
 		30,
@@ -172,7 +218,7 @@ InstallMethod( DualMatroid,
 
  function( matroid )
 
-  Bases( matroid );
+  RankFunction( matroid );
 
   return DualMatroid( matroid );
 
@@ -690,7 +736,7 @@ InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
 ##
 InstallMethod( Bases,
 		"for disconnected matroids",
-		[ IsMatroid and HasDirectSumDecomposition ],
+		[ IsMatroid ],
 		0,
 
  function( matroid )
@@ -706,7 +752,7 @@ InstallMethod( Bases,
 ##
 InstallMethod( Bases,
 		"for 2-sums of matroids",
-		[ IsMatroid and HasTwoSumDecomposition ],
+		[ IsMatroid and IsConnected ],
 		0,
 
  function( matroid )
