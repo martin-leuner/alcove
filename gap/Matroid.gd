@@ -276,11 +276,25 @@ DeclareAttribute( "Cocircuits",
 DeclareAttribute( "Hyperplanes",
 		IsMatroid );
 
-DeclareAttribute( "TuttePolynomial",
-		IsMatroid );
+DeclareAttributeWithDocumentation( "TuttePolynomial",
+				IsMatroid,
+				[ "Computes the Tutte polynomial of <A>mat</A>. The method uses an exponential ",
+				  "time algorithm, so the computation is feasible only for matroids on very few ",
+				  "elements. Moreover, it is much faster for vector matroids than for isomorphic ",
+				  "abstract matroids." ],
+				"a polynomial in Z[x,y]",
+				"mat",
+				[ "Matroids", "Bases,_circuits_and_their_companions" ]
+			);
 
-DeclareAttribute( "RankGeneratingPolynomial",
-		IsMatroid );
+DeclareAttributeWithDocumentation( "RankGeneratingPolynomial",
+				IsMatroid,
+				[ "Computes the rank generating polynomial (or Whitney polynomial) of <A>mat</A>. ",
+				  "This method calls TuttePolynomial, so the same comments on its runtime apply." ],
+				"a polynomial in Z[x,y]",
+				"mat",
+				[ "Matroids", "Bases,_circuits_and_their_companions" ]
+			);
 
 DeclareAttribute( "Loops",
 		IsMatroid );
