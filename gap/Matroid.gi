@@ -500,6 +500,74 @@ InstallMethod( RankFunction,
 
 );
 
+##
+InstallMethod( RankFunction,
+		"fallback method for matroids with known rank",
+		[ IsMatroid and HasRankOfMatroid ],
+
+ function( matroid )
+  local isIndep, bound;
+
+  isIndep := IndependenceOracle( matroid );
+
+  bound := RankOfMatroid( matroid );
+
+  return
+	function( x )
+	 local maxIndep, i, tmp, ctr;
+
+	 maxIndep := [];
+	 ctr := 0;
+	 for i in x do
+
+	  tmp := Union2( maxIndep, [i] );
+
+	  if isIndep( tmp ) then
+	   maxIndep := tmp;
+	   ctr := ctr + 1;
+	  fi;
+
+	  if ctr = bound then break; fi;
+
+	 od;
+
+	 return ctr;
+	end;
+ end
+
+);
+
+##
+InstallMethod( RankFunction,
+		"fallback method",
+		[ IsMatroid ],
+
+ function( matroid )
+  local isIndep, bound;
+
+  isIndep := IndependenceOracle( matroid );
+
+  return
+	function( x )
+	 local maxIndep, i, tmp;
+
+	 maxIndep := [];
+	 for i in x do
+
+	  tmp := Union2( maxIndep, [i] );
+
+	  if isIndep( tmp ) then
+	   maxIndep := tmp;
+	  fi;
+
+	 od;
+
+	 return Size( maxIndep );
+	end;
+ end
+
+);
+
 
 ##################
 ## ClosureFunction

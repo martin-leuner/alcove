@@ -296,11 +296,22 @@ DeclareAttributeWithDocumentation( "RankGeneratingPolynomial",
 				[ "Matroids", "Bases,_circuits_and_their_companions" ]
 			);
 
-DeclareAttribute( "Loops",
-		IsMatroid );
+DeclareAttributeWithDocumentation( "Loops",
+				IsMatroid,
+				[ "Returns the set of elements of <A>mat</A> which are not contained in any ",
+				  "basis." ],
+				"a set",
+				"mat",
+				[ "Matroids", "Bases,_circuits_and_their_companions" ]
+			 );
 
-DeclareAttribute( "Coloops",
-		IsMatroid );
+DeclareAttributeWithDocumentation( "Coloops",
+				IsMatroid,
+				[ "Returns the set of elements of <A>mat</A> which are contained in every basis." ],
+				"a set",
+				"mat",
+				[ "Matroids", "Bases,_circuits_and_their_companions" ]
+			);
 
 DeclareAttribute( "AutomorphismGroup",
 		IsMatroid );
