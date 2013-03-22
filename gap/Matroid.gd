@@ -208,7 +208,7 @@ DeclareAttribute( "ParentAttr",
 DeclareAttribute( "SimplifiedMatroid",
 		IsMatroid );
 
-DeclareAttributeWithDocumentation( "NormalFormOfVectorMatroid",
+DeclareAttributeWithDocumentation( "StandardMatrixOfVectorMatroid",
 				IsMatroid,
 				[ "Computes the reduced row echelon form of the underlying matrix of the vector ",
 				  "matroid <A>mat</A> and returns its columns other than the first occurence of ",
@@ -352,6 +352,9 @@ DeclareProperty( "IsConnected",
 		IsMatroid );
 
 DeclareProperty( "Is3Connected",
+		IsMatroid );
+
+DeclareProperty( "ProbablyHasManyLargeCircuits",
 		IsMatroid );
 
 

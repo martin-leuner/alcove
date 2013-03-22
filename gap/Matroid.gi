@@ -270,11 +270,11 @@ InstallMethod( SimplifiedMatroid,
 );
 
 
-############################
-## NormalFormOfVectorMatroid
+################################
+## StandardMatrixOfVectorMatroid
 
 ##
-InstallMethod( NormalFormOfVectorMatroid,
+InstallMethod( StandardMatrixOfVectorMatroid,
 		"for vector matroids",
 		[ IsVectorMatroidRep ],
 
@@ -607,7 +607,7 @@ InstallMethod( IndependenceOracle,
 	function( x )
 	 local nf, unitVecLabels, otherLabels, checkMat, unitVecsInX, nrCols;
 
-	 nf := NormalFormOfVectorMatroid( matroid );
+	 nf := StandardMatrixOfVectorMatroid( matroid );
 	 otherLabels := nf[2];
 	 unitVecLabels := Difference( GroundSet( matroid ), otherLabels );
 
@@ -1139,8 +1139,8 @@ InstallMethod( FundamentalCircuitsWithBasis,
  function( matroid )
   local nf, otherLabels, unitVecLabels, rank, corank, circs, currentCircuit, i, j;
 
-  nf := NormalFormOfVectorMatroid( matroid )[1];
-  otherLabels := NormalFormOfVectorMatroid( matroid )[2];
+  nf := StandardMatrixOfVectorMatroid( matroid )[1];
+  otherLabels := StandardMatrixOfVectorMatroid( matroid )[2];
   unitVecLabels := Difference( GroundSet( matroid ), otherLabels );
 
   rank := RankOfMatroid( matroid );
@@ -1396,7 +1396,7 @@ InstallMethod( TuttePolynomial,
 
 # Prepare for recursion:
 
-  minorMat := NormalFormOfVectorMatroid( matroid )[1];
+  minorMat := StandardMatrixOfVectorMatroid( matroid )[1];
   loopsColoops := Union2( Loops( matroid ), Coloops( matroid ) );
   minorMat := CertainRows( CertainColumns( minorMat, NonZeroColumns( minorMat ) ), NonZeroRows( minorMat ) );
 
@@ -1500,15 +1500,15 @@ InstallMethod( Coloops,
 
  function( matroid )
 
-  if HasNormalFormOfVectorMatroid( matroid ) then
+  if HasStandardMatrixOfVectorMatroid( matroid ) then
 
-   if IsEmpty( NormalFormOfVectorMatroid( matroid )[2] ) then
+   if IsEmpty( StandardMatrixOfVectorMatroid( matroid )[2] ) then
 
     return GroundSet( matroid );
 
    else
 
-    return List( ZeroRows( NormalFormOfVectorMatroid( matroid )[1] ), i -> Difference( GroundSet( matroid ), NormalFormOfVectorMatroid( matroid )[2] )[i] );
+    return List( ZeroRows( StandardMatrixOfVectorMatroid( matroid )[1] ), i -> Difference( GroundSet( matroid ), StandardMatrixOfVectorMatroid( matroid )[2] )[i] );
 
    fi;
 
@@ -1888,7 +1888,7 @@ InstallMethod( SomeBasis,
  function( matroid )
   local basis;
 
-  basis := Difference( GroundSet( matroid ), NormalFormOfVectorMatroid( matroid )[2] );
+  basis := Difference( GroundSet( matroid ), StandardMatrixOfVectorMatroid( matroid )[2] );
   AddSet( KnownBases( matroid ), basis );
 
   return basis;
