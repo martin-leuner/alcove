@@ -7,6 +7,8 @@ Subtitle := "A package for algebraic combinatorics",
 
 Version :=  Maximum( [
   "2013-01-29", ## Martin's version ## in case this package should ever be edited by more than one person
+##This line prevents merge conflicts.
+  "2013-04-08", ## Sebas' version
 ] ),
 
 Date := ~.Version{[ 1 .. 10 ]},
@@ -72,7 +74,7 @@ Dependencies := rec(
 	 [ "MatricesForHomalg", ">=2012.10.25" ],
 	 [ "RingsForHomalg", ">=2012.10.22" ],
 	 [ "GaussForHomalg", ">=2012.10.22" ],
-	 [ "ToolsForHomalg", ">=2012.12.01" ],
+	 [ "ToolsForHomalg", ">=2013.04.08" ],
 	 [ "GAPDoc", ">= 1.0" ],
 	 [ "AutoDoc", ">=2012.07.29" ]
 	],
