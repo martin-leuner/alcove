@@ -5,9 +5,9 @@ PackageName := "alcove",
 
 Subtitle := "A package for algebraic combinatorics",
 
+## The following prevents merge conflicts.
 Version :=  Maximum( [
-  "2013-01-29", ## Martin's version ## in case this package should ever be edited by more than one person
-##This line prevents merge conflicts.
+  "2013-05-22", ## Martin's version
   "2013-04-08", ## Sebas' version
 ] ),
 
@@ -71,13 +71,13 @@ PackageDoc := rec(
 Dependencies := rec(
   GAP := ">=4.5",
   NeededOtherPackages := [
-	 [ "MatricesForHomalg", ">=2012.10.25" ],
-	 [ "RingsForHomalg", ">=2012.10.22" ],
-	 [ "GaussForHomalg", ">=2012.10.22" ],
-	 [ "ToolsForHomalg", ">=2013.04.08" ],
-	 [ "GAPDoc", ">= 1.0" ],
-	 [ "AutoDoc", ">=2012.07.29" ]
-	],
+         [ "MatricesForHomalg", ">=2012.10.25" ],
+         [ "RingsForHomalg", ">=2012.10.22" ],
+         [ "GaussForHomalg", ">=2012.10.22" ],
+         [ "ToolsForHomalg", ">=2013.04.08" ],
+         [ "GAPDoc", ">=1.0" ],
+         [ "AutoDoc", ">=2012.07.29" ]
+      ],
   SuggestedOtherPackages := [],
   ExternalConditions := []
                       
@@ -89,6 +89,6 @@ Autoload := false,
 
 Keywords := [ "Algebraic combinatorics", "Matroid", "Association scheme", "Tutte polynomial" ]
 
-));
+) );
 
 

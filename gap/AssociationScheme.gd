@@ -9,7 +9,7 @@
 #############################################################################
 
 DeclareCategory( "IsAssociationScheme",
-		IsObject );
+                IsObject );
 
 
 ####################################
@@ -19,13 +19,13 @@ DeclareCategory( "IsAssociationScheme",
 ####################################
 
 DeclareAttribute( "AdjacencyMatrices",
-		IsAssociationScheme );
+                IsAssociationScheme );
 
 DeclareAttribute( "AdjacencyAlgebra",
-		IsAssociationScheme );
+                IsAssociationScheme );
 
 DeclareAttribute( "IsSymmetric",
-		IsAssociationScheme );
+                IsAssociationScheme );
 
 
 ####################################
@@ -35,7 +35,7 @@ DeclareAttribute( "IsSymmetric",
 ####################################
 
 DeclareProperty( "IsCommutative",
-		IsAssociationScheme );
+                IsAssociationScheme );
 
 
 ####################################
@@ -45,16 +45,16 @@ DeclareProperty( "IsCommutative",
 ####################################
 
 DeclareOperation( "GroundSet",
-		[ IsAssociationScheme ] );
+                [ IsAssociationScheme ] );
 
 DeclareOperation( "RelationsOfAssociationScheme",
-		[ IsAssociationScheme ] );
+                [ IsAssociationScheme ] );
 
 DeclareOperation( "GroupOfAssociationScheme",
-		[ IsAssociationScheme ] );
+                [ IsAssociationScheme ] );
 
 DeclareOperation( "ActionOfAssociationScheme",
-		[ IsAssociationScheme ] );
+                [ IsAssociationScheme ] );
 
 
 ####################################
@@ -64,14 +64,14 @@ DeclareOperation( "ActionOfAssociationScheme",
 ####################################
 
 DeclareOperation( "AssociationScheme",
-		[ IsAssociationScheme ] );
+                [ IsAssociationScheme ] );
 
 DeclareOperation( "AssociationScheme",
-		[ IsListOrCollection, IsList ] );
+                [ IsListOrCollection, IsList ] );
 
 DeclareOperation( "AssociationScheme",
-		[ IsGroup, IsListOrCollection, IsFunction ] );
+                [ IsGroup, IsListOrCollection, IsFunction ] );
 
 DeclareOperation( "AssociationScheme",
-		[ IsGroup ] );
+                [ IsGroup ] );
 

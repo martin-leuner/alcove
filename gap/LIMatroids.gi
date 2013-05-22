@@ -3,7 +3,7 @@
 ## Standard implications for ALL matroids:
 
 InstallGlobalFunction( _alcove_MatroidStandardImplications,
-			[ IsMatroid ],
+                        [ IsMatroid ],
 
  function( matroid )
   local entry, entry_list;
@@ -49,16 +49,16 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
 # Set simplicity:
 
   entry := ToDoListEntry( [
-						[ matroid, "IsUniform", true ],
-						[ matroid, "RankOfMatroid" ]
-					],
-					matroid,
-					"IsSimpleMatroid",
-					function() return
-						RankOfMatroid( matroid ) > 1
-						or
-						SizeOfGroundSet( matroid ) < 2;
-					end );
+                                                [ matroid, "IsUniform", true ],
+                                                [ matroid, "RankOfMatroid" ]
+                                        ],
+                                        matroid,
+                                        "IsSimpleMatroid",
+                                        function() return
+                                                RankOfMatroid( matroid ) > 1
+                                                or
+                                                SizeOfGroundSet( matroid ) < 2;
+                                        end );
 
   SetDescriptionOfImplication( entry, "uniform matroids are simple iff their rank is greater than one or they have a one-element ground set" );
   AddToToDoList( entry );
@@ -69,7 +69,7 @@ end );
 ## Standard implications for vector matroids:
 
 InstallGlobalFunction( _alcove_VectorMatroidImplications,
-			[ IsMatroid ],
+                        [ IsMatroid ],
 
  function( matroid )
   local entry;
@@ -78,11 +78,11 @@ InstallGlobalFunction( _alcove_VectorMatroidImplications,
 # If normal form is computed, set rank:
 
   entry := ToDoListEntry( [ [ matroid, "StandardMatrixOfVectorMatroid" ] ],
-					matroid,
-					"RankOfMatroid",
-					function() return
-						NrRows( StandardMatrixOfVectorMatroid( matroid )[1] );
-					end );
+                                        matroid,
+                                        "RankOfMatroid",
+                                        function() return
+                                                NrRows( StandardMatrixOfVectorMatroid( matroid )[1] );
+                                        end );
 
   SetDescriptionOfImplication( entry, "the normal form determines the rank" );
   AddToToDoList( entry );

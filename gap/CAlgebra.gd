@@ -9,7 +9,7 @@
 #############################################################################
 
 DeclareCategory( "IsCAlgebra",
-		IsAlgebraWithOne );
+                IsAlgebraWithOne );
 
 
 ####################################
@@ -19,10 +19,10 @@ DeclareCategory( "IsCAlgebra",
 ####################################
 
 DeclareAttribute( "DualCAlgebra",
-		[ IsCAlgebra ] );
+                [ IsCAlgebra ] );
 
 DeclareAttribute( "Eigenmatrix",
-		[ IsCAlgebra ] );
+                [ IsCAlgebra ] );
 
 
 ####################################
@@ -46,11 +46,11 @@ DeclareAttribute( "Eigenmatrix",
 ####################################
 
 DeclareOperation( "CAlgebra",
-		[ IsCAlgebra ] );
+                [ IsCAlgebra ] );
 
 DeclareOperation( "CAlgebra",
-		[ IsBasis, IsFunction ] );
+                [ IsBasis, IsFunction ] );
 
 DeclareOperation( "CAlgebra",
-		[ IsAssociationScheme and IsCommutative ] );
+                [ IsAssociationScheme and IsCommutative ] );
 

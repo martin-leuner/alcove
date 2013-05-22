@@ -15,23 +15,23 @@
 ####################################
 
 DeclareRepresentation( "IsAssociationSchemeByRelationsRep",
-	IsAssociationScheme and IsAttributeStoringRep,
-	[ "groundSet", "relations" ]
+        IsAssociationScheme and IsAttributeStoringRep,
+        [ "groundSet", "relations" ]
 );
 
 DeclareRepresentation( "IsAssociationSchemeByFunctionsRep",
-	IsAssociationScheme and IsAttributeStoringRep,
-	[ "groundSet", "functions" ]
+        IsAssociationScheme and IsAttributeStoringRep,
+        [ "groundSet", "functions" ]
 );
 
 DeclareRepresentation( "IsAssociationSchemeByActionRep",
-	IsAssociationScheme and IsAttributeStoringRep,
-	[ "group", "groundSet", "action" ]
+        IsAssociationScheme and IsAttributeStoringRep,
+        [ "group", "groundSet", "action" ]
 );
 
 DeclareRepresentation( "IsAssociationSchemeByGroupRep",
-	IsAssociationScheme and IsAttributeStoringRep,
-	[ "group" ]
+        IsAssociationScheme and IsAttributeStoringRep,
+        [ "group" ]
 );
 
 
@@ -43,19 +43,19 @@ DeclareRepresentation( "IsAssociationSchemeByGroupRep",
 
 
 BindGlobal( "TheFamilyOfAssociationSchemes",
-	NewFamily( "TheFamilyOfAssociationSchemes" , IsAssociationScheme ) );
+        NewFamily( "TheFamilyOfAssociationSchemes" , IsAssociationScheme ) );
 
 BindGlobal( "TheTypeRelationAssociationScheme",
-	NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByRelationsRep ) );
+        NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByRelationsRep ) );
 
 BindGlobal( "TheTypeFunctionAssociationScheme",
-	NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByFunctionsRep ) );
+        NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByFunctionsRep ) );
 
 BindGlobal( "TheTypeActionAssociationScheme",
-	NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByActionRep ) );
+        NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByActionRep ) );
 
 BindGlobal( "TheTypeGroupAssociationScheme",
-	NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByGroupRep ) );
+        NewType( TheFamilyOfAssociationSchemes, IsAssociationSchemeByGroupRep ) );
 
 
 ####################################
@@ -69,8 +69,8 @@ BindGlobal( "TheTypeGroupAssociationScheme",
 ## AdjacencyMatrices
 
 InstallMethod( AdjacencyMatrices,
-		"for relation association schemes",
-		[ IsAssociationSchemeByRelationsRep ],
+                "for relation association schemes",
+                [ IsAssociationSchemeByRelationsRep ],
 
  function( ascheme )
   local rels, dom;
@@ -84,8 +84,8 @@ InstallMethod( AdjacencyMatrices,
 );
 
 InstallMethod( AdjacencyMatrices,
-		"for relation association schemes",
-		[ IsAssociationSchemeByFunctionsRep ],
+                "for relation association schemes",
+                [ IsAssociationSchemeByFunctionsRep ],
 
  function( ascheme )
   local funcs, dom;
@@ -99,8 +99,8 @@ InstallMethod( AdjacencyMatrices,
 );
 
 InstallMethod( AdjacencyMatrices,				# CAUTION: Naive and probably less-than-optimal approach.
-		"for group association schemes",
-		[ IsAssociationSchemeByGroupRep ],
+                "for group association schemes",
+                [ IsAssociationSchemeByGroupRep ],
 
  function( ascheme )
   local grp, conj;
@@ -114,8 +114,8 @@ InstallMethod( AdjacencyMatrices,				# CAUTION: Naive and probably less-than-opt
 );
 
 InstallMethod( AdjacencyMatrices,
-		"for association schemes defined by a transitive action",
-		[ IsAssociationSchemeByActionRep ],
+                "for association schemes defined by a transitive action",
+                [ IsAssociationSchemeByActionRep ],
 
  function( ascheme )
   local dom, stab, staborbs, reps, orb, mats, mat, tmporb, i, grp, act;
@@ -150,8 +150,8 @@ InstallMethod( AdjacencyMatrices,
 ## AdjacencyAlgebra
 
 InstallMethod( AdjacencyAlgebra,
-		"for association schemes",
-		[ IsAssociationScheme ],
+                "for association schemes",
+                [ IsAssociationScheme ],
 
  function( ascheme )
   local irreds, F, mats;
@@ -189,8 +189,8 @@ InstallMethod( AdjacencyAlgebra,
 ## GroundSet
 
 InstallMethod( GroundSet,
-		"for association schemes",
-		[ IsAssociationScheme ],
+                "for association schemes",
+                [ IsAssociationScheme ],
 
  function( ascheme )
   if IsBound( ascheme!.groundSet ) then
@@ -203,9 +203,9 @@ InstallMethod( GroundSet,
 );
 
 InstallMethod( GroundSet,
-		"for group association schemes",
-		[ IsAssociationSchemeByGroupRep ],
-		10,
+                "for group association schemes",
+                [ IsAssociationSchemeByGroupRep ],
+                10,
 
  function( ascheme )
   if IsBound( ascheme!.group ) then
@@ -218,9 +218,9 @@ InstallMethod( GroundSet,
 );
 
 InstallMethod( GroundSet,
-		"for association schemes defined by a transitive action",
-		[ IsAssociationSchemeByActionRep ],
-		10,
+                "for association schemes defined by a transitive action",
+                [ IsAssociationSchemeByActionRep ],
+                10,
 
  function( ascheme )
   if IsBound( ascheme!.groundSet ) then
@@ -237,8 +237,8 @@ InstallMethod( GroundSet,
 ## RelationsOfAssociationScheme
 
 InstallMethod( RelationsOfAssociationScheme,
-		"for relation association schemes",
-		[ IsAssociationSchemeByRelationsRep ],
+                "for relation association schemes",
+                [ IsAssociationSchemeByRelationsRep ],
 
  function( ascheme )
   if IsBound( ascheme!.relations ) then
@@ -251,8 +251,8 @@ InstallMethod( RelationsOfAssociationScheme,
 );
 
 InstallMethod( RelationsOfAssociationScheme,
-		"for relation association schemes",
-		[ IsAssociationSchemeByFunctionsRep ],
+                "for relation association schemes",
+                [ IsAssociationSchemeByFunctionsRep ],
 
  function( ascheme )
   if IsBound( ascheme!.functions ) then
@@ -265,8 +265,8 @@ InstallMethod( RelationsOfAssociationScheme,
 );
 
 InstallMethod( RelationsOfAssociationScheme,					# POTENTIALLY EXPENSIVE AND NAIVE APPROACH, SHOULD DO THIS DIFFERENTLY IF ADJACENCY ALGEBRA IS KNOWN
-		"for association schemes defined by a transitive action",
-		[ IsAssociationSchemeByActionRep ],
+                "for association schemes defined by a transitive action",
+                [ IsAssociationSchemeByActionRep ],
 
  function( ascheme )
   local dom, grp, act;
@@ -283,8 +283,8 @@ InstallMethod( RelationsOfAssociationScheme,					# POTENTIALLY EXPENSIVE AND NAI
 ## GroupOfAssociationScheme
 
 InstallMethod( GroupOfAssociationScheme,
-		"for group association schemes",
-		[ IsAssociationSchemeByGroupRep ],
+                "for group association schemes",
+                [ IsAssociationSchemeByGroupRep ],
 
  function( ascheme )
   if IsBound( ascheme!.group ) then
@@ -297,8 +297,8 @@ InstallMethod( GroupOfAssociationScheme,
 );
 
 InstallMethod( GroupOfAssociationScheme,
-		"for association schemes defined by a transitive action",
-		[ IsAssociationSchemeByActionRep ],
+                "for association schemes defined by a transitive action",
+                [ IsAssociationSchemeByActionRep ],
 
  function( ascheme )
   if IsBound( ascheme!.group ) then
@@ -315,8 +315,8 @@ InstallMethod( GroupOfAssociationScheme,
 ## ActionOfAssociationScheme
 
 InstallMethod( ActionOfAssociationScheme,
-		"for association schemes defined by a transitive action",
-		[ IsAssociationSchemeByActionRep ],
+                "for association schemes defined by a transitive action",
+                [ IsAssociationSchemeByActionRep ],
 
  function( ascheme )
   if IsBound( ascheme!.action ) then
@@ -338,8 +338,8 @@ InstallMethod( ActionOfAssociationScheme,
 
 ##
 InstallMethod( AssociationScheme,
-		"copy constructor",
-		[ IsAssociationScheme ],
+                "copy constructor",
+                [ IsAssociationScheme ],
 
  IdFunc
 
@@ -348,9 +348,9 @@ InstallMethod( AssociationScheme,
 
 ##
 InstallMethod( AssociationScheme,
-		"by ground set and relations",
-		[ IsListOrCollection, IsList ],
-		10,
+                "by ground set and relations",
+                [ IsListOrCollection, IsList ],
+                10,
 
  function( gset, rels )
   local aScheme, srels, sgset;
@@ -374,8 +374,8 @@ InstallMethod( AssociationScheme,
 
 ##
 InstallMethod( AssociationScheme,
-		"by ground set and functions",
-		[ IsListOrCollection, IsList ],
+                "by ground set and functions",
+                [ IsListOrCollection, IsList ],
 
  function( gset, funcs )
   local aScheme, sgset;
@@ -393,8 +393,8 @@ InstallMethod( AssociationScheme,
 
 ##
 InstallMethod( AssociationScheme,
-		"by transitive action",
-		[ IsGroup, IsListOrCollection, IsFunction ],
+                "by transitive action",
+                [ IsGroup, IsListOrCollection, IsFunction ],
 
  function( grp, dom, act )
   local aScheme;
@@ -413,8 +413,8 @@ InstallMethod( AssociationScheme,
 
 ##
 InstallMethod( AssociationScheme,
-		"by group",
-		[ IsGroup ],
+                "by group",
+                [ IsGroup ],
 
  function( grp )
   local aScheme;
@@ -436,8 +436,8 @@ InstallMethod( AssociationScheme,
 
 ##
 InstallMethod( PrintObj,
-		"for association schemes",
-		[ IsAssociationScheme ],
+                "for association schemes",
+                [ IsAssociationScheme ],
 
  function( ascheme )
 
@@ -448,7 +448,7 @@ InstallMethod( PrintObj,
   else
 
    if 	( HasIsCommutative( ascheme ) and IsCommutative( ascheme ) ) or
-	( HasIsSymmetric( ascheme ) and IsSymmetric( ascheme ) ) then
+        ( HasIsSymmetric( ascheme ) and IsSymmetric( ascheme ) ) then
     Print( "<A" );
    else
     Print( "<An" );
@@ -472,8 +472,8 @@ InstallMethod( PrintObj,
 
 ##
 InstallMethod( Display,
-		"for group association schemes",
-		[ IsAssociationSchemeByGroupRep ],
+                "for group association schemes",
+                [ IsAssociationSchemeByGroupRep ],
 
  function( ascheme )
 
@@ -486,8 +486,8 @@ InstallMethod( Display,
 
 ##
 InstallMethod( Display,
-		"for action association schemes",
-		[ IsAssociationSchemeByActionRep ],
+                "for action association schemes",
+                [ IsAssociationSchemeByActionRep ],
 
  function( ascheme )
 
@@ -503,8 +503,8 @@ InstallMethod( Display,
 
 ##
 InstallMethod( Display,
-		"for relation association schemes",
-		[ IsAssociationSchemeByRelationsRep ],
+                "for relation association schemes",
+                [ IsAssociationSchemeByRelationsRep ],
 
  function( ascheme )
 
@@ -519,8 +519,8 @@ InstallMethod( Display,
 
 ##
 InstallMethod( Display,
-		"for function association schemes",
-		[ IsAssociationSchemeByFunctionsRep  ],
+                "for function association schemes",
+                [ IsAssociationSchemeByFunctionsRep  ],
 
  function( ascheme )
 
