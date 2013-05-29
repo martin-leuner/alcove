@@ -1670,11 +1670,16 @@ InstallMethod( DirectSumDecomposition,
 
   components := Union2( components, List( Coloops(matroid), l -> [l] ) );
 
-  components := List( components, comp -> [ comp, RestrictionToComponentNC( matroid, comp ) ] );
+# Check whether we found a non-trivial decomposition:
 
-  for currentComponent in components do
-   SetIsConnected( currentComponent[2], true );
-  od;
+  if Size( components ) = 1 then
+   SetIsConnected( matroid, true );
+   return DirectSumDecomposition( matroid );
+  fi;
+
+# Otherwise, compute minors:
+
+  components := List( components, comp -> [ comp, RestrictionToComponentNC( matroid, comp ) ] );
 
   return components;
  end
@@ -2088,15 +2093,13 @@ InstallMethod( MinorNL,
 
 # Construct minor:
 
-  minor := Objectify( TheTypeMinorOfAbstractMatroid, rec() );
+  minor := rec();
 
-  SetSizeOfGroundSet( minor, Size( groundSetInParent ) );
-  SetBases( minor, minorBases );
-
-  SetParentAttr( minor, [
-        matroid,
-        groundSetInParent
-  ] );
+  ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
+                           SizeOfGroundSet, Size( groundSetInParent ),
+                           Bases, minorBases,
+                           ParentAttr, [ matroid, groundSetInParent ]
+                         );
 
   return minor;
  end
@@ -2179,8 +2182,8 @@ InstallMethod( MinorNL,
 
   minor := rec( generatingMatrix := Immutable( minorMat ) );
   ObjectifyWithAttributes( minor, TheTypeMinorOfVectorMatroid,
-                          ParentAttr, [ matroid, Difference( GroundSet( matroid ), Union2( sdel, scontr ) ) ]
-                );
+                           ParentAttr, [ matroid, Difference( GroundSet( matroid ), Union2( sdel, scontr ) ) ]
+                         );
 
   return minor;
  end
@@ -2256,16 +2259,137 @@ InstallMethod( Contraction,
 );
 
 
-#########################
-## RestrictionToComponent
+###########################
+## RestrictionToComponentNC
 
 ##
-InstallMethod( RestrictionToComponent,
-                "for matroids",
-                [ IsMatroid, IsList ],
+InstallMethod( RestrictionToComponentNC,
+                "for vector matroids",
+                [ IsVectorMatroidRep, IsList ],
+                50,
 
- function
+ function( matroid, component )
+  local minor;
 
+  minor := Deletion( matroid, component );
+  SetIsConnected( matroid, true );
+
+  return minor;
+ end
+
+);
+
+##
+InstallMethod( RestrictionToComponentNC,
+                "for matroids with bases",
+                [ IsMatroid and HasBases, IsList ],
+                30,
+
+ function( matroid, component )
+  local bases, rank, minor;
+
+  component := Set( component );
+
+  bases := Set( List( Bases( matroid ), b -> Intersection2( b, component ) ) );
+
+  rank := Maximum( List( bases, Size ) );
+
+  bases := Filtered( bases, b -> Size(b) = rank );
+
+  bases := List( bases, b -> List( b, i -> Position( component, i ) ) );
+
+  minor := rec();
+
+  ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
+                           SizeOfGroundSet, Size( component ),
+                           Bases, bases,
+                           RankOfMatroid, rank,
+                           ParentAttr, [ matroid, component ],
+                           IsConnected, true
+                         );
+
+  return minor;
+ end
+
+);
+
+##
+InstallMethod( RestrictionToComponentNC,
+                "for matroids with circuits",
+                [ IsMatroid and HasCircuits, IsList ],
+                40,
+
+ function( matroid, component )
+  local circs, minor;
+
+  component := Set( component );
+
+  circs := Filtered( Circuits( matroid ), c -> IsSubset( component, c ) );
+
+  circs := List( circs, c -> List( c, i -> Position( component, i ) ) );
+
+  minor := rec();
+
+  ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
+                           SizeOfGroundSet, Size( component ),
+                           Circuits, circs,
+                           ParentAttr, [ matroid, component ],
+                           IsConnected, true
+                         );
+
+  return minor;
+ end
+
+);
+
+##
+InstallMethod( RestrictionToComponentNC,
+                "for matroids with a rank function",
+                [ IsMatroid and HasRankFunction, IsList ],
+
+ function( matroid, component )
+  local matRkFun, rkFun, minor;
+
+  matRkFun := RankFunction( matroid );
+
+  rkFun := subset -> matRkFun( List( subset, i -> component[i] ) );
+
+  minor := rec();
+
+  ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
+                           SizeOfGroundSet, Size( component ),
+                           RankFunction, rkFun,
+                           ParentAttr, [ matroid, component ],
+                           IsConnected, true
+                         );
+
+  return minor;
+ end
+
+);
+
+##
+InstallMethod( RestrictionToComponentNC,
+                "for matroids with an independence oracle",
+                [ IsMatroid and HasIndependenceOracle, IsList ],
+
+ function( matroid, component )
+  local matIsIndep, isIndep, minor;
+
+  matIsIndep := IndependenceOracle( matroid );
+
+  isIndep := subset -> matIsIndep( List( subset, i -> component[i] ) );
+
+  minor := rec();
+
+  ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
+                           SizeOfGroundSet, Size( component ),
+                           IndependenceOracle, isIndep,
+                           ParentAttr, [ matroid, component ],
+                           IsConnected, true
+                         );
+
+  return minor;
  end
 
 );
@@ -2720,6 +2844,23 @@ InstallMethod( MatroidByBases,
 );
 
 ##
+InstallMethod( MatroidByBasesNC,
+                "by size of ground set and list of bases, no checks",
+                [ IsInt, IsList ],
+
+ function( deg, baselist )
+  local matroid;
+
+  matroid := MatroidByBasesNCL( deg, baselist );
+
+  _alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
+ end
+
+);
+
+##
 InstallMethod( MatroidByBasesNCL,
                 "by size of ground set and list of bases, no checks or logical implications",
                 [ IsInt, IsList ],
@@ -2745,6 +2886,19 @@ InstallMethod( MatroidByBases,
  function( groundSet, bases )
 
   return MatroidByBases( Size( groundSet ), List( bases, b -> List( b, e -> Position( groundSet, e ) ) ) );
+
+ end
+
+);
+
+##
+InstallMethod( MatroidByBasesNC,
+                "by ground set and list of bases, no checks",
+                [ IsList, IsList ],
+
+ function( groundSet, bases )
+
+  return MatroidByBasesNC( Size( groundSet ), List( bases, b -> List( b, e -> Position( groundSet, e ) ) ) );
 
  end
 
@@ -2785,6 +2939,23 @@ InstallMethod( MatroidByBasesNCL,
 #);
 
 ##
+InstallMethod( MatroidByIndependenceOracleNC,
+                "given size of ground set and boolean function deciding independence of subsets, no checks",
+                [ IsInt, IsFunction ],
+
+ function( size, isIndep )
+  local matroid;
+
+  matroid := MatroidByIndependenceOracleNCL( size, isIndep );
+
+  _alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
+ end
+
+);
+
+##
 InstallMethod( MatroidByIndependenceOracleNCL,
                 "given size of ground set and boolean function deciding independence of subsets, no checks or logical implications",
                 [ IsInt, IsFunction ],
@@ -2822,6 +2993,23 @@ InstallMethod( MatroidByIndependenceOracleNCL,
 # end
 #
 #);
+
+##
+InstallMethod( MatroidByIndependenceOracleNC,
+                "given ground set and boolean function deciding independence of subsets, no checks",
+                [ IsList, IsFunction ],
+
+ function( gset, isIndep )
+  local matroid;
+
+  matroid := MatroidByIndependenceOracleNCL( gset, isIndep );
+
+  _alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
+ end
+
+);
 
 ##
 InstallMethod( MatroidByIndependenceOracleNCL,
@@ -2882,8 +3070,25 @@ InstallMethod( MatroidByCircuits,
 );
 
 ##
+InstallMethod( MatroidByCircuitsNC,
+                "given size of ground set and list of circuits, no checks",
+                [ IsInt, IsList ],
+
+ function( size, circs )
+  local matroid;
+
+  matroid := MatroidByCircuitsNCL( size, circs );
+
+  _alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
+ end
+
+);
+
+##
 InstallMethod( MatroidByCircuitsNCL,
-                "given size of ground set and list of circuits no checks or logical implications",
+                "given size of ground set and list of circuits, no checks or logical implications",
                 [ IsInt, IsList ],
 
  function( size, circs )
@@ -2913,8 +3118,21 @@ InstallMethod( MatroidByCircuits,
 );
 
 ##
+InstallMethod( MatroidByCircuitsNC,
+                "given ground set and list of circuits, no checks",
+                [ IsList, IsList ],
+
+ function( groundSet, circs )
+
+  return MatroidByCircuitsNC( Size( groundSet ), List( circs, b -> List( b, e -> Position( groundSet, e ) ) ) );
+
+ end
+
+);
+
+##
 InstallMethod( MatroidByCircuitsNCL,
-                "given ground set and list of circuits no checks or logical implications",
+                "given ground set and list of circuits, no checks or logical implications",
                 [ IsList, IsList ],
 
  function( groundSet, circs )
@@ -2973,6 +3191,23 @@ InstallMethod( MatroidByRankFunction,
 );
 
 ##
+InstallMethod( MatroidByRankFunctionNC,
+                "given size of ground set and integer valued function, no checks",
+                [ IsInt, IsFunction ],
+
+ function( size, rankFunc )
+  local matroid;
+
+  matroid := MatroidByRankFunctionNCL( size, rankFunc );
+
+  _alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
+ end
+
+);
+
+##
 InstallMethod( MatroidByRankFunctionNCL,
                 "given size of ground set and integer valued function, no checks or logical implications",
                 [ IsInt, IsFunction ],
@@ -2992,7 +3227,7 @@ InstallMethod( MatroidByRankFunctionNCL,
 
 ##
 InstallMethod( MatroidByRankFunction,
-                "given size of ground set and integer valued function",
+                "given ground set and integer valued function",
                 [ IsList, IsFunction ],
 
  function( groundSet, rankFunc )
@@ -3012,8 +3247,25 @@ InstallMethod( MatroidByRankFunction,
 );
 
 ##
+InstallMethod( MatroidByRankFunctionNC,
+                "given ground set and integer valued function, no checks",
+                [ IsList, IsFunction ],
+
+ function( gset, rankFunc )
+  local matroid;
+
+  matroid := MatroidByRankFunctionNCL( gset, rankFunc );
+
+  _alcove_MatroidStandardImplications( matroid );
+
+  return matroid;
+ end
+
+);
+
+##
 InstallMethod( MatroidByRankFunctionNCL,
-                "given size of ground set and integer valued function, no checks or logical implications",
+                "given ground set and integer valued function, no checks or logical implications",
                 [ IsList, IsFunction ],
 
  function( groundSet, rankFunc )

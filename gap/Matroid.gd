@@ -56,6 +56,9 @@ DeclareOperationWithDocumentation( "MatroidByBases",
                                 [ "Matroids", "Construction" ]
                         );
 
+DeclareOperation( "MatroidByBasesNC",
+                [ IsList, IsList ] );
+
 DeclareOperation( "MatroidByBasesNCL",
                 [ IsList, IsList ] );
 
@@ -71,17 +74,26 @@ DeclareOperationWithDocumentation( "MatroidByBases",
                                 [ "Matroids", "Construction" ]
                          );
 
+DeclareOperation( "MatroidByBasesNC",
+                [ IsInt, IsList ] );
+
 DeclareOperation( "MatroidByBasesNCL",
                 [ IsInt, IsList ] );
 
 #DeclareOperation( "MatroidByIndependenceOracle",
 #		[ IsList, IsFunction ] );
 
+DeclareOperation( "MatroidByIndependenceOracleNC",
+                [ IsList, IsFunction ] );
+
 DeclareOperation( "MatroidByIndependenceOracleNCL",
                 [ IsList, IsFunction ] );
 
 #DeclareOperation( "MatroidByIndependenceOracle",
 #		[ IsInt, IsFunction ] );
+
+DeclareOperation( "MatroidByIndependenceOracleNC",
+                [ IsInt, IsFunction ] );
 
 DeclareOperation( "MatroidByIndependenceOracleNCL",
                 [ IsInt, IsFunction ] );
@@ -98,6 +110,9 @@ DeclareOperationWithDocumentation( "MatroidByCircuits",
                                 [ "Matroids", "Construction" ]
                         );
 
+DeclareOperation( "MatroidByCircuitsNC",
+                [ IsList, IsList ] );
+
 DeclareOperation( "MatroidByCircuitsNCL",
                 [ IsList, IsList ] );
 
@@ -112,6 +127,9 @@ DeclareOperationWithDocumentation( "MatroidByCircuits",
                                 "n,circs",
                                 [ "Matroids", "Construction" ]
                         );
+
+DeclareOperation( "MatroidByCircuitsNC",
+                [ IsInt, IsList ] );
 
 DeclareOperation( "MatroidByCircuitsNCL",
                 [ IsInt, IsList ] );
@@ -129,6 +147,8 @@ DeclareOperationWithDocumentation( "MatroidByRankFunction",
                                 [ "Matroids", "Construction" ]
                         );
 
+DeclareOperation( "MatroidByRankFunctionNC",
+                [ IsList, IsFunction ] );
 
 DeclareOperation( "MatroidByRankFunctionNCL",
                 [ IsList, IsFunction ] );
@@ -145,6 +165,9 @@ DeclareOperationWithDocumentation( "MatroidByRankFunction",
                                 "n,rk",
                                 [ "Matroids", "Construction" ]
                         );
+
+DeclareOperation( "MatroidByRankFunctionNC",
+                [ IsInt, IsFunction ] );
 
 DeclareOperation( "MatroidByRankFunctionNCL",
                 [ IsInt, IsFunction ] );
@@ -406,10 +429,11 @@ DeclareOperationWithDocumentation( "Contraction",
                         );
 
 DeclareOperationWithDocumentation( "RestrictionToComponentNC",
-                                [ IsMatroid, IsList ]
+                                [ IsMatroid, IsList ],
                                 [ "Computes <A>mat</A> / <A>comp</A> assuming that the subset <A>comp</A> of the ",
                                   "ground set of <A>mat</A> is a connected component. This method is mainly ",
-                                  "intended for internal use." ],
+                                  "intended for internal use. It does NOT check whether <A>comp</A> actually ",
+                                  "is a connected component." ],
                                 "a matroid",
                                 "mat,con",
                                 [ "Matroids", "Construction" ]
