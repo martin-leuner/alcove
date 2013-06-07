@@ -352,6 +352,13 @@ DeclareAttribute( "FlatsOfRank",
                 IsMatroid,
                 "mutable" );
 
+DeclareAttributeWithDocumentation( "NonTrivialParallelClasses",
+                                IsMatroid,
+                                [ "Returns the set of rank one flats of <A>mat</A> with more than one element." ],
+                                "a set",
+                                "mat",
+                                [ "Matroids", "Bases,_circuits_and_their_companions" ]
+                        );
 
 ####################################
 ##

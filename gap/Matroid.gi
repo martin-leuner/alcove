@@ -247,7 +247,7 @@ InstallMethod( DualMatroid,
 ## SimplifiedMatroid
 
 ##
-InstallMethod( SimplifiedMatroid,
+InstallMethod( SimplifiedMatroid,		# method can be heavily simplified using NonTrivialParallelClasses, this also avoids computing closures
                 "for matroids",
                 [ IsMatroid ],
 
@@ -593,7 +593,7 @@ InstallMethod( ClosureFunction,
 );
 
 
-#######################
+#####################
 ## IndependenceOracle
 
 ##
@@ -878,54 +878,6 @@ InstallMethod( KnownBases,
 ## Circuits
 
 ##
-InstallMethod( Circuits,		## recursive exponential time method
-                "for connected matroids",
-                [ IsMatroid and IsConnected ],
-                10,
-
- function( matroid )
-  local loopsColoops, loopColoopFree, delCircs, conCircs, t, h, l, circs;
-
-# Check all trivial cases:
-
-  if SizeOfGroundSet( matroid ) = 0 then return []; fi;
-  if SizeOfGroundSet( matroid ) = 1 then return List( Loops( matroid ), i -> [i] ); fi;
-
-  if RankOfMatroid( matroid ) = 0 then return List( GroundSet( matroid ), i -> [i] ); fi;
-
-  loopsColoops := Union2( Loops( matroid ), Coloops( matroid ) );
-
-  if Size( loopsColoops ) = SizeOfGroundSet( matroid ) then return List( Loops( matroid ), i -> [i] ); fi;
-
-# Delete loops and coloops and start recursion:
-
-  loopColoopFree := MinorNL( matroid, loopsColoops, [] );
-  t := SizeOfGroundSet( loopColoopFree );
-
-  delCircs := Circuits( MinorNL( loopColoopFree, [t], [] ) );
-  conCircs := Circuits( MinorNL( loopColoopFree, [], [t] ) );
-
-# Combine results:
-
-  circs := Union2( 	List( delCircs, h -> ShallowCopy(h) ),		# this line ensures that the lists in circs are mutable
-                        List( Difference( conCircs, delCircs ), h -> Union2( h, [t] ) ) );
-
-# Shift labels according to deletion:
-
-  for l in loopsColoops do			## FIXME: replace this procedure by i -> ParentAttr[2][i] after having thought about it for a while
-   for h in circs do
-    for t in [ 1 .. Size( h ) ] do
-     if h[t] >= l then h[t] := h[t] + 1; fi;
-    od;
-   od;
-  od;
-
-  return Union2( circs, List( Loops( matroid ), l -> [l] ) );
- end
-
-);
-
-##
 InstallMethod( Circuits,
                 "for uniform matroids",
                 [ IsMatroid and IsUniform ],
@@ -940,20 +892,14 @@ InstallMethod( Circuits,
 );
 
 ##
-InstallMethod( Circuits,		## incremental polynomial time method for vector matroids
-                "for vector matroids",
-                [ IsVectorMatroidRep and IsConnected ],
+InstallMethod( Circuits,		## incremental polynomial time method
+                "for connected matroids",
+                [ IsMatroid and IsConnected ],
                 20,
 
  function( matroid )
   local	corank, rank, i, j, isIndependent, superSet, ReduceDependentSetToCircuit,
         newCircuits, oldCircuits, union, intersection, currentCircuit, otherCircuit;
-
-# If matroid is uniform, call method for uniform matroids:
-
-  if IsUniform( matroid ) then
-   return Circuits( UniformMatroidNL( RankOfMatroid( matroid ), SizeOfGroundSet( matroid ) ) );
-  fi;
 
 # Local function to find a circuit contained in a given set:
 
@@ -1048,6 +994,24 @@ InstallMethod( Circuits,
 
  function( matroid )
   local two, c1base, c1nobase, c2base, c2nobase, i;
+
+# Check whether this is the appropriate method:
+
+  if HasIs3Connected( matroid ) then
+
+   if Is3Connected( matroid ) then
+    TryNextMethod();
+   fi;
+
+  else
+
+   if Is3Connected( matroid ) then
+    return Circuits( matroid );
+   fi;
+
+  fi;
+
+# Construct circuits from circuits of decomposition:
 
   two := TwoSumDecomposition( matroid );
   c1nobase := [];
@@ -1431,6 +1395,7 @@ InstallMethod( RankGeneratingPolynomial,
 InstallMethod( Loops,
                 "for matroids with bases",
                 [ IsAbstractMatroidRep and HasBases ],
+                40,
 
  function( matroid )
 
@@ -1442,8 +1407,23 @@ InstallMethod( Loops,
 
 ##
 InstallMethod( Loops,
+                "for matroids with circuits",
+                [ IsAbstractMatroidRep and HasCircuits ],
+                30,
+
+ function( matroid )
+
+  return Union( Filtered( Circuits( matroid ), c -> Size(c) = 1 ) );
+
+ end
+
+);
+
+##
+InstallMethod( Loops,
                 "for vector matroids",
                 [ IsVectorMatroidRep ],
+                30,
 
  function( matroid )
 
@@ -1455,8 +1435,31 @@ InstallMethod( Loops,
 
 ##
 InstallMethod( Loops,
+                "for uniform matroids",
+                [ IsMatroid and IsUniform ],
+                50,
+
+ function( matroid )
+
+  if RankOfMatroid( matroid ) = 0 then
+
+   return GroundSet( matroid );
+
+  else
+
+   return [];
+
+  fi;
+
+ end
+
+);
+
+##
+InstallMethod( Loops,
                 "fallback method",
                 [ IsMatroid ],
+                0,
 
  function( matroid )
   local isIndep;
@@ -1546,7 +1549,7 @@ InstallMethod( Coloops,
 
 ##
 InstallMethod( Coloops,
-                "for matroids with known duals",
+                "for matroids with known dual",
                 [ IsMatroid and HasDualMatroid ],
                 10,
 
@@ -1701,6 +1704,43 @@ InstallMethod( DirectSumDecomposition,
 #);
 
 
+############################
+## NonTrivialParallelClasses
+
+##
+InstallMethod( NonTrivialParallelClasses,
+                "for matroids",
+                [ IsMatroid ],
+
+ function( matroid )
+  local isIndep, parClasses, gSet, newClass, elt;
+
+  parClasses := [];
+  isIndep := IndependenceOracle( matroid );
+  gSet := ShallowCopy( GroundSet( matroid ) );
+
+  while not IsEmpty( gSet ) do
+   newClass := [ gSet[1] ];
+
+   for elt in gSet do
+    if not isIndep( [ gSet[1], elt ] ) then
+
+     Add( newClass, elt );
+
+    fi;
+   od;
+
+   gSet := Difference( gSet, newClass );
+
+   if Size( newClass ) > 1 then Add( parClasses, newClass ); fi;
+  od;
+
+  return parClasses;
+ end
+
+);
+
+
 ####################################
 ##
 ## Properties
@@ -1759,7 +1799,8 @@ InstallMethod( IsSimpleMatroid,
                 [ IsMatroid ],
 
  function( matroid )
-  return SimplifiedMatroid( matroid ) = matroid;
+  return IsEmpty( Loops( matroid ) ) and
+         IsEmpty( NonTrivialParallelClasses( matroid ) );
  end
 
 );
