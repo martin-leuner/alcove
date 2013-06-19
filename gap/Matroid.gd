@@ -242,7 +242,7 @@ DeclareAttributeWithDocumentation( "StandardMatrixOfVectorMatroid",
                                 [ "Matroids", "Accessing_attributes" ]
                         );
 
-DeclareAttributeWithDocumentation( "GroundSet",
+DeclareOperationWithDocumentation( "GroundSet",
                                 IsMatroid,
                                 [ "Returns the ground set of <A>mat</A>." ],
                                 "a set",
