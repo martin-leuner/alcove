@@ -593,6 +593,30 @@ InstallMethod( ClosureFunction,
 );
 
 
+#######################
+## EssentialityOperator
+
+##
+InstallMethod( EssentialityOperator,
+                "for matroids",
+                [ IsMatroid ],
+
+ function( matroid )
+  return
+        function( x )
+         local minor, coloopsOfMinor;
+
+         minor := MinorNL( matroid, Difference( GroundSet(matroid), x ), [] );
+
+         coloopsOfMinor := List( Coloops( minor ), l -> ParentAttr(minor)[2][l] );
+
+         return Difference( x, coloopsOfMinor );
+        end;
+ end
+
+);
+
+
 #####################
 ## IndependenceOracle
 
@@ -1713,7 +1737,7 @@ InstallMethod( NonTrivialParallelClasses,
                 [ IsMatroid ],
 
  function( matroid )
-  local isIndep, parClasses, gSet, newClass, elt;
+  local isIndep, parClasses, gSet, newClass, i;
 
   parClasses := [];
   isIndep := IndependenceOracle( matroid );
@@ -1722,10 +1746,10 @@ InstallMethod( NonTrivialParallelClasses,
   while not IsEmpty( gSet ) do
    newClass := [ gSet[1] ];
 
-   for elt in gSet do
-    if not isIndep( [ gSet[1], elt ] ) then
+   for i in [2..Size(gSet)] do
+    if not isIndep( [ gSet[1], gSet[i] ] ) then
 
-     Add( newClass, elt );
+     Add( newClass, gSet[i] );
 
     fi;
    od;

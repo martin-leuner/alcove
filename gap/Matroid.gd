@@ -242,26 +242,29 @@ DeclareAttributeWithDocumentation( "StandardMatrixOfVectorMatroid",
                                 [ "Matroids", "Accessing_attributes" ]
                         );
 
-DeclareOperation( "GroundSet",
-                [ IsMatroid ] );
+DeclareAttributeWithDocumentation( "GroundSet",
+                                IsMatroid,
+                                [ "Returns the ground set of <A>mat</A>." ],
+                                "a set",
+                                "mat",
+                                [ "Matroids", "Accessing_attributes" ]
+                        );
 
-DeclareAttribute( "SizeOfGroundSet",
-                IsMatroid );
+DeclareAttributeWithDocumentation( "SizeOfGroundSet",
+                                IsMatroid,
+                                [ "Returns the number of elements of <A>mat</A>." ],
+                                "a non-negative integer",
+                                "mat",
+                                [ "Matroids", "Accessing_attributes" ]
+                        );
 
-DeclareAttribute( "RankOfMatroid",
-                IsMatroid );
-
-DeclareAttribute( "RankFunction",
-                IsMatroid );
-
-DeclareAttribute( "ClosureFunction",
-                IsMatroid );
-
-DeclareAttribute( "IndependenceOracle",
-                IsMatroid );
-
-DeclareAttribute( "CircuitOracle",
-                IsMatroid );
+DeclareAttributeWithDocumentation( "RankOfMatroid",
+                                IsMatroid,
+                                [ "Returns the rank of <A>mat</A>." ],
+                                "a non-negative integer",
+                                "mat",
+                                [ "Matroids", "Accessing_attributes" ]
+                        );
 
 DeclareAttributeWithDocumentation( "Bases",
                                 IsMatroid,
@@ -298,6 +301,52 @@ DeclareAttribute( "Cocircuits",
 
 DeclareAttribute( "Hyperplanes",
                 IsMatroid );
+
+DeclareAttributeWithDocumentation( "RankFunction",
+                                IsMatroid,
+                                [ "Returns a function mapping subsets of <A>mat</A>'s ground set to their ",
+                                  "rank in <A>mat</A>." ],
+                                "a function",
+                                "mat",
+                                [ "Matroids", "Bases,_circuits_and_their_companions" ]
+                        );
+
+DeclareAttributeWithDocumentation( "ClosureFunction",
+                                IsMatroid,
+                                [ "Returns a function mapping subsets of <A>mat</A>'s ground set to their ",
+                                  "closure in <A>mat</A>." ],
+                                "a function",
+                                "mat",
+                                [ "Matroids", "Bases,_circuits_and_their_companions" ]
+                        );
+
+DeclareAttributeWithDocumentation( "EssentialityOperator",
+                                IsMatroid,
+                                [ "Returns a function mapping flats <A>X</A> of <A>mat</A> to the flat ",
+                                  "obtained by deleting the coloops of <A>mat|X</A>. The function does not ",
+                                  "check whether its input actually is a flat." ],
+                                "a function",
+                                "mat",
+                                [ "Matroids", "Bases,_circuits_and_their_companions" ]
+                        );
+
+DeclareAttributeWithDocumentation( "IndependenceOracle",
+                                IsMatroid,
+                                [ "Returns a boolean function which decides the independence of subsets of ",
+                                  "<A>mat</A>'s ground set." ],
+                                "a function",
+                                "mat",
+                                [ "Matroids", "Bases,_circuits_and_their_companions" ]
+                        );
+
+DeclareAttributeWithDocumentation( "CircuitOracle",
+                                IsMatroid,
+                                [ "Returns a boolean function which decides whether a subset of ",
+                                  "<A>mat</A>'s ground set is a circuit." ],
+                                "a function",
+                                "mat",
+                                [ "Matroids", "Bases,_circuits_and_their_companions" ]
+                        );
 
 DeclareAttributeWithDocumentation( "TuttePolynomial",
                                 IsMatroid,
