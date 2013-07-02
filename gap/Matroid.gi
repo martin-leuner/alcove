@@ -258,7 +258,7 @@ InstallMethod( SimplifiedMatroid,		# method can be heavily simplified using NonT
   del := Loops( matroid );
 
   while not IsEmpty( checkset ) do
-   currParClass := ClosureFunction(matroid)( checkset[1] );
+   currParClass := ClosureOperator(matroid)( checkset[1] );
    checkset := Difference( checkset, currParClass );
    Remove( currParClass );
    del := Union2( del, currParClass );
@@ -570,10 +570,10 @@ InstallMethod( RankFunction,
 
 
 ##################
-## ClosureFunction
+## ClosureOperator
 
 ##
-InstallMethod( ClosureFunction,
+InstallMethod( ClosureOperator,
                 "for matroids",
                 [ IsMatroid ],
 

@@ -311,7 +311,7 @@ DeclareAttributeWithDocumentation( "RankFunction",
                                 [ "Matroids", "Bases,_circuits_and_their_companions" ]
                         );
 
-DeclareAttributeWithDocumentation( "ClosureFunction",
+DeclareAttributeWithDocumentation( "ClosureOperator",
                                 IsMatroid,
                                 [ "Returns a function mapping subsets of <A>mat</A>'s ground set to their ",
                                   "closure in <A>mat</A>." ],
