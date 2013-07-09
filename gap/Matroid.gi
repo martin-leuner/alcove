@@ -3397,7 +3397,7 @@ InstallMethod( UniformMatroid,
  function( k, n )
   local matroid;
 
-  if k > n then k := n; fi;
+  if k > n then Error( "rank cannot be greater than number of elements" ); fi;
 
   matroid := MatroidByRankFunctionNCL( n, function( x ) if Size(x) < k then return Size(x); else return k; fi; end );
   SetRankOfMatroid( matroid, k );
@@ -3419,7 +3419,7 @@ InstallMethod( UniformMatroidNL,
  function( k, n )
   local matroid;
 
-  if k > n then k := n; fi;
+  if k > n then Error( "rank cannot be greater than number of elements" ); fi;
 
   matroid := MatroidByRankFunctionNCL( n, function( x ) if Size(x) < k then return Size(x); else return k; fi; end );
   SetRankOfMatroid( matroid, k );
