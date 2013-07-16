@@ -33,46 +33,64 @@ DeclareOperation( "Matroid",
 DeclareOperationWithDocumentation( "Matroid",
                                 [ IsHomalgMatrix ],
                                 [ "Returns the vector matroid corresponding to the homalg matrix <A>h</A>. ",
-                                  "Note that homalg matrices know the ring containing their entries." ],
+                                  "Note that homalg matrices know the ring containing their entries.",
+                                  "<Ref Func=\"MatroidNL\"/> returns a matroid which does not automatically ",
+                                  "use logical implications." ],
                                 "a vector matroid",
                                 "h",
-                                [ "Matroids", "Construction" ]
+                                [ "Matroids", "Construction" ],
+                                rec( group := "Matrix-Constructor", label := "Matroid" )
                         );
 
-DeclareOperation( "MatroidNL",
-                [ IsHomalgMatrix ] );
+DeclareOperationWithDocumentation( "MatroidNL",
+                                [ IsHomalgMatrix ],
+                                [ "" ],
+                                "a vector matroid",
+                                "h",
+                                [ "Matroids", "Construction" ],
+                                rec( group := "Matrix-Constructor", label := "Matroid" )
+                        );
 
 ## Abstract matroids:
 
 DeclareOperationWithDocumentation( "MatroidByBases",
                                 [ IsList, IsList ],
-                                [ "Returns the abstract matroid having the list <A>gset</A> as ground set ",
-                                  "and the list <A>bases</A> as list of bases. ",
-                                  "The elements of <A>bases</A> must be subsets of <A>gset</A>. ",
-                                  "The method checks the base exchange axiom. To construct an abstract matroid ",
-                                  "with bases without any checks, use the method MatroidByBasesNCL." ],
+                                [ "The argument <A>ground</A> must be either a list or an integer.<P/>",
+                                  "In the first case, <Ref Func=\"MatroidByBases\"/> ",
+                                  "returns the abstract matroid on <A>ground</A>, in the second case ",
+                                  "the abstract matroid on [ 1 .. <A>ground</A> ] having ",
+                                  "the list <A>bases</A> as list of bases. ",
+                                  "The elements of <A>bases</A> must be subsets of the ground set. ",
+                                  "<Ref Func=\"MatroidByBases\"/> checks the base exchange axiom. To construct an ",
+                                  "abstract matroid with bases without any checks, use ",
+                                  "<Ref Func=\"MatroidByBasesNC\"/>. In addition to that, if you do not want the matroid ",
+                                  "to automatically use logical implications, use <E>MatroidByBasesNCL</E>." ],
                                 "an abstract matroid with bases",
-                                "gset,bases",
-                                [ "Matroids", "Construction" ]
+                                "ground,bases",
+                                [ "Matroids", "Construction" ],
+                                rec( group := "Bases-Constructor", label := "MatroidByBases" )
                         );
 
-DeclareOperation( "MatroidByBasesNC",
-                [ IsList, IsList ] );
-
-DeclareOperation( "MatroidByBasesNCL",
-                [ IsList, IsList ] );
-
-DeclareOperationWithDocumentation( "MatroidByBases",
-                                [ IsInt, IsList ],
-                                [ "Returns the abstract matroid on <A>n</A> elements having ",
-                                  "the list <A>bases</A> as list of bases. ",
-                                  "The elements of <A>bases</A> must be subsets of [ 1 .. <A>n</A> ]. ",
-                                  "The method checks the base exchange axiom. To construct an abstract matroid ",
-                                  "with bases without any checks, use the method MatroidByBasesNCL." ],
+DeclareOperationWithDocumentation( "MatroidByBasesNC",
+                                [ IsList, IsList ],
+                                [ "" ],
                                 "an abstract matroid with bases",
-                                "n,bases",
-                                [ "Matroids", "Construction" ]
-                         );
+                                "ground,bases",
+                                [ "Matroids", "Construction" ],
+                                rec( group := "Bases-Constructor", label := "MatroidByBases" )
+                        );
+
+DeclareOperationWithDocumentation( "MatroidByBasesNCL",
+                                [ IsList, IsList ],
+                                [ "" ],
+                                "an abstract matroid with bases",
+                                "ground,bases",
+                                [ "Matroids", "Construction" ],
+                                rec( group := "Bases-Constructor", label := "MatroidByBases" )
+                        );
+
+DeclareOperation( "MatroidByBases",
+                [ IsInt, IsList ] );
 
 DeclareOperation( "MatroidByBasesNC",
                 [ IsInt, IsList ] );
