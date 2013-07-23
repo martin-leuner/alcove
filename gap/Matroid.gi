@@ -331,6 +331,19 @@ InstallMethod( SizeOfGroundSet,
 );
 
 
+#######
+## Size
+
+##
+InstallMethod( Size,
+                "alias for Size for matroids",
+                [ IsMatroid ],
+
+ SizeOfGroundSet
+
+);
+
+
 ###################
 ## NominalGroundSet
 

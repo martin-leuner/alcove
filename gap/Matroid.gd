@@ -276,6 +276,9 @@ DeclareAttributeWithDocumentation( "SizeOfGroundSet",
                                 [ "Matroids", "Accessing_attributes" ]
                         );
 
+DeclareAttribute( "Size",
+                IsMatroid );
+
 DeclareAttribute( "NominalGroundSet",
                 IsMatroid );
 
