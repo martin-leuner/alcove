@@ -276,6 +276,9 @@ DeclareAttributeWithDocumentation( "SizeOfGroundSet",
                                 [ "Matroids", "Accessing_attributes" ]
                         );
 
+DeclareAttribute( "NominalGroundSet",
+                IsMatroid );
+
 DeclareAttributeWithDocumentation( "RankOfMatroid",
                                 IsMatroid,
                                 [ "Returns the rank of <A>mat</A>." ],
@@ -405,6 +408,10 @@ DeclareAttributeWithDocumentation( "Coloops",
 
 DeclareAttribute( "AutomorphismGroup",
                 IsMatroid );
+
+DeclareAttribute( "KnownAutomorphisms",
+                IsMatroid,
+                "mutable" );
 
 DeclareAttribute( "DirectSumDecomposition",
                 IsMatroid );

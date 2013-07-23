@@ -331,6 +331,21 @@ InstallMethod( SizeOfGroundSet,
 );
 
 
+###################
+## NominalGroundSet
+
+##
+InstallMethod( NominalGroundSet,
+                "for matroids",
+                [ IsMatroid ],
+
+ function( matroid )
+  return GroundSet( matroid );
+ end
+
+);
+
+
 ################
 ## RankOfMatroid
 
@@ -1624,6 +1639,21 @@ InstallMethod( AutomorphismGroup,		# this is a HORRIBLE method
 
   return Stabiliser( SymmetricGroup( SizeOfGroundSet(matroid) ), Bases(matroid), OnSetsSets );
 
+ end
+
+);
+
+
+#####################
+## KnownAutomorphisms
+
+##
+InstallMethod( KnownAutomorphisms,
+                "for matroids",
+                [ IsMatroid ],
+
+ function( matroid )
+  return [];
  end
 
 );
@@ -2949,9 +2979,13 @@ InstallMethod( MatroidByBases,
                 [ IsList, IsList ],
 
  function( groundSet, bases )
+  local m;
 
-  return MatroidByBases( Size( groundSet ), List( bases, b -> List( b, e -> Position( groundSet, e ) ) ) );
+  m := MatroidByBases( Size( groundSet ), List( bases, b -> List( b, e -> Position( groundSet, e ) ) ) );
 
+  SetNominalGroundSet( m, groundSet );
+
+  return m;
  end
 
 );
@@ -2962,9 +2996,13 @@ InstallMethod( MatroidByBasesNC,
                 [ IsList, IsList ],
 
  function( groundSet, bases )
+  local m;
 
-  return MatroidByBasesNC( Size( groundSet ), List( bases, b -> List( b, e -> Position( groundSet, e ) ) ) );
+  m := MatroidByBasesNC( Size( groundSet ), List( bases, b -> List( b, e -> Position( groundSet, e ) ) ) );
 
+  SetNominalGroundSet( m, groundSet );
+
+  return m;
  end
 
 );
@@ -2975,9 +3013,13 @@ InstallMethod( MatroidByBasesNCL,
                 [ IsList, IsList ],
 
  function( groundSet, bases )
+  local m;
 
-  return MatroidByBasesNCL( Size( groundSet ), List( bases, b -> List( b, e -> Position( groundSet, e ) ) ) );
+  m := MatroidByBasesNCL( Size( groundSet ), List( bases, b -> List( b, e -> Position( groundSet, e ) ) ) );
 
+  SetNominalGroundSet( m, groundSet );
+
+  return m;
  end
 
 );
@@ -3082,6 +3124,7 @@ InstallMethod( MatroidByIndependenceOracleNCL,
                 [ IsList, IsFunction ],
 
  function( groundSet, isIndep )
+  local m;
 
   if groundSet = [ 1 .. Size( groundSet ) ] then
 
@@ -3089,7 +3132,11 @@ InstallMethod( MatroidByIndependenceOracleNCL,
 
   else
 
-   return MatroidByIndependenceOracleNCL( Size( groundSet ), function(subset) return isIndep( List( subset, i -> groundSet[i] ) ); end );
+   m := MatroidByIndependenceOracleNCL( Size( groundSet ), function(subset) return isIndep( List( subset, i -> groundSet[i] ) ); end );
+
+   SetNominalGroundSet( m, groundSet );
+
+   return m;
 
   fi;
 
@@ -3175,9 +3222,13 @@ InstallMethod( MatroidByCircuits,
                 [ IsList, IsList ],
 
  function( groundSet, circs )
+  local m;
 
-  return MatroidByCircuits( Size( groundSet ), List( circs, b -> List( b, e -> Position( groundSet, e ) ) ) );
+  m := MatroidByCircuits( Size( groundSet ), List( circs, b -> List( b, e -> Position( groundSet, e ) ) ) );
 
+  SetNominalGroundSet( m, groundSet );
+
+  return m;
  end
 
 );
@@ -3188,9 +3239,13 @@ InstallMethod( MatroidByCircuitsNC,
                 [ IsList, IsList ],
 
  function( groundSet, circs )
+  local m;
 
-  return MatroidByCircuitsNC( Size( groundSet ), List( circs, b -> List( b, e -> Position( groundSet, e ) ) ) );
+  m := MatroidByCircuitsNC( Size( groundSet ), List( circs, b -> List( b, e -> Position( groundSet, e ) ) ) );
 
+  SetNominalGroundSet( m, groundSet );
+
+  return m;
  end
 
 );
@@ -3201,9 +3256,13 @@ InstallMethod( MatroidByCircuitsNCL,
                 [ IsList, IsList ],
 
  function( groundSet, circs )
+  local m;
 
-  return MatroidByCircuitsNCL( Size( groundSet ), List( circs, b -> List( b, e -> Position( groundSet, e ) ) ) );
+  m := MatroidByCircuitsNCL( Size( groundSet ), List( circs, b -> List( b, e -> Position( groundSet, e ) ) ) );
 
+  SetNominalGroundSet( m, groundSet );
+
+  return m;
  end
 
 );
@@ -3296,6 +3355,7 @@ InstallMethod( MatroidByRankFunction,
                 [ IsList, IsFunction ],
 
  function( groundSet, rankFunc )
+  local m;
 
   if groundSet = [ 1 .. Size( groundSet ) ] then
 
@@ -3303,7 +3363,11 @@ InstallMethod( MatroidByRankFunction,
 
   else
 
-   return MatroidByRankFunction( Size( groundSet ), function(subset) return rankFunc( List( subset, i -> groundSet[i] ) ); end );
+   m := MatroidByRankFunction( Size( groundSet ), function(subset) return rankFunc( List( subset, i -> groundSet[i] ) ); end );
+
+   SetNominalGroundSet( m, groundSet );
+
+   return m;
 
   fi;
 
@@ -3334,6 +3398,7 @@ InstallMethod( MatroidByRankFunctionNCL,
                 [ IsList, IsFunction ],
 
  function( groundSet, rankFunc )
+  local m;
 
   if groundSet = [ 1 .. Size( groundSet ) ] then
 
@@ -3341,7 +3406,11 @@ InstallMethod( MatroidByRankFunctionNCL,
 
   else
 
-   return MatroidByRankFunctionNCL( Size( groundSet ), function(subset) return rankFunc( List( subset, i -> groundSet[i] ) ); end );
+   m := MatroidByRankFunctionNCL( Size( groundSet ), function(subset) return rankFunc( List( subset, i -> groundSet[i] ) ); end );
+
+   SetNominalGroundSet( m, groundSet );
+
+   return m;
 
   fi;
 
