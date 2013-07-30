@@ -1236,6 +1236,25 @@ InstallMethod( Hyperplanes,
 
 ##
 InstallMethod( TuttePolynomial,
+                "check dual matroid first",
+                [ IsMatroid and HasDualMatroid ],
+                50,
+
+ function( matroid )
+
+  if not HasTuttePolynomial( DualMatroid( matroid ) ) then TryNextMethod(); fi;
+
+  return Value( TuttePolynomial( DualMatroid( matroid ) ),
+                [ Indeterminate( Integers, 1 ), Indeterminate( Integers, 2 ) ],
+                [ Indeterminate( Integers, 2 ), Indeterminate( Integers, 1 ) ] );
+
+ end
+
+);
+
+
+##
+InstallMethod( TuttePolynomial,
                 "for uniform matroids",
                 [ IsMatroid and IsUniform ],
                 30,
