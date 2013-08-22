@@ -247,7 +247,7 @@ InstallMethod( DualMatroid,
 ## SimplifiedMatroid
 
 ##
-InstallMethod( SimplifiedMatroid,		# method can be heavily simplified using NonTrivialParallelClasses, this also avoids computing closures
+InstallMethod( SimplifiedMatroid,        # method can be heavily simplified using NonTrivialParallelClasses, this also avoids computing closures
                 "for matroids",
                 [ IsMatroid ],
 
@@ -281,7 +281,7 @@ InstallMethod( StandardMatrixOfVectorMatroid,
  function( matroid )
   local nf, posOfNonUnitCols;
 
-  nf := RowReducedEchelonForm( MatrixOfVectorMatroid( matroid ) );
+  nf := BasisOfRows( MatrixOfVectorMatroid( matroid ) );
   posOfNonUnitCols := Difference( GroundSet( matroid ), PositionOfFirstNonZeroEntryPerRow( nf ) );
 
   return [ CertainColumns( nf, posOfNonUnitCols ), posOfNonUnitCols ];
@@ -840,7 +840,7 @@ InstallMethod( Bases,
 );
 
 ##
-InstallMethod( Bases,				# THIS IS AN EXTREMELY NAIVE APPROACH
+InstallMethod( Bases,                # THIS IS AN EXTREMELY NAIVE APPROACH
                 "for vector matroids",
                 [ IsVectorMatroidRep and IsConnected ],
 
@@ -883,7 +883,7 @@ InstallMethod( Bases,
   twosum := TwoSumDecomposition( matroid );
 
   return Union2(
-                List(	Cartesian(
+                List(   Cartesian(
                                 List(
                                         Filtered( Bases( twosum[1] ), b -> not twosum[2] in b ),
                                         b -> List( b, i -> twosum[3][i] )
@@ -894,7 +894,7 @@ InstallMethod( Bases,
                                 )
                         ), Union ),
 
-                List(	Cartesian(
+                List(   Cartesian(
                                 List(
                                         Filtered( Bases( twosum[1] ), b -> twosum[2] in b ),
                                         b -> List( Difference(b,[twosum[2]]), i -> twosum[3][i] )
@@ -1663,7 +1663,7 @@ InstallMethod( AutomorphismGroup,
 );
 
 ##
-InstallMethod( AutomorphismGroup,		# this is a HORRIBLE method
+InstallMethod( AutomorphismGroup,        # this is a HORRIBLE method
                 "fallback method",
                 [ IsMatroid ],
 
@@ -1736,9 +1736,9 @@ InstallMethod( DirectSumDecomposition,
      section := Intersection2( fundcircs[j], circ );
 
      if not IsEmpty( section ) then
- 
+
       Add( currentComponent, Remove(fundcircs,j) );
- 
+
      else
 
       j := j + 1;
@@ -1746,7 +1746,7 @@ InstallMethod( DirectSumDecomposition,
      fi;
 
     od;
- 
+
     i := i+1;
 
    od;
@@ -1781,8 +1781,8 @@ InstallMethod( DirectSumDecomposition,
 
 ##
 #InstallMethod( TwoSumDecomposition,
-#		"for matroids",
-#		[ IsMatroid ],
+#                "for matroids",
+#                [ IsMatroid ],
 #
 # function( matroid )
 # end
@@ -1939,7 +1939,7 @@ InstallMethod( IsConnected,
 
  end
 
-); 
+);
 
 
 ###############
