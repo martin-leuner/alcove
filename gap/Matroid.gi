@@ -857,7 +857,7 @@ InstallMethod( Bases,                # THIS IS AN EXTREMELY NAIVE APPROACH
 InstallMethod( Bases,
                 "for disconnected matroids",
                 [ IsMatroid ],
-                0,
+                100,
 
  function( matroid )
 

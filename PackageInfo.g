@@ -7,14 +7,14 @@ Subtitle := "A package for algebraic combinatorics",
 
 ## The following prevents merge conflicts.
 Version :=  Maximum( [
-  "2013-06-19", ## Martin's version
+  "2013-09-03", ## Martin's version
   "2013-04-08", ## Sebas' version
 ] ),
 
 Date := ~.Version{[ 1 .. 10 ]},
 Date := Concatenation( ~.Date{[ 9, 10 ]}, ".", ~.Date{[ 6, 7 ]}, ".", ~.Date{[ 1 .. 4 ]} ),
 
-#ArchiveURL := 
+#ArchiveURL :=
 #          Concatenation( "http://wwwb.math.rwth-aachen.de/~leuner/gap/", ~.PackageName, "/", ~.PackageName, "-", ~.Version ),
 #
 #ArchiveFormats := ".tar.gz",
@@ -43,12 +43,12 @@ rec(
 Status := "dev",
 
 
-#README_URL := 
+#README_URL :=
 #  "http://wwwb.math.rwth-aachen.de/~gutsche/gap_packages/Convex/README.Convex",
-#PackageInfoURL := 
+#PackageInfoURL :=
 #  "http://wwwb.math.rwth-aachen.de/~gutsche/gap_packages/Convex/PackageInfo.g",
 
-#AbstractHTML := 
+#AbstractHTML :=
 #  Concatenation( "Convex provides structures and algorithms for convex geometry. It can handle convex, ",
 #                 "fans and polytopes. Not only the structures are provided, but also a collection of ",
 #                 "algorithms to handle those objects. Basically, it provides convex geometry to GAP. ",
@@ -72,19 +72,20 @@ Dependencies := rec(
   GAP := ">=4.5",
   NeededOtherPackages := [
          [ "MatricesForHomalg", ">=2012.10.25" ],
-         [ "RingsForHomalg", ">=2012.10.22" ],
          [ "GaussForHomalg", ">=2012.10.22" ],
          [ "ToolsForHomalg", ">=2013.04.08" ],
          [ "GAPDoc", ">=1.0" ],
          [ "AutoDoc", ">=2012.07.29" ]
       ],
-  SuggestedOtherPackages := [],
-  ExternalConditions := []
-                      
+  SuggestedOtherPackages := [
+         [ "RingsForHomalg", ">=2012.10.22" ],
+      ],
+  ExternalConditions := [ ]
+
 ),
 
 AvailabilityTest := ReturnTrue,
-    
+
 Autoload := false,
 
 Keywords := [ "Algebraic combinatorics", "Matroid", "Association scheme", "Tutte polynomial" ]
