@@ -194,9 +194,7 @@ InstallMethod( DualMatroid,
  function( matroid )
   local dual;
 
-  if IsConnected( matroid ) then
-   TryNextMethod();
-  fi;
+  if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
 
   dual := rec();
   ObjectifyWithAttributes( dual, TheTypeAbstractMatroid,
@@ -398,6 +396,8 @@ InstallMethod( RankOfMatroid,
 
  function( matroid )
 
+  if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
+
   return Sum( DirectSumDecomposition(matroid), s -> RankOfMatroid(s[2]) );
 
  end
@@ -482,7 +482,7 @@ InstallMethod( RankFunction,
 
  function( matroid )
 
-  if IsConnected( matroid ) then TryNextMethod(); fi;
+  if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
 
   return function( x ) return Sum( DirectSumDecomposition( matroid ), s -> RankFunction(s[2])( Intersection2( s[1], x ) ) ); end;
 
@@ -747,7 +747,7 @@ InstallMethod( IndependenceOracle,
 
  function( matroid )
 
-  if IsConnected( matroid ) then TryNextMethod(); fi;
+  if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
 
   return
         function( x )
@@ -857,11 +857,11 @@ InstallMethod( Bases,                # THIS IS AN EXTREMELY NAIVE APPROACH
 InstallMethod( Bases,
                 "for disconnected matroids",
                 [ IsMatroid ],
-                100,
+                0,
 
  function( matroid )
 
-  if IsConnected( matroid ) then TryNextMethod(); fi;
+  if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
 
   return List( Cartesian( List( DirectSumDecomposition(matroid), s -> List( Bases(s[2]), b -> List( b, i -> s[1][i] ) ) ) ), Union );
 
@@ -1031,6 +1031,8 @@ InstallMethod( Circuits,
                 0,
 
  function( matroid )
+
+  if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
 
   return Union( List( DirectSumDecomposition(matroid), s -> List( Circuits(s[2]), c -> List( c, i -> s[1][i] ) ) ) );
 
@@ -1284,6 +1286,8 @@ InstallMethod( TuttePolynomial,
                 0,
 
  function( matroid )
+
+  if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
 
   return Product( DirectSumDecomposition( matroid ), comp -> TuttePolynomial( comp[2] ) );
 
@@ -2137,7 +2141,7 @@ InstallMethod( MinorNL,
  function( matroid, del, contr )
   local minor;
 
-  if IsConnected( matroid ) then TryNextMethod(); fi;		# prevent this method from calling itself on the same arguments
+  if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
 
   minor := Iterated( List( DirectSumDecomposition(matroid), s -> MinorNL( s[2],
                                                         List( Intersection2(del,s[1]), i -> Position(s[1],i) ),
@@ -2843,6 +2847,8 @@ InstallMethod( \=,
                 0,
 
  function( m1, m2 )
+
+  if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
 
   return DirectSumDecomposition( m1 ) = DirectSumDecomposition( m2 );
 
