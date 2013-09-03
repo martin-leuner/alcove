@@ -2848,8 +2848,6 @@ InstallMethod( \=,
 
  function( m1, m2 )
 
-  if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
-
   return DirectSumDecomposition( m1 ) = DirectSumDecomposition( m2 );
 
  end
