@@ -2444,7 +2444,7 @@ InstallMethod( RestrictionToComponentNC,
   function( matroid, component )
     local minor;
 
-    minor := Deletion( matroid, component );
+    minor := Deletion( matroid, Difference( GroundSet( matroid ), component ) );
     SetIsConnected( matroid, true );
 
     return minor;
