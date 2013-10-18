@@ -1260,6 +1260,22 @@ InstallMethod( Hyperplanes,
 
 ##
 InstallMethod( TuttePolynomial,
+                "convenience method for substituting values",
+                [ IsMatroid, IsRingElement, IsRingElement ],
+
+  function( matroid, a, b )
+
+    return Value( TuttePolynomial( matroid ),
+                  [ Indeterminate( Integers, 1 ), Indeterminate( Integers, 2 ) ],
+                  [ a, b ]
+                );
+
+  end
+
+);
+
+##
+InstallMethod( TuttePolynomial,
                 "check dual matroid first",
                 [ IsMatroid and HasDualMatroid ],
                 50,
@@ -1269,8 +1285,9 @@ InstallMethod( TuttePolynomial,
     if not HasTuttePolynomial( DualMatroid( matroid ) ) then TryNextMethod(); fi;
 
     return Value( TuttePolynomial( DualMatroid( matroid ) ),
-                [ Indeterminate( Integers, 1 ), Indeterminate( Integers, 2 ) ],
-                [ Indeterminate( Integers, 2 ), Indeterminate( Integers, 1 ) ] );
+                  [ Indeterminate( Integers, 1 ), Indeterminate( Integers, 2 ) ],
+                  [ Indeterminate( Integers, 2 ), Indeterminate( Integers, 1 ) ]
+                );
 
   end
 
@@ -1362,7 +1379,12 @@ InstallMethod( TuttePolynomial,
                 20,
 
   function( matroid )
-    local x, y, recursiveTutteCon, recursiveTutteDel, recursionStep, minorMat, k, n;
+    local x, y, matrix, recursContract, recursDelete, generalRecursion, components, updateParallelClasses, ring, one, zero, pcs;
+
+    matrix := StandardMatrixOfVectorMatroid( matroid )[1];
+    ring := HomalgRing( matrix );
+    one := One( ring );
+    zero := Zero( ring );
 
     x := Indeterminate( Integers, 1 );
     y := Indeterminate( Integers, 2 );
@@ -1371,49 +1393,236 @@ InstallMethod( TuttePolynomial,
       SetIndeterminateName( FamilyObj(x), 2, "y" );
     fi;
 
+# Avoid calculating with bigger matrices than absolutely necessary:
+    if SizeOfGroundSet( matroid ) - RankOfMatroid( matroid ) < RankOfMatroid( matroid ) then
+
+      return Value( TuttePolynomial( DualMatroid( matroid ) ), [ x, y ], [ y, x ] );
+
+    fi;
+
+####
+# Local functions
 ##
-# Check after contraction:
 
-    recursiveTutteCon := function( minorMatrix )
-      local nonLoops;
+##
+# Refine parallel classes for new matrix:
 
-# Contraction may create new loops, check for those:
-      nonLoops := NonZeroColumns( minorMatrix );
+    updateParallelClasses := function( matrix, parClasses )
+      local n, i, newParClasses, tmpMat, c, mem, r, nzRows, j, tmp;
 
-      if Size( nonLoops ) < NrColumns( minorMatrix ) then
-        return y^( NrColumns(minorMatrix) - Size(nonLoops) ) * recursionStep( CertainColumns( minorMatrix, nonLoops ) );
+      n := NrColumns( matrix );
+      r := NrRows( matrix );
+
+      if n = 0 then return [ ]; fi;
+
+      tmpMat := EntriesOfHomalgMatrixAsListList( Involution( matrix ) );
+
+      newParClasses := [ ];
+      nzRows := [ ];
+      nzRows[n] := 0;
+
+# Normalize matrix columns:
+      for i in [ 1 .. n ] do
+
+        tmp := tmpMat[i];
+
+        for j in [ 1 .. r ] do
+
+          if not IsZero( tmp[j] ) then
+
+            if ForAll( [ j+1 .. r ], x -> IsZero( tmp[x] ) ) then
+
+              nzRows[i] := j;
+
+            else
+
+              nzRows[i] := 0;
+
+            fi;
+
+            c := tmp[j];
+            break;
+
+          fi;
+
+        od;
+
+        if not IsOne( c ) then
+
+          tmpMat[i] := (1/c) * tmp;
+
+        fi;
+
+      od;
+
+# Sort out unit vectors:
+      for i in [ 1 .. r ] do
+
+        tmp := Positions( nzRows, i );
+        Add( tmp, n+i );
+
+        Add( newParClasses, Set( tmp ) );
+
+      od;
+
+      parClasses := Filtered( parClasses, c -> c[ Size(c) ] <= n and nzRows[ c[1] ] = 0 );
+
+# Look for other fusing parallel classes:
+      while not IsEmpty( parClasses ) do
+
+        tmp := Remove( parClasses );
+
+        c := tmpMat[ tmp[1] ];
+
+        for i in ShallowCopy( parClasses ) do
+
+          if tmpMat[ i[1] ] = c then
+
+# Parallel classes fused:
+            for mem in i do
+              AddSet( tmp, mem );
+            od;
+
+            Remove( parClasses, Position( parClasses, i ) );
+
+          fi;
+
+        od;
+
+        Add( newParClasses, tmp );
+
+      od;
+
+      SortBy( newParClasses, Size );
+
+      return newParClasses;
+    end;    # updateParallelClasses
+
+
+
+##
+# Fast computation of connected components:
+
+    components := function( matrix )
+      local r, n, found, todo, unusedRows, tmp, j, i, comps, notFound;
+
+      r := NrRows( matrix );
+      n := NrColumns( matrix );
+
+      unusedRows := [ 1 .. r ];
+      notFound := [ 1 .. n ];
+      comps := [ ];
+
+      while not IsEmpty( notFound ) do
+
+        todo := [ Remove( notFound ) ];
+        found := [ todo[1] ];
+
+        while not IsEmpty( todo ) and not IsEmpty( notFound ) do
+
+          j := Remove( todo );
+
+          for i in ShallowCopy( unusedRows ) do
+
+            if not IsZero( MatElm( matrix, i, j ) ) then
+
+              RemoveSet( unusedRows, i );
+
+              tmp := Filtered( notFound, c -> not IsZero( MatElm( matrix, i, c ) ) );
+              todo := Union2( todo, tmp );
+              found := Union2( found, tmp );
+              notFound := Difference( notFound, tmp );
+
+            fi;
+
+          od;
+
+        od;
+
+        Add( comps, found );
+
+      od;
+
+      return comps;
+    end;    # components
+
+
+##
+# Deleted a parallel class, watch out for new coloops:
+
+    recursDelete := function( matrix, parClasses )
+      local nonColoops, z, comps, xFac, matrices, newParClasses, n;
+
+      n := NrColumns( matrix );
+
+      nonColoops := NonZeroRows( matrix );
+
+      xFac := NrRows( matrix ) - Size( nonColoops );
+
+      for z in ZeroRows( matrix ) do
+        Remove( parClasses, Position( parClasses, [ n + z ] ) );
+      od;
+
+      parClasses := List( parClasses, c -> List( c, function(x) if x > n then return x - Number( ZeroRows( matrix ), z -> n+z < x ); else return x; fi; end ) );
+
+      matrix := CertainRows( matrix, nonColoops );
+
+# Check whether the current minor is still connected:
+      comps := components( matrix );
+
+      if Size( comps ) > 1 then
+
+        matrices := List( comps, c -> CertainColumns( matrix, c ) );
+        matrices := List( matrices, m -> CertainRows( m, NonZeroRows( m ) ) );
+
+        newParClasses := List( matrices, m -> updateParallelClasses( m, List( [ 1 .. NrColumns(m) + NrRows(m) ], i -> [i] ) ) );      # possible TODO: suboptimal, could use parClasses
+
+        return x^xFac * Product( [ 1 .. Size( comps ) ], i -> generalRecursion( matrices[i], newParClasses[i] ) );
+
       fi;
 
-      return recursionStep( minorMatrix );
-    end;                # recursiveTutteCon
-##
+      return x^xFac * generalRecursion( matrix, parClasses );
+    end;    # recursDelete
+
 
 ##
-# Check after deletion:
+# Contracted a parallel class, check other classes (they may fuse!):
 
-    recursiveTutteDel := function( minorMatrix )
-      local nonColoops;
+    recursContract := function( matrix, parClasses )
+      local newParClasses, comps, matrices;
 
-# Deletion may create new coloops, check for those:
-      nonColoops := NonZeroRows( minorMatrix );
+# Also check whether the current minor is still connected:
+      comps := components( matrix );
 
-      if Size( nonColoops ) < NrRows( minorMatrix ) then
-        return x^( NrRows(minorMatrix) - Size(nonColoops) ) * recursionStep( CertainRows( minorMatrix, nonColoops ) );
+      if Size( comps ) > 1 then
+
+        matrices := List( comps, c -> CertainColumns( matrix, c ) );
+        matrices := List( matrices, m -> CertainRows( m, NonZeroRows( m ) ) );
+
+        newParClasses := List( matrices, m -> updateParallelClasses( m, List( [ 1 .. NrColumns(m) + NrRows(m) ], i -> [i] ) ) );      # possible TODO: suboptimal, could use parClasses
+
+        return Product( [ 1 .. Size( comps ) ], i -> generalRecursion( matrices[i], newParClasses[i] ) );
+
       fi;
 
-      return recursionStep( minorMatrix );
-    end;                # recursiveTutteDel
-##
+      newParClasses := updateParallelClasses( matrix, parClasses );
+
+      return generalRecursion( matrix, newParClasses );
+    end;    # recursContract
+
 
 ##
-# Basic recursion step:
+# General recursion step. Find a class to reduce and compute the corresponding matrix.
 
-    recursionStep := function( mat )
-      local i, j, c, nz, rdim, cdim, col, delMat;
+    generalRecursion := function( matrix, parClasses )
+      local rdim, cdim, containsUnitVec, nonZeroEntry, firstNZIndex, i, j, reduceColumn, newMat, gaussRows, conClasses, delClasses, tmp, largePC, lower, upper, gaussCols;
 
-# Termination:
-      rdim := NrRows( mat );
-      cdim := NrColumns( mat );
+      if not Set( Flat( parClasses ) ) = [ 1 .. NrColumns( matrix ) + NrRows( matrix ) ] then Error(); fi;
+      if not ForAll( parClasses, IsSet ) then Error(); fi;
+
+# Termination case:
+      rdim := NrRows( matrix );
+      cdim := NrColumns( matrix );
 
       if rdim = 1 then
         return x - 1 + Sum( [ 1 .. cdim + 1 ], j -> Binomial(cdim+1,j) * (y-1)^(j-1) );
@@ -1425,42 +1634,155 @@ InstallMethod( TuttePolynomial,
         return x^rdim;
       fi;
 
-# Find first non-zero entry in first row:
-      for i in [ 1 .. NrColumns(mat) ] do
-        nz := MatElm( mat, 1, i );
-        if not IsZero( nz ) then
-          col := i;
-          break;
-        fi;
-      od;
+# Choose largest parallel class:
+      largePC := Remove( parClasses );
 
-# Compute matrix for deletion minor:
-      delMat := EntriesOfHomalgMatrixAsListList( CertainColumns( mat, Difference( [1..NrColumns(mat)], [col] ) ) );
-      cdim := cdim - 1;
+      containsUnitVec := largePC[ Size(largePC) ] > cdim;
 
-      for i in [ 2 .. rdim ] do
-        c := MatElm( mat, i, col );
-        if not IsZero( c ) then
-          c := -c/nz;
-          for j in [ 1 .. cdim ] do
-            delMat[i][j] := delMat[i][j] + c*delMat[1][j];
+# Find vector to reduce:
+      if containsUnitVec then     # choose a vector with a non-zero entry in the corresponding row to become the new unit vector for the deletion matrix
+
+        firstNZIndex := largePC[ Size(largePC) ] - cdim;
+
+        for i in Difference( [ 1 .. cdim ], largePC ) do
+
+          nonZeroEntry := MatElm( matrix, firstNZIndex, i );
+
+          if not IsZero( nonZeroEntry ) then
+
+            reduceColumn := i;
+
+            break;
+
+          fi;
+
+        od;
+
+        newMat := CertainColumns( matrix, Difference( [ 1 .. cdim ], Union2( largePC, [ reduceColumn ] ) ) );
+
+        gaussRows := [ 1 .. rdim ];
+        RemoveSet( gaussRows, firstNZIndex );
+
+# Adjust parallel classes:
+        conClasses := List( parClasses, c -> List( c, x -> x - Number( largePC, i -> i < x ) ) );
+
+        lower := reduceColumn - Number( largePC, i -> i < reduceColumn );
+        upper := cdim + firstNZIndex - Size( largePC );
+
+        delClasses := List( conClasses, c -> Set( List( c, function(x)
+                                                                  if x = lower then
+                                                                    return upper;
+                                                                  elif x > lower and x <= upper then
+                                                                    return x - 1;
+                                                                  else
+                                                                    return x;
+                                                                  fi;
+                                                           end
+                          )                     )     );
+
+      else                        # switch in a unit vector and gauss the matrix to find the contraction matrix
+
+        firstNZIndex := First( [ 1 .. rdim ], i -> not IsZero( MatElm( matrix, i, largePC[1] ) ) );
+
+        reduceColumn := largePC[1];
+
+        nonZeroEntry := MatElm( matrix, firstNZIndex, largePC[1] );
+
+
+        newMat := CertainColumns( matrix, Difference( [ 1 .. cdim ], largePC ) );
+        newMat := UnionOfColumns( newMat, HomalgMatrix( List( [ 1 .. rdim ],
+                                                              function(i)
+                                                                if i = firstNZIndex then
+                                                                  return [ one ];
+                                                                else
+                                                                  return [ zero ];
+                                                                fi;
+                                                              end ),
+                                                        ring )
+                                );
+
+        gaussRows := [ firstNZIndex + 1 .. rdim ];
+
+# Adjust parallel classes:
+        delClasses := List( parClasses, c -> List( c, x -> x - Number( largePC, i -> i < x ) ) );
+
+        lower := cdim + 1 - Size( largePC );
+        upper := cdim + firstNZIndex - Size( largePC );
+
+        conClasses := List( delClasses, c -> Set( List( c, function(x) if x = upper then
+                                                                    return lower;
+                                                                  elif x >= lower and x < upper then
+                                                                    return x + 1;
+                                                                  else
+                                                                    return x;
+                                                                  fi;
+                                                           end
+                          )                     )     );
+
+      fi;
+
+# Compute matrix for one of the minors:
+      gaussCols := Filtered( [ 1 .. NrColumns( newMat ) ], j -> not IsZero( MatElm( newMat, firstNZIndex, j ) ) );
+
+      newMat := EntriesOfHomalgMatrixAsListList( newMat );
+
+      for i in gaussRows do
+
+        tmp := MatElm( matrix, i, reduceColumn );
+
+        if not IsZero( tmp ) then
+
+          tmp := -tmp/nonZeroEntry;
+
+          for j in gaussCols do
+
+            newMat[i][j] := newMat[i][j] + tmp * newMat[firstNZIndex][j];
+
           od;
+
         fi;
+
       od;
 
-      delMat := HomalgMatrix( delMat, HomalgRing(mat) );
+      newMat := HomalgMatrix( newMat, ring );
 
-      return recursiveTutteCon( CertainRows( mat, [ 2 .. NrRows(mat) ] ) )
-                + recursiveTutteDel( delMat );
-    end;
+# Fire up the recursion.
+      if containsUnitVec then
+
+        return recursDelete( newMat, delClasses ) +
+               Sum( [ 0 .. Size( largePC )-1 ], i -> y^i ) *
+               recursContract( CertainRows( CertainColumns( matrix,
+                                                            Difference( [ 1 .. cdim ], largePC )
+                                                          ),
+                                            Difference( [ 1 .. rdim ], [ firstNZIndex ] )
+                                          ),
+                               conClasses
+                             );
+
+      else
+
+        return Sum( [ 0 .. Size( largePC )-1 ], i -> y^i ) * recursContract( CertainRows( newMat,
+                                                                                        Concatenation( [ 1 .. firstNZIndex - 1 ],
+                                                                                                       [ firstNZIndex + 1 .. rdim ]
+                                                                                                     )
+                                                                                      ),
+                                                                           conClasses
+                                                                         ) +
+               recursDelete( CertainColumns( matrix, Difference( [ 1 .. cdim ], largePC ) ), delClasses );
+
+      fi;
+
+    end;    # generalRecursion
+
+####
+# End of local functions. Initialisation:
 ##
 
-# Prepare for recursion:
+    matrix := CertainRows( CertainColumns( matrix, NonZeroColumns( matrix ) ), NonZeroRows( matrix ) );
 
-    minorMat := StandardMatrixOfVectorMatroid( matroid )[1];
-    minorMat := CertainRows( CertainColumns( minorMat, NonZeroColumns( minorMat ) ), NonZeroRows( minorMat ) );
+    pcs := updateParallelClasses( matrix, List( [ 1 .. NrColumns(matrix) + NrRows(matrix) ], i -> [i] ) );
 
-    return x^Size( Coloops( matroid ) ) * y^Size( Loops( matroid ) ) * recursionStep( minorMat );
+    return x^Size( Coloops( matroid ) ) * y^Size( Loops( matroid ) ) * generalRecursion( matrix, pcs );
   end
 
 );
@@ -1482,6 +1804,41 @@ InstallMethod( RankGeneratingPolynomial,
   end
 
 );
+
+
+###########################
+## CharacteristicPolynomial
+
+##
+InstallMethod( CharacteristicPolynomial,
+                "for a matroid and a ring element",
+                [ IsMatroid, IsRingElement ],
+
+  function( matroid, t )
+
+    return (-1)^RankOfMatroid( matroid ) * TuttePolynomial( matroid, 1 - t, 0 );
+
+  end
+
+);
+
+
+#####################
+## PoincarePolynomial
+
+##
+InstallMethod( PoincarePolynomial,
+                "for a matroid and a ring element",
+                [ IsMatroid, IsRingElement ],
+
+  function( matroid, t )
+
+    return (-t)^RankOfMatroid( matroid ) * CharacteristicPolynomial( matroid, -t^-1 );
+
+  end
+
+);
+
 
 
 ########

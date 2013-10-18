@@ -5,9 +5,9 @@ PackageName := "alcove",
 
 Subtitle := "A package for algebraic combinatorics",
 
-## The following prevents merge conflicts.
 Version :=  Maximum( [
-  "2013-09-03", ## Martin's version
+  "2013-10-18", ## Martin's version
+## this line prevents merge conflicts
   "2013-04-08", ## Sebas' version
 ] ),
 

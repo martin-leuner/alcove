@@ -372,6 +372,9 @@ DeclareAttributeWithDocumentation( "CircuitOracle",
                                 [ "Matroids", "Bases,_circuits_and_their_companions" ]
                         );
 
+DeclareOperation( "TuttePolynomial",
+                  [ IsMatroid, IsRingElement, IsRingElement ] );
+
 DeclareAttributeWithDocumentation( "TuttePolynomial",
                                 IsMatroid,
                                 [ "Computes the Tutte polynomial of <A>mat</A>. The method uses an exponential ",
@@ -391,6 +394,12 @@ DeclareAttributeWithDocumentation( "RankGeneratingPolynomial",
                                 "mat",
                                 [ "Matroids", "Bases,_circuits_and_their_companions" ]
                         );
+
+DeclareOperation( "CharacteristicPolynomial",
+                  [ IsMatroid, IsRingElement ] );
+
+DeclareOperation( "PoincarePolynomial",
+                  [ IsMatroid, IsRingElement ] );
 
 DeclareAttributeWithDocumentation( "Loops",
                                 IsMatroid,
