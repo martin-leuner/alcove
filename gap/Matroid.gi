@@ -1362,7 +1362,7 @@ InstallMethod( TuttePolynomial,
                 20,
 
   function( matroid )
-    local x, y, recursiveTutteCon, recursiveTutteDel, recursionStep, loopsColoops, minorMat, k, n;
+    local x, y, recursiveTutteCon, recursiveTutteDel, recursionStep, minorMat, k, n;
 
     x := Indeterminate( Integers, 1 );
     y := Indeterminate( Integers, 2 );
@@ -1394,7 +1394,7 @@ InstallMethod( TuttePolynomial,
     recursiveTutteDel := function( minorMatrix )
       local nonColoops;
 
-# Contraction may create new coloops, check for those:
+# Deletion may create new coloops, check for those:
       nonColoops := NonZeroRows( minorMatrix );
 
       if Size( nonColoops ) < NrRows( minorMatrix ) then
@@ -1458,7 +1458,6 @@ InstallMethod( TuttePolynomial,
 # Prepare for recursion:
 
     minorMat := StandardMatrixOfVectorMatroid( matroid )[1];
-    loopsColoops := Union2( Loops( matroid ), Coloops( matroid ) );
     minorMat := CertainRows( CertainColumns( minorMat, NonZeroColumns( minorMat ) ), NonZeroRows( minorMat ) );
 
     return x^Size( Coloops( matroid ) ) * y^Size( Loops( matroid ) ) * recursionStep( minorMat );
@@ -1838,7 +1837,7 @@ InstallMethod( NonTrivialParallelClasses,
 
     parClasses := [ ];
     isIndep := IndependenceOracle( matroid );
-    gSet := ShallowCopy( GroundSet( matroid ) );
+    gSet := Difference( GroundSet( matroid ), Loops( matroid ) );
 
     while not IsEmpty( gSet ) do
       newClass := [ gSet[1] ];
@@ -2445,7 +2444,7 @@ InstallMethod( RestrictionToComponentNC,
     local minor;
 
     minor := Deletion( matroid, Difference( GroundSet( matroid ), component ) );
-    SetIsConnected( matroid, true );
+    SetIsConnected( minor, true );
 
     return minor;
   end

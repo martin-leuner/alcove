@@ -9,19 +9,19 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
   local entry, entry_list;
 
 
-  
+
   entry := ToDoListEntryToMaintainFollowingAttributes(
               [ [ matroid, "DualMatroid" ] ],
               [ matroid, [ DualMatroid, matroid ] ],
               [ [ "the rank of the dual is the co-rank", [ "RankOfMatroid", [ "RankOfMatroid", function() return SizeOfGroundSet( matroid ) - RankOfMatroid( matroid ); end ] ] ],
                 [ "duals of uniform matroids are uniform", "IsUniform" ],
                 [ "dual matroids have the same automorphism group", "AutomorphismGroup" ] ] );
-  
+
   AddToToDoList( entry );
 
 #######
 ## Implications for uniform matroids:
-  
+
   entry_list := ToDoListEntry( [ [ matroid, "IsUniform", true ] ],
                                [ [ "we can write down Tutte polynomials of uniform matroids",
                                    [ matroid,
@@ -43,7 +43,7 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
                                          RankOfMatroid( matroid ) < SizeOfGroundSet( matroid )
                                        );
                                      end ] ] ] );
-  
+
   Perform( entry_list, AddToToDoList );
 ##
 # Set simplicity:
@@ -62,7 +62,7 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
 
   SetDescriptionOfImplication( entry, "uniform matroids are simple iff their rank is greater than one or they have a one-element ground set" );
   AddToToDoList( entry );
-  
+
 end );
 
 ###################
