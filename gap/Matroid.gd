@@ -372,6 +372,12 @@ DeclareAttributeWithDocumentation( "CircuitOracle",
                                 [ "Matroids", "Bases,_circuits_and_their_companions" ]
                         );
 
+DeclareGlobalFunctionWithDocumentation( "IndeterminatesOfTuttePolynomial",
+        "Creates two indeterminates for the Tutte polynomial.",
+        "a list two indeterminates",
+        [ "Matroids", "Bases,_circuits_and_their_companions" ]
+        );
+
 DeclareOperation( "TuttePolynomial",
                   [ IsMatroid, IsRingElement, IsRingElement ] );
 

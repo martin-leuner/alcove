@@ -1259,6 +1259,25 @@ InstallMethod( Hyperplanes,
 ## TuttePolynomial
 
 ##
+InstallGlobalFunction( IndeterminatesOfTuttePolynomial,
+  function( )
+    local x, y;
+
+    if not IsBound( HOMALG_MATRICES.IndeterminatesOfTuttePolynomial ) then
+
+      x := Indeterminate( Integers, "x" );
+      y := Indeterminate( Integers, "y" );
+
+      HOMALG_MATRICES.IndeterminatesOfTuttePolynomial := [ x, y ];
+    fi;
+
+    return HOMALG_MATRICES.IndeterminatesOfTuttePolynomial;
+
+  end
+
+);
+
+##
 InstallMethod( TuttePolynomial,
                 "convenience method for substituting values",
                 [ IsMatroid, IsRingElement, IsRingElement ],
