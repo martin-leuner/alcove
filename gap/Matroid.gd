@@ -401,6 +401,12 @@ DeclareAttributeWithDocumentation( "RankGeneratingPolynomial",
                                 [ "Matroids", "Bases,_circuits_and_their_companions" ]
                         );
 
+DeclareGlobalFunctionWithDocumentation( "IndeterminateOfCharacteristicPolynomial",
+        "Creates an indeterminate for the characteristic polynomial.",
+        "an indeterminate",
+        [ "Matroids", "Bases,_circuits_and_their_companions" ]
+        );
+
 DeclareOperation( "CharacteristicPolynomial",
                   [ IsMatroid, IsRingElement ] );
 

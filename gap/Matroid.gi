@@ -1829,6 +1829,30 @@ InstallMethod( RankGeneratingPolynomial,
 ## CharacteristicPolynomial
 
 ##
+InstallGlobalFunction( IndeterminateOfCharacteristicPolynomial,
+  function( arg )
+    local t;
+
+    if not IsBound( HOMALG_MATRICES.IndeterminateOfCharacteristicPolynomial ) then
+
+      if Length( arg ) > 0 and IsString( arg[1] ) then
+        t := arg[1];
+      else
+        t := "t";
+      fi;
+
+      t := Indeterminate( Integers, t );
+
+      HOMALG_MATRICES.IndeterminateOfCharacteristicPolynomial := t;
+    fi;
+
+    return HOMALG_MATRICES.IndeterminateOfCharacteristicPolynomial;
+
+  end
+
+);
+
+##
 InstallMethod( CharacteristicPolynomial,
                 "for a matroid and a ring element",
                 [ IsMatroid, IsRingElement ],
