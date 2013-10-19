@@ -1816,9 +1816,10 @@ InstallMethod( RankGeneratingPolynomial,
                 [ IsMatroid ],
 
   function( matroid )
-    local x, y;
-    x := Indeterminate( Integers, 1 );
-    y := Indeterminate( Integers, 2 );
+    local xy, x, y;
+    xy := IndeterminatesOfTuttePolynomial( );
+    x := xy[1];
+    y := xy[2];
     return Value( TuttePolynomial( matroid ), [ x, y ], [ x+1, y+1 ] );
   end
 
