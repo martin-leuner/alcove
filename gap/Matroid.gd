@@ -372,28 +372,43 @@ DeclareAttributeWithDocumentation( "CircuitOracle",
                                 [ "Matroids", "Bases,_circuits_and_their_companions" ]
                         );
 
-DeclareOperation( "TuttePolynomial",
-                  [ IsMatroid, IsRingElement, IsRingElement ] );
+DeclareGlobalFunctionWithDocumentation( "IndeterminatesOfTuttePolynomial",
+        "Creates two indeterminates for the Tutte polynomial.",
+        "a list two indeterminates",
+        [ "Matroids", "Bases,_circuits_and_their_companions" ]
+        );
 
-DeclareAttributeWithDocumentation( "TuttePolynomial",
-                                IsMatroid,
-                                [ "Computes the Tutte polynomial of <A>mat</A>. The method uses an exponential ",
-                                  "time algorithm, so the computation is feasible only for matroids on very few ",
-                                  "elements. Moreover, it is much faster for vector matroids than for isomorphic ",
-                                  "abstract matroids." ],
-                                "a polynomial in Z[x,y]",
-                                "mat",
-                                [ "Matroids", "Bases,_circuits_and_their_companions" ]
+DeclareAttribute( "TuttePolynomial",
+                  IsMatroid );
+
+DeclareOperationWithDocumentation( "TuttePolynomial",
+                                [ IsMatroid, IsRingElement, IsRingElement ],
+                                [ "Computes the Tutte polynomial of the matroid <A>mat</A> as a polynomial expression",
+                                  "in &ZZ;<M>[</M><A>x</A>,<A>y</A><M>]</M>. The method uses an exponential",
+                                  "time algorithm, so the computation is feasible only for matroids on very few",
+                                  "elements. Moreover, it is much faster for vector matroids than for isomorphic",
+                                  "abstract matroids. If the ring elements <A>x</A>,<A>y</A> are not specified",
+                                  "(as second and third argument) predefined indeterminates over &ZZ; will be used instead." ],
+                                "a polynomial in &ZZ;<M>[</M><A>x</A>,<A>y</A><M>]</M>",
+                                "mat, [x, y]",
+                                [ "Matroids", "Bases,_circuits_and_their_companions" ],
+                                rec( function_label := "for IsMatroid, IsRingElement, IsRingElement" )
                         );
 
 DeclareAttributeWithDocumentation( "RankGeneratingPolynomial",
                                 IsMatroid,
                                 [ "Computes the rank generating polynomial (or Whitney polynomial) of <A>mat</A>. ",
                                   "This method calls TuttePolynomial, so the same comments on its runtime apply." ],
-                                "a polynomial in Z[x,y]",
+                                "a polynomial in &ZZ;<M>[</M><A>x</A>,<A>y</A><M>]</M>",
                                 "mat",
                                 [ "Matroids", "Bases,_circuits_and_their_companions" ]
                         );
+
+DeclareGlobalFunctionWithDocumentation( "IndeterminateOfCharacteristicPolynomial",
+        "Creates an indeterminate for the characteristic polynomial.",
+        "an indeterminate",
+        [ "Matroids", "Bases,_circuits_and_their_companions" ]
+        );
 
 DeclareOperation( "CharacteristicPolynomial",
                   [ IsMatroid, IsRingElement ] );

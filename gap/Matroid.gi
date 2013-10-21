@@ -1259,16 +1259,35 @@ InstallMethod( Hyperplanes,
 ## TuttePolynomial
 
 ##
+InstallGlobalFunction( IndeterminatesOfTuttePolynomial,
+  function( )
+    local x, y;
+
+    if not IsBound( HOMALG_MATRICES.IndeterminatesOfTuttePolynomial ) then
+
+      x := Indeterminate( Integers, "x" );
+      y := Indeterminate( Integers, "y" );
+
+      HOMALG_MATRICES.IndeterminatesOfTuttePolynomial := [ x, y ];
+    fi;
+
+    return HOMALG_MATRICES.IndeterminatesOfTuttePolynomial;
+
+  end
+
+);
+
+##
 InstallMethod( TuttePolynomial,
-                "convenience method for substituting values",
-                [ IsMatroid, IsRingElement, IsRingElement ],
+                "convenience method which calls the standard indeterminates",
+                [ IsMatroid ],
 
-  function( matroid, a, b )
+  function( matroid )
+    local xy;
 
-    return Value( TuttePolynomial( matroid ),
-                  [ Indeterminate( Integers, 1 ), Indeterminate( Integers, 2 ) ],
-                  [ a, b ]
-                );
+    xy := IndeterminatesOfTuttePolynomial( );
+
+    return TuttePolynomial( matroid, xy[1], xy[2] );
 
   end
 
@@ -1281,39 +1300,39 @@ InstallMethod( TuttePolynomial,
                 50,
 
   function( matroid )
+    local xy;
 
     if not HasTuttePolynomial( DualMatroid( matroid ) ) then TryNextMethod(); fi;
 
-    return Value( TuttePolynomial( DualMatroid( matroid ) ),
-                  [ Indeterminate( Integers, 1 ), Indeterminate( Integers, 2 ) ],
-                  [ Indeterminate( Integers, 2 ), Indeterminate( Integers, 1 ) ]
-                );
+    xy := IndeterminatesOfTuttePolynomial( );
+
+    return Value( TuttePolynomial( DualMatroid( matroid ) ), xy, Reversed( xy ) );
 
   end
 
 );
 
-
 ##
 InstallMethod( TuttePolynomial,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform ],
+                [ IsMatroid and IsUniform, IsRingElement, IsRingElement ],
                 30,
 
-  function( matroid )
-    local x, y, k, n;
+  function( matroid, x, y )
+    local k, n, T, xy;
 
     n := SizeOfGroundSet( matroid );
     k := RankOfMatroid( matroid );
 
-    x := Indeterminate( Integers, 1 );
-    y := Indeterminate( Integers, 2 );
-    if not HasIndeterminateName( FamilyObj(x), 1 ) and not HasIndeterminateName( FamilyObj(x), 2 ) then
-      SetIndeterminateName( FamilyObj(x), 1, "x" );
-      SetIndeterminateName( FamilyObj(x), 2, "y" );
+    T := Sum( [ 0 .. k ], i -> Binomial( n, i ) * (x-1)^(k-i) ) + Sum( [ k+1 .. n ], i -> Binomial( n, i ) * (y-1)^(i-k) );
+
+    xy := IndeterminatesOfTuttePolynomial( );
+
+    if IsIdenticalObj( x, xy[1] ) and IsIdenticalObj( y, xy[2] ) then
+      SetTuttePolynomial( matroid, T );
     fi;
 
-    return Sum( [ 0 .. k ], i -> Binomial( n, i ) * (x-1)^(k-i) ) + Sum( [ k+1 .. n ], i -> Binomial( n, i ) * (y-1)^(i-k) );
+    return T;
   end
 
 );
@@ -1321,15 +1340,23 @@ InstallMethod( TuttePolynomial,
 ##
 InstallMethod( TuttePolynomial,
                 "for disconnected matroids",
-                [ IsMatroid ],
+                [ IsMatroid, IsRingElement, IsRingElement ],
                 0,
 
-  function( matroid )
+  function( matroid, x, y )
+    local T, xy;
 
     if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
 
-    return Product( DirectSumDecomposition( matroid ), comp -> TuttePolynomial( comp[2] ) );
+    T := Product( DirectSumDecomposition( matroid ), comp -> TuttePolynomial( comp[2], x, y ) );
 
+    xy := IndeterminatesOfTuttePolynomial( );
+
+    if IsIdenticalObj( x, xy[1] ) and IsIdenticalObj( y, xy[2] ) then
+      SetTuttePolynomial( matroid, T );
+    fi;
+
+    return T;
   end
 
 );
@@ -1337,14 +1364,13 @@ InstallMethod( TuttePolynomial,
 ##
 InstallMethod( TuttePolynomial,
                 "generic method for connected matroids",
-                [ IsMatroid and IsConnected ],
+                [ IsMatroid and IsConnected, IsRingElement, IsRingElement ],
                 10,
 
-  function( matroid )
-    local loopNum, coloopNum, loopsColoops, x, y, p, min, n;
+  function( matroid, x, y )
+    local xy, loopNum, coloopNum, loopsColoops, p, min, n;
 
-    x := Indeterminate( Integers, 1 );
-    y := Indeterminate( Integers, 2 );
+    xy := IndeterminatesOfTuttePolynomial( );
 
     loopNum := Size( Loops( matroid ) );
     coloopNum := Size( Coloops( matroid ) );
@@ -1356,6 +1382,9 @@ InstallMethod( TuttePolynomial,
 # Termination case:
 
     if loopNum + coloopNum = n then
+      if IsIdenticalObj( x, xy[1] ) and IsIdenticalObj( y, xy[2] ) then
+        SetTuttePolynomial( matroid, p );
+      fi;
       return p;
     fi;
 
@@ -1367,7 +1396,13 @@ InstallMethod( TuttePolynomial,
 
     n := GroundSet( min )[1];
 
-    return p * ( TuttePolynomial( MinorNL( min, [n], [ ] ) ) + TuttePolynomial( MinorNL( min, [ ], [n] ) ) );
+    p := p * ( TuttePolynomial( MinorNL( min, [n], [ ] ), x, y ) + TuttePolynomial( MinorNL( min, [ ], [n] ), x, y ) );
+
+    if IsIdenticalObj( x, xy[1] ) and IsIdenticalObj( y, xy[2] ) then
+      SetTuttePolynomial( matroid, p );
+    fi;
+
+    return p;
   end
 
 );
@@ -1375,29 +1410,29 @@ InstallMethod( TuttePolynomial,
 ##
 InstallMethod( TuttePolynomial,
                 "for connected vector matroids",
-                [ IsVectorMatroidRep and IsConnected ],
+                [ IsVectorMatroidRep and IsConnected, IsRingElement, IsRingElement ],
                 20,
 
-  function( matroid )
-    local x, y, matrix, recursContract, recursDelete, generalRecursion, components, updateParallelClasses, ring, one, zero, pcs;
+  function( matroid, x, y )
+    local xy, T, matrix, recursContract, recursDelete, generalRecursion, components, updateParallelClasses, ring, one, zero, pcs;
+
+    xy := IndeterminatesOfTuttePolynomial( );
 
     matrix := StandardMatrixOfVectorMatroid( matroid )[1];
     ring := HomalgRing( matrix );
     one := One( ring );
     zero := Zero( ring );
 
-    x := Indeterminate( Integers, 1 );
-    y := Indeterminate( Integers, 2 );
-    if not HasIndeterminateName( FamilyObj(x), 1 ) and not HasIndeterminateName( FamilyObj(x), 2 ) then
-      SetIndeterminateName( FamilyObj(x), 1, "x" );
-      SetIndeterminateName( FamilyObj(x), 2, "y" );
-    fi;
-
 # Avoid calculating with bigger matrices than absolutely necessary:
     if SizeOfGroundSet( matroid ) - RankOfMatroid( matroid ) < RankOfMatroid( matroid ) then
 
-      return Value( TuttePolynomial( DualMatroid( matroid ) ), [ x, y ], [ y, x ] );
+      T := TuttePolynomial( DualMatroid( matroid ), y, x );
 
+      if IsIdenticalObj( x, xy[1] ) and IsIdenticalObj( y, xy[2] ) then
+        SetTuttePolynomial( matroid, T );
+      fi;
+
+      return T;
     fi;
 
 ####
@@ -1782,7 +1817,55 @@ InstallMethod( TuttePolynomial,
 
     pcs := updateParallelClasses( matrix, List( [ 1 .. NrColumns(matrix) + NrRows(matrix) ], i -> [i] ) );
 
-    return x^Size( Coloops( matroid ) ) * y^Size( Loops( matroid ) ) * generalRecursion( matrix, pcs );
+    T := x^Size( Coloops( matroid ) ) * y^Size( Loops( matroid ) ) * generalRecursion( matrix, pcs );
+
+    if IsIdenticalObj( x, xy[1] ) and IsIdenticalObj( y, xy[2] ) then
+      SetTuttePolynomial( matroid, T );
+    fi;
+
+    return T;
+  end
+
+);
+
+## for calls of dual matroids
+InstallMethod( TuttePolynomial,
+                "for matroids",
+                [ IsMatroid, IsRingElement, IsRingElement ],
+                901,
+
+  function( matroid, y, x )
+    local xy;
+
+    xy := IndeterminatesOfTuttePolynomial( );
+
+    if not ( IsIdenticalObj( x, xy[1] ) and IsIdenticalObj( y, xy[2] ) ) then TryNextMethod( ); fi;
+
+    return Value( TuttePolynomial( matroid ), xy, [ y, x ] );
+
+  end
+
+);
+
+##
+InstallMethod( TuttePolynomial,
+                "for matroids with Tutte polynomial",
+                [ IsMatroid and HasTuttePolynomial, IsRingElement, IsRingElement ],
+                1001,
+
+  function( matroid, x, y )
+    local T, xy;
+
+    T := TuttePolynomial( matroid );
+
+    xy := IndeterminatesOfTuttePolynomial( );
+
+    if IsIdenticalObj( x, xy[1] ) and IsIdenticalObj( y, xy[2] ) then
+      return T;
+    fi;
+
+    return Value( T, xy, [ x, y ] );
+
   end
 
 );
@@ -1797,9 +1880,10 @@ InstallMethod( RankGeneratingPolynomial,
                 [ IsMatroid ],
 
   function( matroid )
-    local x, y;
-    x := Indeterminate( Integers, 1 );
-    y := Indeterminate( Integers, 2 );
+    local xy, x, y;
+    xy := IndeterminatesOfTuttePolynomial( );
+    x := xy[1];
+    y := xy[2];
     return Value( TuttePolynomial( matroid ), [ x, y ], [ x+1, y+1 ] );
   end
 
@@ -1808,6 +1892,30 @@ InstallMethod( RankGeneratingPolynomial,
 
 ###########################
 ## CharacteristicPolynomial
+
+##
+InstallGlobalFunction( IndeterminateOfCharacteristicPolynomial,
+  function( arg )
+    local t;
+
+    if not IsBound( HOMALG_MATRICES.IndeterminateOfCharacteristicPolynomial ) then
+
+      if Length( arg ) > 0 and IsString( arg[1] ) then
+        t := arg[1];
+      else
+        t := "t";
+      fi;
+
+      t := Indeterminate( Integers, t );
+
+      HOMALG_MATRICES.IndeterminateOfCharacteristicPolynomial := t;
+    fi;
+
+    return HOMALG_MATRICES.IndeterminateOfCharacteristicPolynomial;
+
+  end
+
+);
 
 ##
 InstallMethod( CharacteristicPolynomial,
