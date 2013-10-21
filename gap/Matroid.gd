@@ -262,22 +262,19 @@ DeclareAttributeWithDocumentation( "StandardMatrixOfVectorMatroid",
 
 DeclareOperationWithDocumentation( "GroundSet",
                                 [ IsMatroid ],
-                                [ "Returns the ground set of <A>mat</A>." ],
+                                [ "Returns the ground set of the matroid <A>mat</A>." ],
                                 "a set",
                                 "mat",
                                 [ "Matroids", "Accessing_attributes" ]
                         );
 
-DeclareAttributeWithDocumentation( "SizeOfGroundSet",
+DeclareAttributeWithDocumentation( "Size",
                                 IsMatroid,
-                                [ "Returns the number of elements of <A>mat</A>." ],
+                                [ "Returns the number of elements of the matroid <A>mat</A>." ],
                                 "a non-negative integer",
                                 "mat",
                                 [ "Matroids", "Accessing_attributes" ]
                         );
-
-DeclareAttribute( "Size",
-                IsMatroid );
 
 DeclareAttribute( "NominalGroundSet",
                 IsMatroid );

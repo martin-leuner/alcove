@@ -105,7 +105,7 @@ InstallMethod( DualMatroid,
   function( matroid )
     local dual;
 
-    dual := UniformMatroid( SizeOfGroundSet(matroid) - RankOfMatroid(matroid), SizeOfGroundSet(matroid) );
+    dual := UniformMatroid( Size(matroid) - RankOfMatroid(matroid), Size(matroid) );
 
     SetDualMatroid( dual, matroid );
 
@@ -194,11 +194,11 @@ InstallMethod( DualMatroid,
   function( matroid )
     local dual;
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
+    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
-    dual := rec();
+    dual := rec( );
     ObjectifyWithAttributes( dual, TheTypeAbstractMatroid,
-                          SizeOfGroundSet, SizeOfGroundSet( matroid ),
+                          Size, Size( matroid ),
                           DirectSumDecomposition, List( DirectSumDecomposition(matroid), s -> [ s[1], DualMatroid(s[2]) ] ),
                           DualMatroid, matroid );
     _alcove_MatroidStandardImplications( dual );
@@ -298,18 +298,18 @@ InstallMethod( GroundSet,
 
   function( matroid )
 
-    return [ 1 .. SizeOfGroundSet( matroid ) ];
+    return [ 1 .. Size( matroid ) ];
 
   end
 
 );
 
 
-##################
-## SizeOfGroundSet
+#######
+## Size
 
 ##
-InstallMethod( SizeOfGroundSet,
+InstallMethod( Size,
                 "for abstract matroids",
                 [ IsAbstractMatroidRep ],
 
@@ -322,7 +322,7 @@ InstallMethod( SizeOfGroundSet,
 );
 
 ##
-InstallMethod( SizeOfGroundSet,
+InstallMethod( Size,
                 "for vector matroids",
                 [ IsVectorMatroidRep ],
 
@@ -331,19 +331,6 @@ InstallMethod( SizeOfGroundSet,
       return NrColumns( MatrixOfVectorMatroid( matroid ) );
 
   end
-
-);
-
-
-#######
-## Size
-
-##
-InstallMethod( Size,
-                "alias for Size for matroids",
-                [ IsMatroid ],
-
-  SizeOfGroundSet
 
 );
 
@@ -404,7 +391,7 @@ InstallMethod( RankOfMatroid,
 
   function( matroid )
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
+    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
     return Sum( DirectSumDecomposition(matroid), s -> RankOfMatroid(s[2]) );
 
@@ -492,7 +479,7 @@ InstallMethod( RankFunction,
 
   function( matroid )
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
+    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
     return function( x ) return Sum( DirectSumDecomposition( matroid ), s -> RankFunction(s[2])( Intersection2( s[1], x ) ) ); end;
 
@@ -508,7 +495,7 @@ InstallMethod( RankFunction,
 
   function( matroid )
 
-    if HasIs3Connected( matroid ) and Is3Connected( matroid ) then TryNextMethod(); fi;
+    if HasIs3Connected( matroid ) and Is3Connected( matroid ) then TryNextMethod( ); fi;
 
     return function( x )
                   local two, res1, res2, rk1, rk2, r1x, r2x;
@@ -757,7 +744,7 @@ InstallMethod( IndependenceOracle,
 
   function( matroid )
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
+    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
     return
                 function( x )
@@ -860,7 +847,7 @@ InstallMethod( Bases,                # THIS IS AN EXTREMELY NAIVE APPROACH
 
   function( matroid )
 
-    return Filtered( Combinations( [ 1 .. SizeOfGroundSet( matroid ) ], RankOfMatroid( matroid ) ),
+    return Filtered( Combinations( [ 1 .. Size( matroid ) ], RankOfMatroid( matroid ) ),
                 b -> RowRankOfMatrix( CertainColumns( MatrixOfVectorMatroid(matroid), b ) ) = RankOfMatroid( matroid ) );
 
   end
@@ -875,7 +862,7 @@ InstallMethod( Bases,
 
   function( matroid )
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
+    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
     return List( Cartesian( List( DirectSumDecomposition(matroid), s -> List( Bases(s[2]), b -> List( b, i -> s[1][i] ) ) ) ), Union );
 
@@ -892,7 +879,7 @@ InstallMethod( Bases,
   function( matroid )
     local twosum;
 
-    if Is3Connected( matroid ) then TryNextMethod(); fi;
+    if Is3Connected( matroid ) then TryNextMethod( ); fi;
 
     twosum := TwoSumDecomposition( matroid );
 
@@ -997,7 +984,7 @@ InstallMethod( Circuits,                ## incremental polynomial time method
 # Initialise variables:
 
     rank := RankOfMatroid( matroid );
-    corank := SizeOfGroundSet( matroid ) - rank;
+    corank := Size( matroid ) - rank;
 
     isIndependent := IndependenceOracle( matroid );
 
@@ -1048,7 +1035,7 @@ InstallMethod( Circuits,
 
   function( matroid )
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
+    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
     return Union( List( DirectSumDecomposition(matroid), s -> List( Circuits(s[2]), c -> List( c, i -> s[1][i] ) ) ) );
 
@@ -1070,7 +1057,7 @@ InstallMethod( Circuits,
     if HasIs3Connected( matroid ) then
 
       if Is3Connected( matroid ) then
-        TryNextMethod();
+        TryNextMethod( );
       fi;
 
     else
@@ -1178,7 +1165,7 @@ InstallMethod( FundamentalCircuitsWithBasis,
     unitVecLabels := Difference( GroundSet( matroid ), otherLabels );
 
     rank := RankOfMatroid( matroid );
-    corank := SizeOfGroundSet( matroid ) - rank;
+    corank := Size( matroid ) - rank;
 
     circs := [ ];
 
@@ -1260,6 +1247,7 @@ InstallMethod( Hyperplanes,
 
 ##
 InstallGlobalFunction( IndeterminatesOfTuttePolynomial,
+
   function( )
     local x, y;
 
@@ -1269,6 +1257,7 @@ InstallGlobalFunction( IndeterminatesOfTuttePolynomial,
       y := Indeterminate( Integers, "y" );
 
       HOMALG_MATRICES.IndeterminatesOfTuttePolynomial := [ x, y ];
+
     fi;
 
     return HOMALG_MATRICES.IndeterminatesOfTuttePolynomial;
@@ -1288,7 +1277,6 @@ InstallMethod( TuttePolynomial,
     xy := IndeterminatesOfTuttePolynomial( );
 
     return TuttePolynomial( matroid, xy[1], xy[2] );
-
   end
 
 );
@@ -1302,7 +1290,7 @@ InstallMethod( TuttePolynomial,
   function( matroid )
     local xy;
 
-    if not HasTuttePolynomial( DualMatroid( matroid ) ) then TryNextMethod(); fi;
+    if not HasTuttePolynomial( DualMatroid( matroid ) ) then TryNextMethod( ); fi;
 
     xy := IndeterminatesOfTuttePolynomial( );
 
@@ -1321,7 +1309,7 @@ InstallMethod( TuttePolynomial,
   function( matroid, x, y )
     local k, n, T, xy;
 
-    n := SizeOfGroundSet( matroid );
+    n := Size( matroid );
     k := RankOfMatroid( matroid );
 
     T := Sum( [ 0 .. k ], i -> Binomial( n, i ) * (x-1)^(k-i) ) + Sum( [ k+1 .. n ], i -> Binomial( n, i ) * (y-1)^(i-k) );
@@ -1346,7 +1334,7 @@ InstallMethod( TuttePolynomial,
   function( matroid, x, y )
     local T, xy;
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
+    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
     T := Product( DirectSumDecomposition( matroid ), comp -> TuttePolynomial( comp[2], x, y ) );
 
@@ -1377,7 +1365,7 @@ InstallMethod( TuttePolynomial,
 
     p := x^coloopNum * y^loopNum;
 
-    n := SizeOfGroundSet( matroid );
+    n := Size( matroid );
 
 # Termination case:
 
@@ -1424,7 +1412,7 @@ InstallMethod( TuttePolynomial,
     zero := Zero( ring );
 
 # Avoid calculating with bigger matrices than absolutely necessary:
-    if SizeOfGroundSet( matroid ) - RankOfMatroid( matroid ) < RankOfMatroid( matroid ) then
+    if Size( matroid ) - RankOfMatroid( matroid ) < RankOfMatroid( matroid ) then
 
       T := TuttePolynomial( DualMatroid( matroid ), y, x );
 
@@ -1652,8 +1640,8 @@ InstallMethod( TuttePolynomial,
     generalRecursion := function( matrix, parClasses )
       local rdim, cdim, containsUnitVec, nonZeroEntry, firstNZIndex, i, j, reduceColumn, newMat, gaussRows, conClasses, delClasses, tmp, largePC, lower, upper, gaussCols;
 
-      if not Set( Flat( parClasses ) ) = [ 1 .. NrColumns( matrix ) + NrRows( matrix ) ] then Error(); fi;
-      if not ForAll( parClasses, IsSet ) then Error(); fi;
+      if not Set( Flat( parClasses ) ) = [ 1 .. NrColumns( matrix ) + NrRows( matrix ) ] then Error( ); fi;
+      if not ForAll( parClasses, IsSet ) then Error( ); fi;
 
 # Termination case:
       rdim := NrRows( matrix );
@@ -1832,7 +1820,7 @@ InstallMethod( TuttePolynomial,
 InstallMethod( TuttePolynomial,
                 "for matroids",
                 [ IsMatroid, IsRingElement, IsRingElement ],
-                901,
+                90,
 
   function( matroid, y, x )
     local xy;
@@ -1842,7 +1830,6 @@ InstallMethod( TuttePolynomial,
     if not ( IsIdenticalObj( x, xy[1] ) and IsIdenticalObj( y, xy[2] ) ) then TryNextMethod( ); fi;
 
     return Value( TuttePolynomial( matroid ), xy, [ y, x ] );
-
   end
 
 );
@@ -1851,7 +1838,7 @@ InstallMethod( TuttePolynomial,
 InstallMethod( TuttePolynomial,
                 "for matroids with Tutte polynomial",
                 [ IsMatroid and HasTuttePolynomial, IsRingElement, IsRingElement ],
-                1001,
+                100,
 
   function( matroid, x, y )
     local T, xy;
@@ -1865,7 +1852,6 @@ InstallMethod( TuttePolynomial,
     fi;
 
     return Value( T, xy, [ x, y ] );
-
   end
 
 );
@@ -2094,7 +2080,7 @@ InstallMethod( Coloops,
 
   function( matroid )
 
-    if RankOfMatroid( matroid ) = SizeOfGroundSet( matroid ) then
+    if RankOfMatroid( matroid ) = Size( matroid ) then
 
       return GroundSet( matroid );
 
@@ -2148,7 +2134,7 @@ InstallMethod( AutomorphismGroup,
 
   function( matroid )
 
-    return SymmetricGroup( SizeOfGroundSet( matroid ) );
+    return SymmetricGroup( Size( matroid ) );
 
   end
 
@@ -2161,7 +2147,7 @@ InstallMethod( AutomorphismGroup,        # this is a HORRIBLE method
 
   function( matroid )
 
-    return Stabiliser( SymmetricGroup( SizeOfGroundSet(matroid) ), Bases(matroid), OnSetsSets );
+    return Stabiliser( SymmetricGroup( Size(matroid) ), Bases(matroid), OnSetsSets );
 
   end
 
@@ -2342,7 +2328,7 @@ InstallMethod( IsUniform,
                 30,
 
   function( matroid )
-    return Size( Bases( matroid ) ) = Binomial( SizeOfGroundSet( matroid ), RankOfMatroid( matroid ) );
+    return Size( Bases( matroid ) ) = Binomial( Size( matroid ), RankOfMatroid( matroid ) );
   end
 
 );
@@ -2356,7 +2342,7 @@ InstallMethod( IsUniform,
   function( matroid )
     local k, isIndep, n, potIter, x;
 
-    n := SizeOfGroundSet( matroid );
+    n := Size( matroid );
     k := RankOfMatroid( matroid );
 
     if k = 0 or k = n then return true; fi;
@@ -2506,7 +2492,7 @@ InstallMethod( SomeBasis,
     if not IsEmpty( KnownBases( matroid ) ) then
       return KnownBases( matroid )[1];
     else
-      TryNextMethod();
+      TryNextMethod( );
     fi;
 
   end
@@ -2543,7 +2529,7 @@ InstallMethod( SomeBasis,
     indep := [ ];
     i := 1;
 
-    while i <= SizeOfGroundSet( matroid ) do
+    while i <= Size( matroid ) do
 
       tmp := Union2( indep, [i] );
 
@@ -2641,7 +2627,7 @@ InstallMethod( MinorNL,
   function( matroid, del, contr )
     local minor;
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod(); fi;
+    if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
     minor := Iterated( List( DirectSumDecomposition(matroid), s -> MinorNL( s[2],
                                                         List( Intersection2(del,s[1]), i -> Position(s[1],i) ),
@@ -2667,7 +2653,7 @@ InstallMethod( MinorNL,
   function( matroid, del, contr )
     local minor, minSize, minRank;
 
-    minSize := SizeOfGroundSet(matroid) - Size(del) - Size(contr);
+    minSize := Size(matroid) - Size(del) - Size(contr);
     minRank := Maximum( Minimum( RankOfMatroid(matroid) - Size(contr), minSize ), 0 );
 
     minor := UniformMatroid( minRank, minSize );
@@ -2726,10 +2712,10 @@ InstallMethod( MinorNL,
 
 # Construct minor:
 
-    minor := rec();
+    minor := rec( );
 
     ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
-                             SizeOfGroundSet, Size( groundSetInParent ),
+                             Size, Size( groundSetInParent ),
                              Bases, minorBases,
                              ParentAttr, [ matroid, groundSetInParent ]
                            );
@@ -2752,7 +2738,7 @@ InstallMethod( MinorNL,
     scontr := Set( contr );
 
     if not IsEmpty( Intersection2( sdel, scontr ) ) then Error( "<del> and <contr> must not meet" ); fi;
-    if not IsSubset( [ 1 .. SizeOfGroundSet( matroid ) ], Union2( sdel, scontr ) ) then Error( "<del> and <contr> must be subsets of the column labels of <matroid>" ); fi;
+    if not IsSubset( [ 1 .. Size( matroid ) ], Union2( sdel, scontr ) ) then Error( "<del> and <contr> must be subsets of the column labels of <matroid>" ); fi;
 
 # If loops or coloops will be deleted or contracted, delete rather than contract:
 
@@ -2935,10 +2921,10 @@ InstallMethod( RestrictionToComponentNC,
 
     bases := List( bases, b -> List( b, i -> Position( component, i ) ) );
 
-    minor := rec();
+    minor := rec( );
 
     ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
-                             SizeOfGroundSet, Size( component ),
+                             Size, Size( component ),
                              Bases, bases,
                              RankOfMatroid, rank,
                              ParentAttr, [ matroid, component ],
@@ -2965,10 +2951,10 @@ InstallMethod( RestrictionToComponentNC,
 
     circs := List( circs, c -> List( c, i -> Position( component, i ) ) );
 
-    minor := rec();
+    minor := rec( );
 
     ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
-                             SizeOfGroundSet, Size( component ),
+                             Size, Size( component ),
                              Circuits, circs,
                              ParentAttr, [ matroid, component ],
                              IsConnected, true
@@ -2991,10 +2977,10 @@ InstallMethod( RestrictionToComponentNC,
 
     rkFun := subset -> matRkFun( List( subset, i -> component[i] ) );
 
-    minor := rec();
+    minor := rec( );
 
     ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
-                             SizeOfGroundSet, Size( component ),
+                             Size, Size( component ),
                              RankFunction, rkFun,
                              ParentAttr, [ matroid, component ],
                              IsConnected, true
@@ -3017,10 +3003,10 @@ InstallMethod( RestrictionToComponentNC,
 
     isIndep := subset -> matIsIndep( List( subset, i -> component[i] ) );
 
-    minor := rec();
+    minor := rec( );
 
     ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
-                             SizeOfGroundSet, Size( component ),
+                             Size, Size( component ),
                              IndependenceOracle, isIndep,
                              ParentAttr, [ matroid, component ],
                              IsConnected, true
@@ -3066,12 +3052,12 @@ InstallMethod( DirectSumOfMatroidsNL,
   function( m1, m2 )
     local sum, size1, subs;
 
-    size1 := SizeOfGroundSet(m1);
+    size1 := Size(m1);
     subs := List( GroundSet(m2), i -> i+size1 );
 
-    sum := rec();
+    sum := rec( );
     ObjectifyWithAttributes( sum, TheTypeAbstractMatroid,
-                             SizeOfGroundSet, size1 + SizeOfGroundSet(m2),
+                             Size, size1 + Size(m2),
                              RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2),
                              DirectSumDecomposition, Concatenation( DirectSumDecomposition(m1),
                                                                     List( DirectSumDecomposition(m2), tup -> [ List(tup[1],j->subs[j]), tup[2] ] ) ),
@@ -3112,8 +3098,8 @@ InstallMethod( TwoSumOfMatroidsNL,
   function( m1, p1, m2, p2 )
     local sum, size1, size2;
 
-    size1 := SizeOfGroundSet( m1 );
-    size2 := SizeOfGroundSet( m2 );
+    size1 := Size( m1 );
+    size2 := Size( m2 );
 
     if size1 < 3 or size2 < 3 then
       Error( "both matroids must have at least 3 elements" );
@@ -3123,9 +3109,9 @@ InstallMethod( TwoSumOfMatroidsNL,
       Error( "base points must be neither loops nor coloops in their respective matroids" );
     fi;
 
-    sum := rec();
+    sum := rec( );
     ObjectifyWithAttributes( sum, TheTypeAbstractMatroid,
-                             SizeOfGroundSet, size1 + size2 - 2,
+                             Size, size1 + size2 - 2,
                              RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2) - 1,
                              TwoSumDecomposition, [ m1, p1, Concatenation( [ 1 .. p1-1 ], [0], [ p1 .. size1-1 ] ),
                                                     m2, p2, Concatenation( [ size1 .. size1+p2-2 ], [0], [ size1+p2-1 .. size1+size2-2 ] ) ],
@@ -3148,11 +3134,11 @@ InstallMethod( TwoSumOfMatroidsNL,
     ring := HomalgRing( m1 );
     if not IsIdenticalObj( ring, HomalgRing( m2 ) ) then					## FIGURE OUT HOW TO SOLVE THIS PROPERLY
       Error( "please make sure that the underlying rings of the matroids' matrices are identical" );
-#   TryNextMethod();
+#   TryNextMethod( );
     fi;
 
-    size1 := SizeOfGroundSet( m1 );
-    size2 := SizeOfGroundSet( m2 );
+    size1 := Size( m1 );
+    size2 := Size( m2 );
 
     if size1 < 3 or size2 < 3 then
       Error( "both matroids must have at least 3 elements" );
@@ -3236,7 +3222,7 @@ InstallMethod( TwoSumOfMatroidsNL,
               );
 
     ObjectifyWithAttributes( sum, TheTypeVectorMatroid,
-                             SizeOfGroundSet, size1 + size2 - 2,
+                             Size, size1 + size2 - 2,
                              RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2) - 1,
                              TwoSumDecomposition, [ m1, p1, Concatenation( [ 1 .. p1-1 ], [0], [ p1 .. size1-1 ] ),
                                                     m2, p2, Concatenation( [ size1 .. size1+p2-2 ], [0], [ size1+p2-1 .. size1+size2-2 ] ) ],
@@ -3314,7 +3300,7 @@ InstallMethod( \=,
 
   function( m1, m2 )
 
-    return SizeOfGroundSet(m1) = SizeOfGroundSet(m2) and Bases(m1) = Bases(m2);
+    return Size(m1) = Size(m2) and Bases(m1) = Bases(m2);
 
   end
 
@@ -3328,7 +3314,7 @@ InstallMethod( \=,
 
   function( m1, m2 )
 
-    return SizeOfGroundSet(m1) = SizeOfGroundSet(m2) and Circuits(m1) = Circuits(m2);
+    return Size(m1) = Size(m2) and Circuits(m1) = Circuits(m2);
 
   end
 
@@ -3342,7 +3328,7 @@ InstallMethod( \=,
 
   function( m1, m2 )
 
-    if SizeOfGroundSet(m1) <> SizeOfGroundSet(m2) then return false; fi;
+    if Size(m1) <> Size(m2) then return false; fi;
     if RankOfMatroid(m1) <> RankOfMatroid(m2) then return false; fi;
 
     return Circuits(m1) = Circuits(m2);
@@ -3400,7 +3386,7 @@ InstallMethod( Matroid,
 
     matroid := rec( generatingMatrix := Immutable( HomalgMatrix(mat,HomalgRingOfIntegers(2)) ) );
     ObjectifyWithAttributes( matroid, TheTypeVectorMatroid,
-                             SizeOfGroundSet, 0,
+                             Size, 0,
                              RankOfMatroid, 0
                            );
 
@@ -3510,10 +3496,10 @@ InstallMethod( MatroidByBasesNCL,
   function( deg, baselist  )
     local matroid;
 
-    matroid := rec();
+    matroid := rec( );
     ObjectifyWithAttributes( matroid, TheTypeAbstractMatroid,
                         Bases, baselist,
-                        SizeOfGroundSet, deg );
+                        Size, deg );
 
     return matroid;
   end
@@ -3617,9 +3603,9 @@ InstallMethod( MatroidByIndependenceOracleNCL,
   function( size, isIndep )
     local matroid;
 
-    matroid := rec();
+    matroid := rec( );
     ObjectifyWithAttributes( matroid, TheTypeAbstractMatroid,
-                        SizeOfGroundSet, size,
+                        Size, size,
                         IndependenceOracle, isIndep );
 
     return matroid;
@@ -3753,9 +3739,9 @@ InstallMethod( MatroidByCircuitsNCL,
   function( size, circs )
     local matroid;
 
-    matroid := rec();
+    matroid := rec( );
     ObjectifyWithAttributes( matroid, TheTypeAbstractMatroid,
-                             SizeOfGroundSet, size,
+                             Size, size,
                              Circuits, circs
                            );
 
@@ -3887,9 +3873,9 @@ InstallMethod( MatroidByRankFunctionNCL,
   function( size, rankFunc )
     local matroid;
 
-    matroid := rec();
+    matroid := rec( );
     ObjectifyWithAttributes( matroid, TheTypeAbstractMatroid,
-                             SizeOfGroundSet, size,
+                             Size, size,
                              RankFunction, rankFunc
                            );
 
@@ -3998,7 +3984,7 @@ InstallMethod( RandomVectorMatroidOverPrimeField,
     fi;
 
     if p = 0 then
-      return Matroid( HomalgMatrix( RandomMat( k, n, Rationals ), HomalgFieldOfRationals() ) );
+      return Matroid( HomalgMatrix( RandomMat( k, n, Rationals ), HomalgFieldOfRationals( ) ) );
     else
       return Matroid( HomalgMatrix( RandomMat( k, n, [ 1 .. p ] ), HomalgRingOfIntegers(p) ) );
     fi;
@@ -4063,7 +4049,7 @@ InstallMethod( PrintObj,
 
   function( matroid )
 
-    if SizeOfGroundSet( matroid ) = 0 then
+    if Size( matroid ) = 0 then
 
       Print( "<The boring matroid>" );
 
@@ -4107,7 +4093,7 @@ InstallMethod( Display,
 
     else
 
-      Print( "A rank ", RankOfMatroid(matroid), " abstract matroid on ", SizeOfGroundSet(matroid), " elements.\n" );
+      Print( "A rank ", RankOfMatroid(matroid), " abstract matroid on ", Size(matroid), " elements.\n" );
       printList := [ ];
       if HasBases(matroid) then Add(printList,"bases"); fi;
       if HasCircuits(matroid) then Add(printList,"circuits"); fi;
@@ -4161,7 +4147,7 @@ InstallMethod( Display,
   function( matroid )
     local mat;
 
-    if SizeOfGroundSet( matroid ) = 0 then
+    if Size( matroid ) = 0 then
 
       Print( "The vector matroid of the empty matrix." );
 
