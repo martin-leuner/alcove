@@ -407,11 +407,35 @@ DeclareGlobalFunctionWithDocumentation( "IndeterminateOfCharacteristicPolynomial
         [ "Matroids", "Bases,_circuits_and_their_companions" ]
         );
 
+DeclareAttributeWithDocumentation( "CharacteristicPolynomial",
+                                IsMatroid,
+                                "Returns the characteristic polynomial of the matroid <A>mat</A>",
+                                "a univariate polynomial in <M>t=</M><C>IndeterminateOfCharacteristicPolynomial()</C>",
+                                "mat",
+                                [ "Matroids", "Bases,_circuits_and_their_companions" ]
+                        );
+
 DeclareOperation( "CharacteristicPolynomial",
                   [ IsMatroid, IsRingElement ] );
 
+DeclareAttributeWithDocumentation( "PoincarePolynomial",
+                                IsMatroid,
+                                "Returns the Poincare polynomial of the matroid <A>mat</A>",
+                                "a univariate polynomial in <M>t=</M><C>IndeterminateOfCharacteristicPolynomial()</C>",
+                                "mat",
+                                [ "Matroids", "Bases,_circuits_and_their_companions" ]
+                        );
+
 DeclareOperation( "PoincarePolynomial",
                   [ IsMatroid, IsRingElement ] );
+
+DeclareAttributeWithDocumentation( "LeadingCoefficientOfPoincarePolynomial",
+                                IsMatroid,
+                                "Returns the leading coefficient of the Poincare polynomial of the matroid <A>mat</A>",
+                                "a positive integer",
+                                "mat",
+                                [ "Matroids", "Bases,_circuits_and_their_companions" ]
+                        );
 
 DeclareAttributeWithDocumentation( "Loops",
                                 IsMatroid,

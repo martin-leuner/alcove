@@ -8,7 +8,7 @@ Subtitle := "A package for algebraic combinatorics",
 Version :=  Maximum( [
   "2013-10-21", ## Martin's version
 ## this line prevents merge conflicts
-  "2013-10-19", ## Mohamed's version
+  "2013-10-24", ## Mohamed's version
 ## this line prevents merge conflicts
   "2013-04-08", ## Sebas' version
 ] ),
