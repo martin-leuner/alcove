@@ -1927,7 +1927,6 @@ InstallMethod( CharacteristicPolynomial,
     t := IndeterminateOfCharacteristicPolynomial( );
 
     return CharacteristicPolynomial( M, t );
-
   end
 
 );
@@ -1960,7 +1959,6 @@ InstallMethod( PoincarePolynomial,
     t := IndeterminateOfCharacteristicPolynomial( );
 
     return PoincarePolynomial( M, t );
-
   end
 
 );
