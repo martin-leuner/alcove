@@ -1916,6 +1916,22 @@ InstallMethod( CharacteristicPolynomial,
 
 );
 
+##
+InstallMethod( CharacteristicPolynomial,
+        "for a matroid",
+        [ IsMatroid ],
+
+  function( M )
+    local t;
+
+    t := IndeterminateOfCharacteristicPolynomial( );
+
+    return CharacteristicPolynomial( M, t );
+
+  end
+
+);
+
 
 #####################
 ## PoincarePolynomial
@@ -1933,6 +1949,34 @@ InstallMethod( PoincarePolynomial,
 
 );
 
+##
+InstallMethod( PoincarePolynomial,
+        "for a matroid",
+        [ IsMatroid ],
+
+  function( M )
+    local t;
+
+    t := IndeterminateOfCharacteristicPolynomial( );
+
+    return PoincarePolynomial( M, t );
+
+  end
+
+);
+
+##
+InstallMethod( LeadingCoefficientOfPoincarePolynomial,
+        "for a matroid",
+        [ IsMatroid ],
+
+  function( M )
+
+    return TuttePolynomial( M, 1, 0 );
+
+  end
+
+);
 
 
 ########
