@@ -2206,7 +2206,7 @@ InstallMethod( KnownAutomorphisms,
 
   function( matroid )
 
-    return [ ];
+    return [ () ];
 
   end
 
