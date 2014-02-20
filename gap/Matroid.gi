@@ -481,7 +481,13 @@ InstallMethod( RankFunction,
 
     if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
-    return function( x ) return Sum( DirectSumDecomposition( matroid ), s -> RankFunction(s[2])( Intersection2( s[1], x ) ) ); end;
+    return
+           function( x ) return Sum( DirectSumDecomposition( matroid ),
+                                     s -> RankFunction(s[2])(
+                                                              List( Intersection2( x. s[1] ), i -> Position( s[1], i ) ),
+                                                            )
+                                   );
+           end;
 
   end
 
@@ -747,9 +753,13 @@ InstallMethod( IndependenceOracle,
     if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
     return
-                function( x )
-                  return ForAll( DirectSumDecomposition( matroid ), s -> IndependenceOracle(s[2])( List( Intersection2(s[1],x), i -> Position(s[1],i) ) ) );
-                end;
+           function( x ) return ForAll( DirectSumDecomposition( matroid ),
+                                        s -> IndependenceOracle(s[2])(
+                                                                        List( Intersection2( s[1], x ), i -> Position( s[1], i ) ),
+                                                                     )
+                                      );
+           end;
+
 
   end
 
