@@ -1,3 +1,0 @@
-listOfDocFiles := [
-         "../gap/AutoDocEntries.g"
-         ];

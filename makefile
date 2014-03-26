@@ -1,6 +1,6 @@
 all: doc
 
-doc: makedoc.g ListOfDocFiles.g PackageInfo.g gap/*.gd gap/*.gi
+doc: makedoc.g PackageInfo.g gap/*.gd gap/*.gi
 	        gap makedoc.g
 
 clean:
