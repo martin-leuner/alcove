@@ -4149,40 +4149,36 @@ InstallMethod( Display,
       printList := [ ];
       if HasBases(matroid) then Add(printList,"bases"); fi;
       if HasCircuits(matroid) then Add(printList,"circuits"); fi;
+      if HasHyperplanes(matroid) then Add(printList,"hyperplanes"); fi;
       if HasRankFunction(matroid) then Add(printList,"rank function"); fi;
+      if HasIndependenceOracle(matroid) then Add(printList,"independence oracle"); fi;
 
-      if IsEmpty( printList ) then
+      if HasDirectSumDecomposition( matroid ) and not IsConnected( matroid ) then
+        Print( "It is the direct sum of ", Size(DirectSumDecomposition(matroid)), " connected components.\n" );
+      elif HasTwoSumDecomposition( matroid ) and not Is3Connected( matroid ) then
+        Print( "It is a 2-sum of two known minors.\n" );
+      elif IsEmpty( printList ) then
+        Print( "It is pretty much an empty prototype of a matroid, knowing neither its bases, nor its circuits, nor its hyperplanes, nor its rank function, nor an independence oracle.\n" );
+      fi;
 
-        if HasDirectSumDecomposition( matroid ) and not IsConnected( matroid ) then
-          Print( "It is the direct sum of ", Size(DirectSumDecomposition(matroid)), " connected components.\n" );
-        elif HasTwoSumDecomposition( matroid ) and not Is3Connected( matroid ) then
-          Print( "It is a 2-sum of two known minors.\n" );
-        else
-          Print( "It is pretty much an empty prototype of a matroid, knowing neither its bases, nor its circuits, nor its rank function.\n" );
-        fi;
+      pSize := Size(printList);
 
+      Print( "Its " );
+
+      Print( printList[1] );
+
+      for i in [2..pSize-1] do
+        Print( ", ", printList[i] );
+      od;
+
+      if pSize > 1 then
+        Print( " and ", printList[pSize] );
+      fi;
+
+      if pSize = 1 and printList[1][1] = 'r' or printList[1][1] = 'i' then
+        Print( " is known.\n" );
       else
-
-        pSize := Size(printList);
-
-        Print( "Its " );
-
-        Print( printList[1] );
-
-        for i in [2..pSize-1] do
-          Print( ", ", printList[i] );
-        od;
-
-        if pSize > 1 then
-          Print( " and ", printList[pSize] );
-        fi;
-
-        if pSize = 1 and printList[1][1] = 'r' then
-          Print( " is known.\n" );
-        else
-          Print( " are known.\n" );
-        fi;
-
+        Print( " are known.\n" );
       fi;
 
     fi;
