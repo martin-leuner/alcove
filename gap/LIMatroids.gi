@@ -15,7 +15,16 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
               [ matroid, [ DualMatroid, matroid ] ],
               [ [ "the rank of the dual is the co-rank", [ "RankOfMatroid", [ "RankOfMatroid", function() return Size( matroid ) - RankOfMatroid( matroid ); end ] ] ],
                 [ "duals of uniform matroids are uniform", "IsUniform" ],
-                [ "dual matroids have the same automorphism group", "AutomorphismGroup" ] ] );
+                [ "dual matroids have the same automorphism group", "AutomorphismGroup" ],
+                [ "Tutte polynomial of the dual swaps variables", [ "TuttePolynomial", [ "TuttePolynomial", function()
+                                                                                                              local x, y, xy;
+                                                                                                              xy := IndeterminatesOfTuttePolynomial();
+                                                                                                              x := xy[1];
+                                                                                                              y := xy[2];
+                                                                                                              return Value( TuttePolynomial(matroid), [x,y], [y,x] );
+                                                                                                            end ] ] ],
+                [ "cocircuits of the dual are the circuits", [ "Circuits", "Cocircuits" ] ]
+              ] );
 
   AddToToDoList( entry );
 
@@ -45,8 +54,9 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
                                      end ] ] ] );
 
   Perform( entry_list, AddToToDoList );
-##
-# Set simplicity:
+
+#######
+## Set simplicity:
 
   entry := ToDoListEntry( [
                                                 [ matroid, "IsUniform", true ],
@@ -63,7 +73,53 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
   SetDescriptionOfImplication( entry, "uniform matroids are simple iff their rank is greater than one or they have a one-element ground set" );
   AddToToDoList( entry );
 
-end );
+#######
+## Set RankGeneratingPolynomial:
+
+  entry := ToDoListEntry( [ [ matroid, "TuttePolynomial" ] ],
+                          matroid,
+                          "RankGeneratingPolynomial",
+                          function()
+                            local xy, x, y;
+                            xy := IndeterminatesOfTuttePolynomial( );
+                            x := xy[1];
+                            y := xy[2];
+                            return Value( TuttePolynomial( matroid ), [ x, y ], [ x+1, y+1 ] );
+                          end );
+
+  AddToToDoList( entry );
+
+#######
+## Cocircuits and hyperplanes:
+
+  entry := ToDoListEntry( [ [ matroid, "Cocircuits" ] ],
+                          matroid,
+                          "Hyperplanes",
+                          function()
+                            local gset;
+                            gset := GroundSet( matroid );
+                            return Set( List( Cocircuits( matroid ), c -> Difference( gset, c ) ) );
+                          end );
+
+  AddToToDoList( entry );
+
+  entry := ToDoListEntry( [ [ matroid, "Hyperplanes" ] ],
+                          matroid,
+                          "Cocircuits",
+                          function()
+                            local gset;
+                            gset := GroundSet( matroid );
+                            return Set( List( Hyperplanes( matroid ), c -> Difference( gset, c ) ) );
+                          end );
+
+  AddToToDoList( entry );
+
+#######
+
+ end
+
+);
+
 
 ###################
 ## Standard implications for vector matroids:
