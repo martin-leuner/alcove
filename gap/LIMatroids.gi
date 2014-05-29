@@ -23,7 +23,12 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
                                                                                                               y := xy[2];
                                                                                                               return Value( TuttePolynomial(matroid), [x,y], [y,x] );
                                                                                                             end ] ] ],
-                [ "cocircuits of the dual are the circuits", [ "Circuits", "Cocircuits" ] ]
+                [ "cocircuits of the dual matroid are the circuits", [ "Circuits", "Cocircuits" ] ],
+                [ "bases of the dual matroid are complements of the bases", [ "Bases", [ "Bases", function()
+                                                                                                    local gset;
+                                                                                                    gset := GroundSet(matroid);
+                                                                                                    return Set( List( Bases(matroid), b -> Difference(gset,b) ) );
+                                                                                                  end ] ] ],
               ] );
 
   AddToToDoList( entry );
