@@ -4030,6 +4030,7 @@ InstallMethod( RandomVectorMatroidOverPrimeField,
                 [ IsInt, IsInt, IsInt ],
 
   function( k, n, p )
+    local R;
 
     if not ( IsPrimeInt(p) or p = 0 ) or k < 0 or n < 0 then
       Error( "usage: RandomVectorMatroidOverPrimeField( <rows>, <cols>, <char> )" );
@@ -4038,7 +4039,8 @@ InstallMethod( RandomVectorMatroidOverPrimeField,
     if p = 0 then
       return Matroid( HomalgMatrix( RandomMat( k, n, Rationals ), HomalgFieldOfRationals( ) ) );
     else
-      return Matroid( HomalgMatrix( RandomMat( k, n, [ 1 .. p ] ), HomalgRingOfIntegers(p) ) );
+      R := HomalgRingOfIntegers( p );
+      return Matroid( HomalgMatrix( One( R ) * RandomMat( k, n, [ 0 .. p - 1 ] ), R ) );
     fi;
 
   end
