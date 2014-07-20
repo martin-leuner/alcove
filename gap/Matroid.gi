@@ -4154,31 +4154,39 @@ InstallMethod( Display,
       if HasIndependenceOracle(matroid) then Add(printList,"independence oracle"); fi;
 
       if HasDirectSumDecomposition( matroid ) and not IsConnected( matroid ) then
+
         Print( "It is the direct sum of ", Size(DirectSumDecomposition(matroid)), " connected components.\n" );
+
       elif HasTwoSumDecomposition( matroid ) and not Is3Connected( matroid ) then
+
         Print( "It is a 2-sum of two known minors.\n" );
+
       elif IsEmpty( printList ) then
+
         Print( "It is pretty much an empty prototype of a matroid, knowing neither its bases, nor its circuits, nor its hyperplanes, nor its rank function, nor an independence oracle.\n" );
-      fi;
 
-      pSize := Size(printList);
-
-      Print( "Its " );
-
-      Print( printList[1] );
-
-      for i in [2..pSize-1] do
-        Print( ", ", printList[i] );
-      od;
-
-      if pSize > 1 then
-        Print( " and ", printList[pSize] );
-      fi;
-
-      if pSize = 1 and printList[1][1] = 'r' or printList[1][1] = 'i' then
-        Print( " is known.\n" );
       else
-        Print( " are known.\n" );
+
+        pSize := Size(printList);
+
+        Print( "Its " );
+
+        Print( printList[1] );
+
+        for i in [2..pSize-1] do
+          Print( ", ", printList[i] );
+        od;
+
+        if pSize > 1 then
+          Print( " and ", printList[pSize] );
+        fi;
+
+        if pSize = 1 and printList[1][1] = 'r' or printList[1][1] = 'i' then
+          Print( " is known.\n" );
+        else
+          Print( " are known.\n" );
+        fi;
+
       fi;
 
     fi;
