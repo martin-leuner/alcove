@@ -2677,19 +2677,24 @@ InstallMethod( MinorNL,
                 30,
 
   function( matroid, del, contr )
-    local minor;
+    local minor, newGroundS, dsd;
 
     if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
-    minor := Iterated( List( DirectSumDecomposition(matroid), s -> MinorNL( s[2],
-                                                        List( Intersection2(del,s[1]), i -> Position(s[1],i) ),
-                                                        List( Intersection2(contr,s[1]), i -> Position(s[1],i) ) )
+    dsd := DirectSumDecomposition( matroid );
+    newGroundS := Difference( GroundSet(matroid), Union2(del,contr) );
+
+    minor := Iterated( List( dsd, s -> MinorNL( s[2],
+                                                List( Intersection2(del,s[1]), i -> Position(s[1],i) ),
+                                                List( Intersection2(contr,s[1]), i -> Position(s[1],i) ) )
                            ),
                        DirectSumOfMatroidsNL
                      );
 
+    # make sure ParentAttr contains the correct indices:
+
     ObjectifyWithAttributes( minor, TheTypeMinorOfAbstractMatroid,
-                        ParentAttr, [ matroid, Difference( GroundSet(matroid), Union2(del,contr) ) ] );
+                             ParentAttr, [ matroid, Concatenation( List( dsd, s -> Intersection2( s[1], newGroundS ) ) ) ] );
 
     return minor;
   end
