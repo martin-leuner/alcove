@@ -15,6 +15,7 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
               [ matroid, [ DualMatroid, matroid ] ],
               [ [ "the rank of the dual is the co-rank", [ "RankOfMatroid", [ "RankOfMatroid", function() return Size( matroid ) - RankOfMatroid( matroid ); end ] ] ],
                 [ "duals of uniform matroids are uniform", "IsUniform" ],
+                [ "duals of connected matroids are connected", "IsConnected" ],
                 [ "dual matroids have the same automorphism group", "AutomorphismGroup" ],
                 [ "Tutte polynomial of the dual swaps variables", [ "TuttePolynomial", [ "TuttePolynomial", function()
                                                                                                               local x, y, xy;
