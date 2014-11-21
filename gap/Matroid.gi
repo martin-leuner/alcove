@@ -874,7 +874,7 @@ InstallMethod( Bases,
 
     if HasIsConnected( matroid ) and IsConnected( matroid ) then TryNextMethod( ); fi;
 
-    return List( Cartesian( List( DirectSumDecomposition(matroid), s -> List( Bases(s[2]), b -> List( b, i -> s[1][i] ) ) ) ), Union );
+    return Set( List( Cartesian( List( DirectSumDecomposition(matroid), s -> List( Bases(s[2]), b -> List( b, i -> s[1][i] ) ) ) ), Union ) );
 
   end
 
