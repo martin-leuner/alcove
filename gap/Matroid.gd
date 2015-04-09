@@ -473,7 +473,7 @@ DeclareAttribute( "TwoSumDecomposition",
 DeclareAttribute( "Flats",
                   IsMatroid );
 
-DeclareAttribute( "FlatsOfRank",
+DeclareAttribute( "KnownCompleteRankSetsOfFlatsUpToColoops",
                   IsMatroid,
                   "mutable" );
 
@@ -543,6 +543,15 @@ DeclareOperation( "MinorNL",
                   [ IsMatroid, IsList, IsList ] );
 
 #! @Description
+#!  Computes the minor <A>mat</A> | <A>res</A> where <A>res</A> is a subset of the
+#!  ground set of <A>mat</A>.
+#! @Returns a matroid
+#! @Arguments mat,res
+#! @ChapterInfo Matroids, Construction
+DeclareOperation( "Restriction",
+                  [ IsMatroid, IsList ] );
+
+#! @Description
 #!  Computes the minor <A>mat</A> \ <A>del</A> where <A>del</A> is a subset of the
 #!  ground set of <A>mat</A>.
 #! @Returns a matroid
@@ -602,7 +611,6 @@ DeclareOperation( "DirectSumOfMatroids",
 DeclareOperation( "TwoSumOfMatroids",
                   [ IsMatroid, IsInt, IsMatroid, IsInt ] );
 
-
 DeclareOperation( "TwoSumOfMatroidsNL",
                   [ IsMatroid, IsInt, IsMatroid, IsInt ] );
 
@@ -614,8 +622,17 @@ DeclareOperation( "TwoSumNL",
 
 #! @Description
 #!  The underlying homalg ring of <A>mat</A>.
-#! @Returns a vector matroid
+#! @Returns a homalg ring
 #! @Arguments mat
 #! @ChapterInfo Matroids, Accessing attributes
 DeclareOperation( "HomalgRing",
                   [ IsMatroid ] );
+
+#! @Description
+#!  Computes the flats of <A>mat</A> which have rank not exceeding
+#!  <A>n</A> and returns the flats of rank <A>n</A>.
+#! @Returns a set of sets
+#! @Arguments mat,n
+#! @ChapterInfo Matroids, Accessing attributes
+DeclareOperation( "FlatsOfRank",
+                  [ IsMatroid, IsInt ] );

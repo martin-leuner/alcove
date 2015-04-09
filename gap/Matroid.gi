@@ -2327,6 +2327,35 @@ InstallMethod( TwoSumDecomposition,
 );
 
 
+########
+## Flats
+
+##
+InstallMethod( Flats,
+                [ IsMatroid ],
+
+  function( matroid )
+
+    return List( [ 0 .. RankOfMatroid( matroid ) ], r -> FlatsOfRank( matroid, r ) );
+
+  end
+
+);
+
+
+##
+InstallMethod( KnownCompleteRankSetsOfFlatsUpToColoops,
+                [ IsMatroid ],
+
+  function( matroid )
+
+    return [ ];
+
+  end
+
+);
+
+
 ############################
 ## NonTrivialParallelClasses
 
@@ -2637,6 +2666,83 @@ InstallMethod( HomalgRing,
 );
 
 
+##############
+## FlatsOfRank
+
+##
+InstallMethod( FlatsOfRank,
+                "for matroids",
+                [ IsMatroid, IsInt ],
+
+  function( matroid, targetrank )
+    local loops, coloops, gset, cl, knownrank, n, pf, actualFlats, prospectiveFlats, lastlevel, i, col;
+
+    n := Size( matroid );
+
+    loops := ShallowCopy( Loops( matroid ) );
+    coloops := Coloops( matroid );
+
+    gset := Difference( GroundSet( matroid ), Union2( loops, coloops ) );
+
+    cl := ClosureOperator( matroid );
+
+    if targetrank = 0 then return [ loops ]; fi;
+
+    knownrank := Size( KnownCompleteRankSetsOfFlatsUpToColoops( matroid ) );
+
+    if knownrank = 0 then
+      KnownCompleteRankSetsOfFlatsUpToColoops( matroid )[1] := List( gset, x -> cl([x]) );
+      knownrank := 1;
+    fi;
+
+    # extend known flats by taking each known flat of the last level and combining it with rank 1 flats
+    while knownrank < targetrank do
+
+      lastlevel := KnownCompleteRankSetsOfFlatsUpToColoops( matroid )[ knownrank ];
+
+      prospectiveFlats := Union( List( lastlevel, f -> List( Intersection2( gset, [ Maximum(Difference(f,loops))+1 .. n ] ), i -> Concatenation( f, [i] ) ) ) );
+
+      actualFlats := [ ];
+
+      for pf in prospectiveFlats do
+
+        # this check should be much faster than closure computation for large matroids
+        if ForAny( actualFlats, f -> IsSubset(f,pf) ) then
+          continue;
+        fi;
+
+        Add( actualFlats, cl(pf) );
+
+      od;
+
+      Add( KnownCompleteRankSetsOfFlatsUpToColoops( matroid ), actualFlats );
+
+      knownrank := knownrank + 1;
+
+    od;
+
+    # return value will be actualFlats
+    # get correct layer in case no computation was necessary
+    actualFlats := StructuralCopy( KnownCompleteRankSetsOfFlatsUpToColoops( matroid )[ targetrank ] );
+
+    # now we need to take coloops into consideration
+    for i in [ 1 .. Size( coloops ) ] do
+      for col in Combinations( coloops, i ) do
+
+        actualFlats := Union2( actualFlats, List(
+                                                  KnownCompleteRankSetsOfFlatsUpToColoops(matroid)[ targetrank - i ],
+                                                  f -> Union2( f, col )
+                                                ) );
+
+      od;
+    od;
+
+    return actualFlats;
+  end
+
+);
+
+
 ##########
 ## MinorNL
 
@@ -2647,6 +2753,8 @@ InstallMethod( MinorNL,
                 50,
 
   function( matroid, del, contr )
+
+    SetParentAttr( matroid, [ matroid, GroundSet( matroid ) ] );
 
     return matroid;
 
@@ -2900,6 +3008,23 @@ InstallMethod( Minor,
     _alcove_VectorMatroidImplications( min );
 
     return min;
+  end
+
+);
+
+
+##############
+## Restriction
+
+##
+InstallMethod( Restriction,
+                "for matroids",
+                [ IsMatroid, IsList ],
+
+  function( matroid, res )
+
+    return Deletion( matroid, Difference( GroundSet(matroid), res ) );
+
   end
 
 );
