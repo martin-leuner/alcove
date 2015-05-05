@@ -3232,18 +3232,19 @@ InstallMethod( DirectSumOfMatroidsNL,
                 [ IsMatroid, IsMatroid ],
 
   function( m1, m2 )
-    local sum, size1, subs;
+    local sum, size1, size2, subs;
 
     size1 := Size(m1);
+    size2 := Size(m2);
     subs := List( GroundSet(m2), i -> i+size1 );
 
     sum := rec( );
     ObjectifyWithAttributes( sum, TheTypeAbstractMatroid,
-                             Size, size1 + Size(m2),
+                             Size, size1 + size2,
                              RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2),
                              DirectSumDecomposition, Concatenation( DirectSumDecomposition(m1),
                                                                     List( DirectSumDecomposition(m2), tup -> [ List(tup[1],j->subs[j]), tup[2] ] ) ),
-                             IsConnected, false
+                             IsConnected, size1 > 0 and size2 > 0
                            );
 
     return sum;
