@@ -194,7 +194,7 @@ InstallMethod( DualMatroid,
   function( matroid )
     local dual;
 
-    if IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -393,7 +393,7 @@ InstallMethod( RankOfMatroid,
 
   function( matroid )
 
-    if IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -483,7 +483,7 @@ InstallMethod( RankFunction,
 
   function( matroid )
 
-    if IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     elif IsConnected( matroid ) then
       return RankFunction( DirectSumDecomposition(matroid)[1][2] );
@@ -758,7 +758,7 @@ InstallMethod( IndependenceOracle,
 
   function( matroid )
 
-    if IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -882,7 +882,7 @@ InstallMethod( Bases,
 
   function( matroid )
 
-    if IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -1057,7 +1057,7 @@ InstallMethod( Circuits,
 
   function( matroid )
 
-    if IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -1358,7 +1358,7 @@ InstallMethod( TuttePolynomial,
   function( matroid, x, y )
     local T, xy;
 
-    if IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -2803,7 +2803,7 @@ InstallMethod( MinorNL,
   function( matroid, del, contr )
     local minor, newGroundS, dsd;
 
-    if IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
