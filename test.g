@@ -40,6 +40,10 @@ for i in [ 1 .. 100 ] do
   f := ClosureOperator(m)([1,2]);
 
   EssentialityOperator(m)(f);
+
+  if not IsEmpty( Loops(m) ) or not IsEmpty( NonTrivialParallelClasses(m) ) then
+    Assert( 0, Size( Simplification(m)[1] ) < Size( m ), "simplification failed" );
+  fi;
 od;
 
 

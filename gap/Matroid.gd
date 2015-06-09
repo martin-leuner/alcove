@@ -257,7 +257,7 @@ DeclareAttribute( "DualMatroid",
 DeclareAttribute( "ParentAttr",
                   IsMinorOfMatroid );
 
-DeclareAttribute( "SimplifiedMatroid",
+DeclareAttribute( "Simplification",
                   IsMatroid );
 
 #! @Description

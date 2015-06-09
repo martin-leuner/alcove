@@ -243,28 +243,32 @@ InstallMethod( DualMatroid,
 );
 
 
-####################
-## SimplifiedMatroid
+#################
+## Simplification
 
 ##
-InstallMethod( SimplifiedMatroid,        # method can be heavily simplified using NonTrivialParallelClasses, this also avoids computing closures
+InstallMethod( Simplification,
                 "for matroids",
                 [ IsMatroid ],
 
   function( matroid )
-    local del, checkset, currParClass;
+    local pcs, elt, del;
 
-    checkset := Difference( GroundSet( matroid ), Loops( matroid ) );
-    del := Loops( matroid );
+    pcs := ShallowCopy( NonTrivialParallelClasses( matroid ) );
 
-    while not IsEmpty( checkset ) do
-      currParClass := ClosureOperator(matroid)( [checkset[1]] );
-      checkset := Difference( checkset, currParClass );
-      Remove( currParClass );
-      del := Union2( del, currParClass );
+    del := Union( Loops( matroid ), Union( List( pcs, x -> x{[2..Size(x)]} ) ) );
+
+    if IsEmpty( del ) then
+      return [ matroid, GroundSet( matroid ) ];
+    fi;
+
+    for elt in Difference( GroundSet( matroid ), Union( pcs ) ) do
+      AddSet( pcs, [ elt ] );
     od;
 
-    return Deletion( matroid, del );
+    MakeImmutable( pcs );
+
+    return [ Deletion( matroid, del ), pcs ];
   end
 
 );
