@@ -2385,22 +2385,14 @@ InstallMethod( NonTrivialParallelClasses,
                 [ IsMatroid ],
 
   function( matroid )
-    local isIndep, parClasses, gSet, newClass, i;
+    local parClasses, gSet, newClass, cl;
 
     parClasses := [ ];
-    isIndep := IndependenceOracle( matroid );
     gSet := Difference( GroundSet( matroid ), Loops( matroid ) );
+    cl := ClosureOperator( matroid );
 
     while not IsEmpty( gSet ) do
-      newClass := [ gSet[1] ];
-
-      for i in [2..Size(gSet)] do
-        if not isIndep( [ gSet[1], gSet[i] ] ) then
-
-          Add( newClass, gSet[i] );
-
-        fi;
-      od;
+      newClass := cl( [gSet[1]] );
 
       gSet := Difference( gSet, newClass );
 
