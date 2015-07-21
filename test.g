@@ -19,7 +19,11 @@ Assert( 0, IsConnected(ex1), "ex1: did not recognise connectivity" );
 # check for errors in vector matroids
 
 for i in [ 1 .. 100 ] do
-  m := RandomVectorMatroidOverPrimeField( Random([2..5]), Random([4..8]), Random([0,2,3,7]) );
+  if i mod 2 = 0 then
+    m := RandomVectorMatroidOverPrimeField( Random([2..5]), Random([4..8]), Random([0,2,3,7]) );
+  else
+    m := RandomVectorMatroidOverPrimeField( Random([2..3]), Random([4..7]), Random([0,2,3,7]) ) + DualMatroid( RandomVectorMatroidOverPrimeField( Random([2..3]), Random([4..7]), Random([0,2,3,7]) ) );
+  fi;
 
   DualMatroid(m);
 
@@ -40,6 +44,8 @@ for i in [ 1 .. 100 ] do
   f := ClosureOperator(m)([1,2]);
 
   EssentialityOperator(m)(f);
+
+  Flats(m);
 
   if not IsEmpty( Loops(m) ) or not IsEmpty( NonTrivialParallelClasses(m) ) then
     Assert( 0, Size( Simplification(m)[1] ) < Size( m ), "simplification failed" );

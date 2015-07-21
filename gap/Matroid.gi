@@ -2738,7 +2738,7 @@ InstallMethod( FlatsOfRank,
     actualFlats := StructuralCopy( KnownCompleteRankSetsOfFlatsUpToColoops( matroid )[ targetrank ] );
 
     # now we need to take coloops into consideration
-    for i in [ 1 .. Size( coloops ) ] do
+    for i in [ 1 .. Minimum( targetrank - 1, Size( coloops ) ) ] do
       for col in Combinations( coloops, i ) do
 
         actualFlats := Union2( actualFlats, List(
@@ -2748,6 +2748,12 @@ InstallMethod( FlatsOfRank,
 
       od;
     od;
+
+    if Size( coloops ) >= targetrank then
+      for col in Combinations( coloops, targetrank ) do
+        Add( actualFlats, Union2( loops, col ) );
+      od;
+    fi;
 
     return actualFlats;
   end
