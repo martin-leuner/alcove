@@ -3608,7 +3608,13 @@ InstallMethod( MatroidNL,
                 30,
 
   function( matobj )
-    local matroid;
+    local matroid, ring;
+
+    ring := HomalgRing( matobj );
+
+    if not ( HasIsFieldForHomalg(ring) and IsFieldForHomalg(ring) ) then
+      Error( "the matrix's base ring is not a field (for homalg)" );
+    fi;
 
     matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
 
@@ -3626,7 +3632,7 @@ InstallMethod( Matroid,
   function( matobj )
     local matroid;
 
-    matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
+    matroid := MatroidNL( matobj );
 
     _alcove_MatroidStandardImplications( matroid );
     _alcove_VectorMatroidImplications( matroid );
