@@ -1441,6 +1441,10 @@ InstallMethod( TuttePolynomial,
     one := One( ring );
     zero := Zero( ring );
 
+    if not ( HasIsFieldForHomalg(ring) and IsFieldForHomalg(ring) ) then
+      TryNextMethod();
+    fi;
+
 # Avoid calculating with bigger matrices than absolutely necessary:
     if Size( matroid ) - RankOfMatroid( matroid ) < RankOfMatroid( matroid ) then
 
@@ -2917,7 +2921,13 @@ InstallMethod( MinorNL,
                 12,
 
   function( matroid, del, contr )
-    local loopsColoops, sdel, scontr, minorMat, minor, col, row, actRows, actCols, foundRow, foundCoeff, rowCoeff, calcCol, t, mat;
+    local loopsColoops, sdel, scontr, minorMat, minor, col, row, actRows, actCols, foundRow, foundCoeff, rowCoeff, calcCol, t, mat, ring;
+
+    ring := HomalgRing( matroid );
+
+    if not ( HasIsFieldForHomalg(ring) and IsFieldForHomalg(ring) ) then
+      TryNextMethod();
+    fi;
 
     sdel := Set( del );
     scontr := Set( contr );
@@ -3340,6 +3350,10 @@ InstallMethod( TwoSumOfMatroidsNL,
 #   TryNextMethod( );
     fi;
 
+    if not ( HasIsFieldForHomalg(ring) and IsFieldForHomalg(ring) ) then
+      TryNextMethod();
+    fi;
+
     size1 := Size( m1 );
     size2 := Size( m2 );
 
@@ -3613,7 +3627,9 @@ InstallMethod( MatroidNL,
     ring := HomalgRing( matobj );
 
     if not ( HasIsFieldForHomalg(ring) and IsFieldForHomalg(ring) ) then
-      Error( "the matrix's base ring is not a field (for homalg)" );
+      Info( InfoWarning, 1, "Trying to define a representable matroid over a ring which is not a FieldForHomalg." );
+      Info( InfoWarning, 1, "This feature is experimental and may force alcove to use less efficient algorithms," );
+      Info( InfoWarning, 1, "possibly leading to tremendous performance losses." );
     fi;
 
     matroid := Objectify( TheTypeVectorMatroid, rec( generatingMatrix := Immutable(matobj) ) );
