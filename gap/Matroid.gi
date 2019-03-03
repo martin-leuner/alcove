@@ -1253,11 +1253,11 @@ InstallMethod( Cocircuits,
 );
 
 
-##############
-## Hyperplanes
+#####################
+## MatroidHyperplanes
 
 ##
-InstallMethod( Hyperplanes,
+InstallMethod( MatroidHyperplanes,
                 "for matroids",
                 [ IsMatroid ],
 
@@ -1269,6 +1269,18 @@ InstallMethod( Hyperplanes,
 
 );
 
+##
+InstallMethod( Hyperplanes,
+               "for matroids",
+               [ IsMatroid ],
+
+  function( matroid )
+
+    return MatroidHyperplanes(matroid);
+
+  end
+
+);
 
 ##################
 ## TuttePolynomial
@@ -4324,7 +4336,7 @@ InstallMethod( Display,
       printList := [ ];
       if HasBases(matroid) then Add(printList,"bases"); fi;
       if HasCircuits(matroid) then Add(printList,"circuits"); fi;
-      if HasHyperplanes(matroid) then Add(printList,"hyperplanes"); fi;
+      if HasMatroidHyperplanes(matroid) then Add(printList,"hyperplanes"); fi;
       if HasRankFunction(matroid) then Add(printList,"rank function"); fi;
       if HasIndependenceOracle(matroid) then Add(printList,"independence oracle"); fi;
 

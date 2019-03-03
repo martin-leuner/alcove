@@ -100,7 +100,7 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
 
   entry := ToDoListEntry( [ [ matroid, "Cocircuits" ] ],
                           matroid,
-                          "Hyperplanes",
+                          "MatroidHyperplanes",
                           function()
                             local gset;
                             gset := GroundSet( matroid );
@@ -109,13 +109,13 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
 
   AddToToDoList( entry );
 
-  entry := ToDoListEntry( [ [ matroid, "Hyperplanes" ] ],
+  entry := ToDoListEntry( [ [ matroid, "MatroidHyperplanes" ] ],
                           matroid,
                           "Cocircuits",
                           function()
                             local gset;
                             gset := GroundSet( matroid );
-                            return Set( List( Hyperplanes( matroid ), c -> Difference( gset, c ) ) );
+                            return Set( List( MatroidHyperplanes( matroid ), c -> Difference( gset, c ) ) );
                           end );
 
   AddToToDoList( entry );
