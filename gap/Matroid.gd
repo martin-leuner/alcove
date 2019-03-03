@@ -495,8 +495,14 @@ DeclareAttribute( "NonTrivialParallelClasses",
 ##
 ####################################
 
-DeclareProperty( "IsUniform",
+# Workaround: Package qpa declares IsUniform as a one-argument operation,
+# preventing alcove from declaring it as a property.
+# Thus, we declare a dummy property and install an operation returning it.
+DeclareProperty( "IsUniformMatroid",
                  IsMatroid );
+
+DeclareOperation( "IsUniform",
+                  [ IsMatroid ] );
 
 DeclareProperty( "IsSimpleMatroid",
                  IsMatroid );
@@ -507,8 +513,14 @@ DeclareProperty( "IsGraphic",
 DeclareProperty( "IsRegular",
                  IsMatroid );
 
-DeclareProperty( "IsConnected",
+# Workaround: Package FinInG declares IsConnected as an attribute,
+# preventing alcove from declaring it as a property.
+# Thus, we declare a dummy property and install an attribute for matroids.
+DeclareProperty( "IsConnectedMatroid",
                  IsMatroid );
+
+DeclareAttribute( "IsConnected",
+                  IsMatroid );
 
 DeclareProperty( "Is3Connected",
                  IsMatroid );

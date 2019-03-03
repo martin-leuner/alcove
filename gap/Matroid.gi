@@ -99,7 +99,7 @@ BindGlobal( "TheTypeMinorOfRepresentationMatroid",
 ##
 InstallMethod( DualMatroid,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform ],
+                [ IsMatroid and IsUniformMatroid ],
                 50,
 
   function( matroid )
@@ -168,7 +168,7 @@ InstallMethod( DualMatroid,
 ##
 InstallMethod( DualMatroid,
                 "for connected vector matroids",
-                [ IsVectorMatroidRep and IsConnected ],
+                [ IsVectorMatroidRep and IsConnectedMatroid ],
                 30,
 
   function( matroid )
@@ -194,7 +194,7 @@ InstallMethod( DualMatroid,
   function( matroid )
     local dual;
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -213,7 +213,7 @@ InstallMethod( DualMatroid,
 ##
 InstallMethod( DualMatroid,
                 "fallback method for connected matroids",
-                [ IsMatroid and IsConnected ],
+                [ IsMatroid and IsConnectedMatroid ],
                 0,
 
   function( matroid )
@@ -397,7 +397,7 @@ InstallMethod( RankOfMatroid,
 
   function( matroid )
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -410,7 +410,7 @@ InstallMethod( RankOfMatroid,
 ##
 InstallMethod( RankOfMatroid,
                 "fallback method for connected matroids",
-                [ IsMatroid and IsConnected ],
+                [ IsMatroid and IsConnectedMatroid ],
                 10,
 
   function( matroid )
@@ -487,9 +487,9 @@ InstallMethod( RankFunction,
 
   function( matroid )
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
-    elif IsConnected( matroid ) then
+    elif IsConnectedMatroid( matroid ) then
       return RankFunction( DirectSumDecomposition(matroid)[1][2] );
     fi;
 
@@ -742,7 +742,7 @@ InstallMethod( IndependenceOracle,
 ##
 InstallMethod( IndependenceOracle,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform ],
+                [ IsMatroid and IsUniformMatroid ],
                 50,
 
   function( matroid )
@@ -762,7 +762,7 @@ InstallMethod( IndependenceOracle,
 
   function( matroid )
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -801,7 +801,7 @@ InstallMethod( IndependenceOracle,
 ##
 InstallMethod( CircuitOracle,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform ],
+                [ IsMatroid and IsUniformMatroid ],
                 50,
 
   function( matroid )
@@ -853,7 +853,7 @@ InstallMethod( CircuitOracle,
 ##
 InstallMethod( Bases,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform ],
+                [ IsMatroid and IsUniformMatroid ],
                 50,
 
   function( matroid )
@@ -867,7 +867,7 @@ InstallMethod( Bases,
 ##
 InstallMethod( Bases,                # THIS IS AN EXTREMELY NAIVE APPROACH
                 "for vector matroids",
-                [ IsVectorMatroidRep and IsConnected ],
+                [ IsVectorMatroidRep and IsConnectedMatroid ],
 
   function( matroid )
 
@@ -886,7 +886,7 @@ InstallMethod( Bases,
 
   function( matroid )
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -899,7 +899,7 @@ InstallMethod( Bases,
 ##
 InstallMethod( Bases,
                 "for 2-sums of matroids",
-                [ IsMatroid and IsConnected ],
+                [ IsMatroid and IsConnectedMatroid ],
                 0,
 
   function( matroid )
@@ -961,7 +961,7 @@ InstallMethod( KnownBases,
 ##
 InstallMethod( Circuits,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform ],
+                [ IsMatroid and IsUniformMatroid ],
                 50,
 
   function( matroid )
@@ -975,7 +975,7 @@ InstallMethod( Circuits,
 ##
 InstallMethod( Circuits,                ## incremental polynomial time method
                 "for connected matroids",
-                [ IsMatroid and IsConnected ],
+                [ IsMatroid and IsConnectedMatroid ],
                 20,
 
   function( matroid )
@@ -1061,7 +1061,7 @@ InstallMethod( Circuits,
 
   function( matroid )
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -1074,7 +1074,7 @@ InstallMethod( Circuits,
 ##
 InstallMethod( Circuits,
                 "for 2-sums of matroids",
-                [ IsMatroid and IsConnected ],
+                [ IsMatroid and IsConnectedMatroid ],
                 0,
 
   function( matroid )
@@ -1343,7 +1343,7 @@ InstallMethod( TuttePolynomial,
 ##
 InstallMethod( TuttePolynomial,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform, IsRingElement, IsRingElement ],
+                [ IsMatroid and IsUniformMatroid, IsRingElement, IsRingElement ],
                 30,
 
   function( matroid, x, y )
@@ -1374,7 +1374,7 @@ InstallMethod( TuttePolynomial,
   function( matroid, x, y )
     local T, xy;
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -1394,7 +1394,7 @@ InstallMethod( TuttePolynomial,
 ##
 InstallMethod( TuttePolynomial,
                 "generic method for connected matroids",
-                [ IsMatroid and IsConnected, IsRingElement, IsRingElement ],
+                [ IsMatroid and IsConnectedMatroid, IsRingElement, IsRingElement ],
                 10,
 
   function( matroid, x, y )
@@ -1440,7 +1440,7 @@ InstallMethod( TuttePolynomial,
 ##
 InstallMethod( TuttePolynomial,
                 "for connected vector matroids",
-                [ IsVectorMatroidRep and IsConnected, IsRingElement, IsRingElement ],
+                [ IsVectorMatroidRep and IsConnectedMatroid, IsRingElement, IsRingElement ],
                 20,
 
   function( matroid, x, y )
@@ -2071,7 +2071,7 @@ InstallMethod( Loops,
 ##
 InstallMethod( Loops,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform ],
+                [ IsMatroid and IsUniformMatroid ],
                 50,
 
   function( matroid )
@@ -2163,7 +2163,7 @@ InstallMethod( Coloops,
 ##
 InstallMethod( Coloops,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform ],
+                [ IsMatroid and IsUniformMatroid ],
                 50,
 
   function( matroid )
@@ -2217,7 +2217,7 @@ InstallMethod( Coloops,
 ##
 InstallMethod( AutomorphismGroup,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform ],
+                [ IsMatroid and IsUniformMatroid ],
                 30,
 
   function( matroid )
@@ -2265,7 +2265,7 @@ InstallMethod( KnownAutomorphisms,
 ##
 InstallMethod( DirectSumDecomposition,
                 "for connected matroids",
-                [ IsMatroid and IsConnected ],
+                [ IsMatroid and IsConnectedMatroid ],
                 30,
 
   function( matroid )
@@ -2332,7 +2332,7 @@ InstallMethod( DirectSumDecomposition,
 # Check whether we found a non-trivial decomposition:
 
     if Size( components ) = 1 then
-      SetIsConnected( matroid, true );
+      SetIsConnectedMatroid( matroid, true );
       return DirectSumDecomposition( matroid );
     fi;
 
@@ -2427,11 +2427,11 @@ InstallMethod( NonTrivialParallelClasses,
 ##
 ####################################
 
-############
-## IsUniform
+###################
+## IsUniformMatroid
 
 ##
-InstallMethod( IsUniform,
+InstallMethod( IsUniformMatroid,
                 "for matroids with bases",
                 [ IsMatroid and HasBases ],
                 30,
@@ -2443,7 +2443,7 @@ InstallMethod( IsUniform,
 );
 
 ##
-InstallMethod( IsUniform,
+InstallMethod( IsUniformMatroid,
                 "fallback method",
                 [ IsMatroid ],
                 0,
@@ -2465,6 +2465,19 @@ InstallMethod( IsUniform,
     od;
 
     return true;
+  end
+
+);
+
+##
+InstallMethod( IsUniform,
+                "for matroids",
+                [ IsMatroid ],
+
+  function( matroid )
+
+    return IsUniformMatroid( matroid );
+
   end
 
 );
@@ -2519,8 +2532,21 @@ InstallMethod( IsRegular,
 );
 
 
-##############
-## IsConnected
+#####################
+## IsConnectedMatroid
+
+##
+InstallMethod( IsConnectedMatroid,
+                "for matroids",
+                [ IsMatroid ],
+
+  function( matroid )
+
+    return Size( DirectSumDecomposition( matroid ) ) = 1;
+
+  end
+
+);
 
 ##
 InstallMethod( IsConnected,
@@ -2529,7 +2555,7 @@ InstallMethod( IsConnected,
 
   function( matroid )
 
-    return Size( DirectSumDecomposition( matroid ) ) = 1;
+    return IsConnectedMatroid( matroid );
 
   end
 
@@ -2565,7 +2591,7 @@ InstallMethod( Is3Connected,
 ##
 InstallMethod( SomeBasis,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform ],
+                [ IsMatroid and IsUniformMatroid ],
                 30,
 
   function( matroid )
@@ -2799,7 +2825,7 @@ InstallMethod( MinorNL,
 ##
 InstallMethod( MinorNL,
                 "fallback method for connected matroids",
-                [ IsMatroid and IsConnected, IsList, IsList ],
+                [ IsMatroid and IsConnectedMatroid, IsList, IsList ],
                 0,
 
   function( matroid, del, contr )
@@ -2821,7 +2847,7 @@ InstallMethod( MinorNL,
   function( matroid, del, contr )
     local minor, newGroundS, dsd;
 
-    if HasIsConnected( matroid ) and IsConnected( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     fi;
 
@@ -2848,7 +2874,7 @@ InstallMethod( MinorNL,
 ##
 InstallMethod( MinorNL,
                 "for uniform matroids",
-                [ IsMatroid and IsUniform, IsList, IsList ],
+                [ IsMatroid and IsUniformMatroid, IsList, IsList ],
                 30,
 
   function( matroid, del, contr )
@@ -3119,7 +3145,7 @@ InstallMethod( RestrictionToComponentNC,
     local minor;
 
     minor := Deletion( matroid, Difference( GroundSet( matroid ), component ) );
-    SetIsConnected( minor, true );
+    SetIsConnectedMatroid( minor, true );
 
     return minor;
   end
@@ -3152,7 +3178,7 @@ InstallMethod( RestrictionToComponentNC,
                              Bases, bases,
                              RankOfMatroid, rank,
                              ParentAttr, [ matroid, component ],
-                             IsConnected, true
+                             IsConnectedMatroid, true
                            );
 
     return minor;
@@ -3181,7 +3207,7 @@ InstallMethod( RestrictionToComponentNC,
                              Size, Size( component ),
                              Circuits, circs,
                              ParentAttr, [ matroid, component ],
-                             IsConnected, true
+                             IsConnectedMatroid, true
                            );
 
     return minor;
@@ -3207,7 +3233,7 @@ InstallMethod( RestrictionToComponentNC,
                              Size, Size( component ),
                              RankFunction, rkFun,
                              ParentAttr, [ matroid, component ],
-                             IsConnected, true
+                             IsConnectedMatroid, true
                            );
 
     return minor;
@@ -3233,7 +3259,7 @@ InstallMethod( RestrictionToComponentNC,
                              Size, Size( component ),
                              IndependenceOracle, isIndep,
                              ParentAttr, [ matroid, component ],
-                             IsConnected, true
+                             IsConnectedMatroid, true
                            );
 
     return minor;
@@ -3286,7 +3312,7 @@ InstallMethod( DirectSumOfMatroidsNL,
                              RankOfMatroid, RankOfMatroid(m1) + RankOfMatroid(m2),
                              DirectSumDecomposition, Concatenation( DirectSumDecomposition(m1),
                                                                     List( DirectSumDecomposition(m2), tup -> [ List(tup[1],j->subs[j]), tup[2] ] ) ),
-                             IsConnected, IsConnected(m1) and IsConnected(m2) and ( size1 = 0 ) or ( size2 = 0 )
+                             IsConnectedMatroid, IsConnectedMatroid(m1) and IsConnectedMatroid(m2) and ( size1 = 0 ) or ( size2 = 0 )
                            );
 
     return sum;
@@ -3524,7 +3550,7 @@ InstallMethod( \+,
 ##
 InstallMethod( \=,
                 "for matroids with bases",
-                [ IsMatroid and IsConnected and HasBases, IsMatroid and IsConnected and HasBases ],
+                [ IsMatroid and IsConnectedMatroid and HasBases, IsMatroid and IsConnectedMatroid and HasBases ],
                 20,
 
   function( m1, m2 )
@@ -3538,7 +3564,7 @@ InstallMethod( \=,
 ##
 InstallMethod( \=,
                 "for matroids with circuits",
-                [ IsMatroid and IsConnected and HasCircuits, IsMatroid and IsConnected and HasCircuits ],
+                [ IsMatroid and IsConnectedMatroid and HasCircuits, IsMatroid and IsConnectedMatroid and HasCircuits ],
                 30,
 
   function( m1, m2 )
@@ -3552,7 +3578,7 @@ InstallMethod( \=,
 ##                                                                                                        ## NAIVE METHOD
 InstallMethod( \=,
                 "fallback method",
-                [ IsMatroid and IsConnected, IsMatroid and IsConnected ],
+                [ IsMatroid and IsConnectedMatroid, IsMatroid and IsConnectedMatroid ],
                 10,
 
   function( m1, m2 )
@@ -4247,7 +4273,7 @@ InstallMethod( UniformMatroid,
 
     _alcove_MatroidStandardImplications( matroid );
 
-    SetIsUniform( matroid, true );
+    SetIsUniformMatroid( matroid, true );
 
     return matroid;
   end
@@ -4267,7 +4293,7 @@ InstallMethod( UniformMatroidNL,
     matroid := MatroidByRankFunctionNCL( n, function( x ) if Size(x) < k then return Size(x); else return k; fi; end );
     SetRankOfMatroid( matroid, k );
 
-    SetIsUniform( matroid, true );
+    SetIsUniformMatroid( matroid, true );
 
     return matroid;
   end
@@ -4300,7 +4326,7 @@ InstallMethod( PrintObj,
         Print( " rank ", RankOfMatroid(matroid) );
       fi;
 
-      if HasIsUniform( matroid ) and IsUniform( matroid ) then
+      if HasIsUniformMatroid( matroid ) and IsUniformMatroid( matroid ) then
         Print( " uniform" );
       elif HasIsSimpleMatroid( matroid ) and IsSimpleMatroid( matroid ) then
         Print( " simple" );
@@ -4340,7 +4366,7 @@ InstallMethod( Display,
       if HasRankFunction(matroid) then Add(printList,"rank function"); fi;
       if HasIndependenceOracle(matroid) then Add(printList,"independence oracle"); fi;
 
-      if HasDirectSumDecomposition( matroid ) and not IsConnected( matroid ) then
+      if HasDirectSumDecomposition( matroid ) and not IsConnectedMatroid( matroid ) then
 
         Print( "It is the direct sum of ", Size(DirectSumDecomposition(matroid)), " connected components.\n" );
 
