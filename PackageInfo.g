@@ -1,12 +1,17 @@
+package_name := "alcove";
+
+github_account := "martin-leuner";
+github_base_url := Concatenation("https://github.com/", github_account, "/");
+github_raw_url := Concatenation("https://raw.githubusercontent.com/", github_account, "/", package_name, "/master/");
 
 SetPackageInfo( rec(
 
-PackageName := "alcove",
+PackageName := package_name,
 
 Subtitle := "A package for algebraic combinatorics",
 
 Version :=  Maximum( [
-  "2016-09-21", ## Martin's version
+  "2019-03-03", ## Martin's version
 ## this line prevents merge conflicts
   "2014-07-15", ## Mohamed's version
 ## this line prevents merge conflicts
@@ -16,13 +21,15 @@ Version :=  Maximum( [
 ] ),
 
 Date := ~.Version{[ 1 .. 10 ]},
-Date := Concatenation( ~.Date{[ 9, 10 ]}, ".", ~.Date{[ 6, 7 ]}, ".", ~.Date{[ 1 .. 4 ]} ),
+Date := Concatenation( ~.Date{[ 9, 10 ]}, "/", ~.Date{[ 6, 7 ]}, "/", ~.Date{[ 1 .. 4 ]} ),
 
-#ArchiveURL :=
-#          Concatenation( "http://wwwb.math.rwth-aachen.de/~leuner/gap/", ~.PackageName, "/", ~.PackageName, "-", ~.Version ),
-#
-#ArchiveFormats := ".tar.gz",
+PackageWWWHome := Concatenation(github_base_url, ~.PackageName),
 
+ArchiveURL := Concatenation(~.PackageWWWHome, "/archive/master.zip"),
+ArchiveFormats := ".zip",
+
+README_URL := Concatenation(github_raw_url, "README"),
+PackageInfoURL := Concatenation(github_raw_url, "PackageInfo.g"),
 
 
 Persons := [
@@ -46,20 +53,12 @@ rec(
 
 Status := "dev",
 
-
-#README_URL :=
-#  "http://wwwb.math.rwth-aachen.de/~gutsche/gap_packages/Convex/README.Convex",
-#PackageInfoURL :=
-#  "http://wwwb.math.rwth-aachen.de/~gutsche/gap_packages/Convex/PackageInfo.g",
-
-#AbstractHTML :=
-#  Concatenation( "Convex provides structures and algorithms for convex geometry. It can handle convex, ",
-#                 "fans and polytopes. Not only the structures are provided, but also a collection of ",
-#                 "algorithms to handle those objects. Basically, it provides convex geometry to GAP. ",
-#                 "It is capable of communicating with the CAS polymake via the package PolymakeInterface",
-#                 " and also provides several methods by itself." ),
-
-PackageWWWHome := "https://github.com/martin-leuner/alcove",
+AbstractHTML := Concatenation(
+    "This package aims at providing an implementation of matroids as GAP objects.",
+    "Efficient computation of their structural properties and certain invariants",
+    "is a key goal of the package, partly using powerful logical methods from the",
+    "homalg project."
+    ),
 
 PackageDoc := rec(
   BookName  := "alcove",
