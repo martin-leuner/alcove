@@ -501,8 +501,8 @@ DeclareAttribute( "NonTrivialParallelClasses",
 DeclareProperty( "IsUniformMatroid",
                  IsMatroid );
 
-DeclareOperation( "IsUniform",
-                  [ IsMatroid ] );
+DeclareProperty( "IsUniform",
+                 IsMatroid );
 
 DeclareProperty( "IsSimpleMatroid",
                  IsMatroid );
