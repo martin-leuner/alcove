@@ -103,6 +103,22 @@ DeclareOperation( "MatroidByBasesNC",
 DeclareOperation( "MatroidByBasesNCL",
                   [ IsInt, IsList ] );
 
+#! @Description
+#!  Returns an abstract matroid with bases of rank <A>r</A> on the ground set <A>gset</A>
+#!  which is determined by the list of <A>coatoms</A>.
+#! @Returns an abstract matroid with bases
+#! @Arguments gset, r, coatoms
+#! @ChapterInfo Matroids, Construction
+#! @Group Coatoms-Constructor
+DeclareOperation( "MatroidByCoatomsNC",
+                  [ IsList, IsInt, IsList ] );
+
+#! @Arguments n, rank, coatoms
+#! @ChapterInfo Matroids, Construction
+#! @Group Coatoms-Constructor
+DeclareOperation( "MatroidByCoatomsNC",
+                  [ IsInt, IsInt, IsList ] );
+
 #DeclareOperation( "MatroidByIndependenceOracle",
 #		[ IsList, IsFunction ] );
 
