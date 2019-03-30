@@ -3820,6 +3820,42 @@ InstallMethod( MatroidByBasesNCL,
 
 );
 
+##
+InstallMethod( MatroidByCoatomsNC,
+        "for a list, an integer, and a list",
+        [ IsList, IsInt, IsList ],
+        
+  function( gset, r, coatoms )
+    local bases, iter, tuple, matroid;
+    
+    coatoms := StructuralCopy( Filtered( coatoms, coatom -> ( Length( coatom ) >= r ) ) );
+    
+    bases := [ ];
+    
+    iter := IteratorOfCombinations( gset, r );
+    
+    for tuple in iter do
+        if ForAny( coatoms, coatom -> IsSubset( coatom, tuple ) ) then
+            continue;
+        fi;
+        Add( bases, tuple );
+    od;
+    
+    return MatroidByBasesNC( gset, bases );
+    
+end );
+
+##
+InstallMethod( MatroidByCoatomsNC,
+        "for two integers and a list",
+        [ IsInt, IsInt, IsList ],
+        
+  function( n, r, coatoms )
+    
+    return MatroidByCoatomsNC( [ 1 .. n ], r, coatoms );
+    
+end );
+
 ###
 #InstallMethod( MatroidByIndependenceOracle,
 #                "given size of ground set and boolean function deciding independence of subsets",
