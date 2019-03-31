@@ -101,3 +101,49 @@ InstallMethod( MatrixForMatroidRepresentation,
     return HomalgMatrix( mat, rk, n, polyRing );
     
 end );
+
+##
+InstallMethod( ModuliSpaceOfMatroidByEquationsAndInequations,
+        "for a matroid and a homalg ring",
+        [ IsMatroid, IsHomalgRing ],
+        
+  function( matroid, homalgRing )
+    local m, eqs, ineqs, bases, col, det;
+    
+    m := MatrixForMatroidRepresentation( matroid, homalgRing );
+    
+    # write down equations and inequations
+    
+    eqs := [ ];
+    ineqs := [ ];
+    bases := Bases( matroid );
+    
+    for col in IteratorOfCombinations( GroundSet( matroid ), Rank( matroid ) ) do
+        
+        det := DeterminantMat( CertainColumns( m, col ) );
+        
+        if Degree( det ) <= 0 then
+            
+            if not IsZero( det ) and col in bases then
+                continue;
+            elif not IsZero( det ) then
+                Error( "determinant nonzero but set not a basis\n" );
+            elif col in bases then
+                Error( "determinant zero but set is a basis\n" );
+            else
+                continue;
+            fi;
+            
+        fi;
+        
+        if Set( col ) in bases then
+            AddSet( ineqs, det );
+        else
+            AddSet( eqs, det );
+        fi;
+        
+    od;
+    
+    return [ eqs, ineqs ];
+    
+end );
