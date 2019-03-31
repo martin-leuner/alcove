@@ -10,7 +10,7 @@ InstallMethod( MatrixForMatroidRepresentation,
         [ IsMatroid, IsHomalgRing ],
         
   function( matroid, homalgRing )
-    local circs, basis, nonIdCols, rk, mat, row, col, n, varNum, c, circ, var, polyRing;
+    local circs, basis, nonIdCols, rk, unUsedRowsForOnes, mat, row, col, n, varNum, c, circ, var, polyRing;
     
     if not IsEmpty( Loops( matroid ) ) then
         Error( "matroid must not have loops\n" );
@@ -34,6 +34,7 @@ InstallMethod( MatrixForMatroidRepresentation,
     circs := List( circs, c -> Difference( c, nonIdCols ) );
     
     rk := Rank( matroid );
+    unUsedRowsForOnes := [ 2 .. rk ];
     
     # create the matrix and fill it with entries
     
@@ -67,9 +68,18 @@ InstallMethod( MatrixForMatroidRepresentation,
                 
             elif basis[row] in circ then
                 
-                varNum := varNum + 1;
-                mat[ row ][ c ] := Concatenation( "a", String( varNum ) );
+                if row in unUsedRowsForOnes then
                     
+                    mat[ row ][ c ] := "1";
+                    unUsedRowsForOnes := Difference( unUsedRowsForOnes, [ row ]);
+                    
+                else
+                    
+                    varNum := varNum + 1;
+                    mat[ row ][ c ] := Concatenation( "a", String( varNum ) );
+                    
+                fi;
+                
             else
                 
                 mat[ row ][ c ] := "0";
