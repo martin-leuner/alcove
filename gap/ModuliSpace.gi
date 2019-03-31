@@ -125,7 +125,9 @@ InstallMethod( ModuliSpaceOfMatroidByEquationsAndInequations,
         if Degree( det ) <= 0 then
             
             if not IsZero( det ) and col in bases then
-                continue;
+                if IsUnit( det ) then
+                    continue;
+                fi;
             elif not IsZero( det ) then
                 Error( "determinant nonzero but set not a basis\n" );
             elif col in bases then
