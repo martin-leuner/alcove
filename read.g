@@ -13,3 +13,5 @@ ReadPackage( "alcove", "gap/Matroid.gi" );
 ReadPackage( "alcove", "gap/AssociationScheme.gi" );
 
 ReadPackage( "alcove", "gap/LIMatroids.gi" );
+
+ReadPackage( "alcove", "gap/ModuliSpace.gi" );

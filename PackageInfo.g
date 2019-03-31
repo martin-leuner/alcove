@@ -11,7 +11,7 @@ PackageName := package_name,
 Subtitle := "A package for algebraic combinatorics",
 
 Version :=  Maximum( [
-  "2019-03-03", ## Martin's version
+  "2019-03-05", ## Martin's version
 ## this line prevents merge conflicts
   "2014-07-15", ## Mohamed's version
 ## this line prevents merge conflicts
