@@ -108,7 +108,7 @@ InstallMethod( ModuliSpaceOfMatroidByEquationsAndInequations,
         [ IsMatroid, IsHomalgRing ],
         
   function( matroid, homalgRing )
-    local m, eqs, ineqs, bases, col, det;
+    local m, eqs, ineqs, bases, col, det, R;
     
     m := MatrixForMatroidRepresentation( matroid, homalgRing );
     
@@ -146,6 +146,6 @@ InstallMethod( ModuliSpaceOfMatroidByEquationsAndInequations,
         
     od;
     
-    return [ eqs, ineqs ];
+    return [ eqs, ineqs, Matroid( m ) ];
     
 end );
