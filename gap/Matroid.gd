@@ -662,6 +662,16 @@ DeclareOperation( "HomalgRing",
                   [ IsMatroid ] );
 
 #! @Description
+#!  Computes the pullback of the matroid <A>mat</A> under the ring homomorphism <A>phi</A>.
+#!  The matroid <A>mat</A> must be defined over the source of <A>phi</A>.
+#!  The word pullback refers to the dual geometric language.
+#! @Returns a homalg ring
+#! @Arguments phi, mat
+#! @ChapterInfo Matroids, Accessing attributes
+DeclareOperation( "Pullback",
+                  [ IsHomalgRingMap, IsMatroid ] );
+
+#! @Description
 #!  Computes the flats of <A>mat</A> which have rank not exceeding
 #!  <A>n</A> and returns the flats of rank <A>n</A>.
 #! @Returns a set of sets
