@@ -2720,6 +2720,23 @@ InstallMethod( HomalgRing,
 );
 
 
+#############
+## Pullback
+
+##
+InstallMethod( Pullback,
+                "for a ring map and a vector matroid",
+                [ IsHomalgRingMap, IsVectorMatroidRep ],
+
+  function( phi, matroid )
+
+    return Matroid( Pullback( phi, MatrixOfVectorMatroid( matroid ) ) );
+
+  end
+
+);
+
+
 ##############
 ## FlatsOfRank
 

@@ -13,7 +13,7 @@ Subtitle := "A package for algebraic combinatorics",
 Version :=  Maximum( [
   "2019-03-06", ## Martin's version
 ## this line prevents merge conflicts
-  "2019-03-08", ## Mohamed's version
+  "2019-03-09", ## Mohamed's version
 ## this line prevents merge conflicts
   "2013-11-07", ## Sebas' version
 ## this line prevents merge conflicts
