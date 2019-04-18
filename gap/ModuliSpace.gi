@@ -146,6 +146,6 @@ InstallMethod( ModuliSpaceOfMatroidByEquationsAndInequations,
         
     od;
     
-    return [ eqs, ineqs, Matroid( m ) ];
+    return [ eqs, ineqs, HomalgRing( m ), Matroid( m ) ];
     
 end );
