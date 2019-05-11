@@ -103,7 +103,7 @@ InstallMethod( MatrixForMatroidRepresentation,
 end );
 
 ##
-InstallMethod( ModuliSpaceOfMatroidByEquationsAndInequations,
+InstallMethod( EquationsAndInequationsOfModuliSpaceOfMatroid,
         "for a matroid and a homalg ring",
         [ IsMatroid, IsHomalgRing ],
         

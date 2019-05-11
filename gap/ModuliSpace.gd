@@ -18,6 +18,6 @@ DeclareOperation( "MatrixForMatroidRepresentation",
 #!  over the ring <A>R</A>.
 #!  This is a quasi-affine representation of the (abstractly) affine moduli space.
 #! @Arguments matroid, R
-#! @Returns a list of listlists
-DeclareOperation( "ModuliSpaceOfMatroidByEquationsAndInequations",
+#! @Returns a list
+DeclareOperation( "EquationsAndInequationsOfModuliSpaceOfMatroid",
         [ IsMatroid, IsHomalgRing ] );
