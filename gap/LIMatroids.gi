@@ -3,8 +3,6 @@
 ## Standard implications for ALL matroids:
 
 InstallGlobalFunction( _alcove_MatroidStandardImplications,
-                        [ IsMatroid ],
-
  function( matroid )
   local entry, entry_list;
 
@@ -131,8 +129,6 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
 ## Standard implications for vector matroids:
 
 InstallGlobalFunction( _alcove_VectorMatroidImplications,
-                        [ IsMatroid ],
-
  function( matroid )
   local entry;
 
