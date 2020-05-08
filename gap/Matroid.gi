@@ -1202,7 +1202,7 @@ InstallMethod( FundamentalCircuitsWithBasis,
       currentCircuit := [ ];
       for i in [ 1 .. rank ] do
 
-        if not IsZero( MatElm( nf, i, j ) ) then Add( currentCircuit, unitVecLabels[i] ); fi;
+        if not IsZero( nf[ i, j ] ) then Add( currentCircuit, unitVecLabels[i] ); fi;
 
       od;
       AddSet( currentCircuit, otherLabels[j] );
@@ -1593,11 +1593,11 @@ InstallMethod( TuttePolynomial,
 
           for i in ShallowCopy( unusedRows ) do
 
-            if not IsZero( MatElm( matrix, i, j ) ) then
+            if not IsZero( matrix[ i, j ] ) then
 
               RemoveSet( unusedRows, i );
 
-              tmp := Filtered( notFound, c -> not IsZero( MatElm( matrix, i, c ) ) );
+              tmp := Filtered( notFound, c -> not IsZero( matrix[ i, c ] ) );
               todo := Union2( todo, tmp );
               found := Union2( found, tmp );
               notFound := Difference( notFound, tmp );
@@ -1715,7 +1715,7 @@ InstallMethod( TuttePolynomial,
 
         for i in Difference( [ 1 .. cdim ], largePC ) do
 
-          nonZeroEntry := MatElm( matrix, firstNZIndex, i );
+          nonZeroEntry := matrix[ firstNZIndex, i ];
 
           if not IsZero( nonZeroEntry ) then
 
@@ -1751,11 +1751,11 @@ InstallMethod( TuttePolynomial,
 
       else                        # switch in a unit vector and gauss the matrix to find the contraction matrix
 
-        firstNZIndex := First( [ 1 .. rdim ], i -> not IsZero( MatElm( matrix, i, largePC[1] ) ) );
+        firstNZIndex := First( [ 1 .. rdim ], i -> not IsZero( matrix[ i, largePC[1] ] ) );
 
         reduceColumn := largePC[1];
 
-        nonZeroEntry := MatElm( matrix, firstNZIndex, largePC[1] );
+        nonZeroEntry := matrix[ firstNZIndex, largePC[1] ];
 
 
         newMat := CertainColumns( matrix, Difference( [ 1 .. cdim ], largePC ) );
@@ -1791,13 +1791,13 @@ InstallMethod( TuttePolynomial,
       fi;
 
 # Compute matrix for one of the minors:
-      gaussCols := Filtered( [ 1 .. NrColumns( newMat ) ], j -> not IsZero( MatElm( newMat, firstNZIndex, j ) ) );
+      gaussCols := Filtered( [ 1 .. NrColumns( newMat ) ], j -> not IsZero( newMat[ firstNZIndex, j ] ) );
 
       newMat := EntriesOfHomalgMatrixAsListList( newMat );
 
       for i in gaussRows do
 
-        tmp := MatElm( matrix, i, reduceColumn );
+        tmp := matrix[ i, reduceColumn ];
 
         if not IsZero( tmp ) then
 
@@ -3428,7 +3428,7 @@ InstallMethod( TwoSumOfMatroidsNL,
     r0 := 0;
     for r in Reversed( [ 1 .. Size( mat1 ) ] ) do
 
-      c := MatElm( source, r, p1 );
+      c := source[ r, p1 ];
 
       if not IsZero( c ) then
 
@@ -3461,7 +3461,7 @@ InstallMethod( TwoSumOfMatroidsNL,
     r0 := 0;
     for r in [ 1 .. Size( mat2 ) ] do
 
-      c := MatElm( source, r, p2 );
+      c := source[ r, p2 ];
 
       if not IsZero( c ) then
 
