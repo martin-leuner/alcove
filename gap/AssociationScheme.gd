@@ -24,9 +24,6 @@ DeclareAttribute( "AdjacencyMatrices",
 DeclareAttribute( "AdjacencyAlgebra",
                 IsAssociationScheme );
 
-DeclareAttribute( "IsSymmetric",
-                IsAssociationScheme );
-
 
 ####################################
 ##
@@ -36,6 +33,9 @@ DeclareAttribute( "IsSymmetric",
 
 DeclareProperty( "IsCommutative",
                 IsAssociationScheme );
+
+DeclareProperty( "IsSymmetric",
+                 IsAssociationScheme );
 
 
 ####################################

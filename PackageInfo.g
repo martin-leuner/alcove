@@ -10,17 +10,7 @@ PackageName := package_name,
 
 Subtitle := "A package for algebraic combinatorics",
 
-Version :=  Maximum( [
-  "2019-03-06", ## Martin's version
-## this line prevents merge conflicts
-  "2019-09-01", ## Mohamed's version
-## this line prevents merge conflicts
-  "2013-11-07", ## Sebas' version
-## this line prevents merge conflicts
-  "2014-01-04", ## Max' version
-## this line prevents merge conflicts
-  "2019-03-04", ## Lukas's version
-] ),
+Version := "2022.08-01",
 
 Date := ~.Version{[ 1 .. 10 ]},
 Date := Concatenation( ~.Date{[ 9, 10 ]}, "/", ~.Date{[ 6, 7 ]}, "/", ~.Date{[ 1 .. 4 ]} ),
