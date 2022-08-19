@@ -10,7 +10,7 @@ PackageName := package_name,
 
 Subtitle := "A package for algebraic combinatorics",
 
-Version := "2022.08-01",
+Version := "2022.08-02",
 
 Date := ~.Version{[ 1 .. 10 ]},
 Date := Concatenation( ~.Date{[ 9, 10 ]}, "/", ~.Date{[ 6, 7 ]}, "/", ~.Date{[ 1 .. 4 ]} ),

@@ -34,9 +34,19 @@ DeclareAttribute( "AdjacencyAlgebra",
 DeclareProperty( "IsCommutative",
                 IsAssociationScheme );
 
+# needed for LAGUNA < 3.9.4 and other packages
+# see https://github.com/gap-packages/laguna/issues/19 and linked issues
+if IsBoundGlobal( "IsSymmetric" ) and IsAttribute( IsSymmetric ) then
+
+DeclareAttribute( "IsSymmetric",
+                  IsAssociationScheme );
+
+else
+
 DeclareProperty( "IsSymmetric",
                  IsAssociationScheme );
 
+fi;
 
 ####################################
 ##
