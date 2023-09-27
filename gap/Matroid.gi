@@ -2025,6 +2025,24 @@ InstallMethod( LeadingCoefficientOfPoincarePolynomial,
 
 );
 
+##
+InstallMethod( MoebiusFunction,
+        "for a matroid",
+        [ IsMatroid ],
+
+  function( M )
+    
+    return
+      function( F )
+        local M_F;
+        
+        M_F := Restriction( M, F );
+        
+        return (-1)^RankOfMatroid( M_F ) * LeadingCoefficientOfPoincarePolynomial( M_F );
+        
+    end;
+    
+end );
 
 ########
 ## Loops
