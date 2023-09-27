@@ -463,6 +463,13 @@ DeclareAttribute( "LeadingCoefficientOfPoincarePolynomial",
                   IsMatroid );
 
 #! @Description
+#!  Returns the Moebius function of the matroid <A>mat</A>
+#! @Returns a function
+#! @Arguments mat
+DeclareAttribute( "MoebiusFunction",
+                  IsMatroid );
+
+#! @Description
 #!  Returns the set of elements of <A>mat</A> which are not contained in any
 #!  basis.
 #! @Returns a set
