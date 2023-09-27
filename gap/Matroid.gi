@@ -487,7 +487,9 @@ InstallMethod( RankFunction,
 
   function( matroid )
 
-    if HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if (HasIsEmpty and IsEmpty)( matroid ) then
+      return x -> 0;
+    elif HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
       TryNextMethod( );
     elif IsConnectedMatroid( matroid ) then
       return RankFunction( DirectSumDecomposition(matroid)[1][2] );
@@ -762,7 +764,8 @@ InstallMethod( IndependenceOracle,
 
   function( matroid )
 
-    if HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] ) then
+    if (HasIsEmpty and IsEmpty)( matroid ) or
+      (HasIsConnectedMatroid( matroid ) and IsConnectedMatroid( matroid ) and IsIdenticalObj( matroid, DirectSumDecomposition(matroid)[1][2] )) then
       TryNextMethod( );
     fi;
 
