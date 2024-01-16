@@ -10,10 +10,12 @@ PackageName := package_name,
 
 Subtitle := "A package for algebraic combinatorics",
 
-Version := "2023.09-02",
+Version := "2024.01-01",
 
 Date := ~.Version{[ 1 .. 10 ]},
 Date := Concatenation( ~.Date{[ 9, 10 ]}, "/", ~.Date{[ 6, 7 ]}, "/", ~.Date{[ 1 .. 4 ]} ),
+
+License := "GPL-2.0-or-later",
 
 PackageWWWHome := Concatenation(github_base_url, ~.PackageName),
 
