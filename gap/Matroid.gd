@@ -518,12 +518,6 @@ DeclareAttribute( "NonTrivialParallelClasses",
 ##
 ####################################
 
-# Workaround: Package qpa declares IsUniform as a one-argument operation,
-# preventing alcove from declaring it as a property.
-# Thus, we declare a dummy property and install an operation returning it.
-DeclareProperty( "IsUniformMatroid",
-                 IsMatroid );
-
 DeclareProperty( "IsUniform",
                  IsMatroid );
 

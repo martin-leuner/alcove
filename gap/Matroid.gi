@@ -99,7 +99,7 @@ BindGlobal( "TheTypeMinorOfRepresentationMatroid",
 ##
 InstallMethod( DualMatroid,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid ],
+                [ IsMatroid and IsUniform ],
                 50,
 
   function( matroid )
@@ -744,7 +744,7 @@ InstallMethod( IndependenceOracle,
 ##
 InstallMethod( IndependenceOracle,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid ],
+                [ IsMatroid and IsUniform ],
                 50,
 
   function( matroid )
@@ -804,7 +804,7 @@ InstallMethod( IndependenceOracle,
 ##
 InstallMethod( CircuitOracle,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid ],
+                [ IsMatroid and IsUniform ],
                 50,
 
   function( matroid )
@@ -856,7 +856,7 @@ InstallMethod( CircuitOracle,
 ##
 InstallMethod( Bases,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid ],
+                [ IsMatroid and IsUniform ],
                 50,
 
   function( matroid )
@@ -964,7 +964,7 @@ InstallMethod( KnownBases,
 ##
 InstallMethod( Circuits,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid ],
+                [ IsMatroid and IsUniform ],
                 50,
 
   function( matroid )
@@ -1346,7 +1346,7 @@ InstallMethod( TuttePolynomial,
 ##
 InstallMethod( TuttePolynomial,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid, IsRingElement, IsRingElement ],
+                [ IsMatroid and IsUniform, IsRingElement, IsRingElement ],
                 30,
 
   function( matroid, x, y )
@@ -2092,7 +2092,7 @@ InstallMethod( Loops,
 ##
 InstallMethod( Loops,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid ],
+                [ IsMatroid and IsUniform ],
                 50,
 
   function( matroid )
@@ -2184,7 +2184,7 @@ InstallMethod( Coloops,
 ##
 InstallMethod( Coloops,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid ],
+                [ IsMatroid and IsUniform ],
                 50,
 
   function( matroid )
@@ -2238,7 +2238,7 @@ InstallMethod( Coloops,
 ##
 InstallMethod( AutomorphismGroup,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid ],
+                [ IsMatroid and IsUniform ],
                 30,
 
   function( matroid )
@@ -2448,11 +2448,11 @@ InstallMethod( NonTrivialParallelClasses,
 ##
 ####################################
 
-###################
-## IsUniformMatroid
+############
+## IsUniform
 
 ##
-InstallMethod( IsUniformMatroid,
+InstallMethod( IsUniform,
                 "for matroids with bases",
                 [ IsMatroid and HasBases ],
                 30,
@@ -2464,7 +2464,7 @@ InstallMethod( IsUniformMatroid,
 );
 
 ##
-InstallMethod( IsUniformMatroid,
+InstallMethod( IsUniform,
                 "fallback method",
                 [ IsMatroid ],
                 0,
@@ -2486,19 +2486,6 @@ InstallMethod( IsUniformMatroid,
     od;
 
     return true;
-  end
-
-);
-
-##
-InstallMethod( IsUniform,
-                "for matroids",
-                [ IsMatroid ],
-
-  function( matroid )
-
-    return IsUniformMatroid( matroid );
-
   end
 
 );
@@ -2612,7 +2599,7 @@ InstallMethod( Is3Connected,
 ##
 InstallMethod( SomeBasis,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid ],
+                [ IsMatroid and IsUniform ],
                 30,
 
   function( matroid )
@@ -2912,7 +2899,7 @@ InstallMethod( MinorNL,
 ##
 InstallMethod( MinorNL,
                 "for uniform matroids",
-                [ IsMatroid and IsUniformMatroid, IsList, IsList ],
+                [ IsMatroid and IsUniform, IsList, IsList ],
                 30,
 
   function( matroid, del, contr )
@@ -4347,7 +4334,7 @@ InstallMethod( UniformMatroid,
 
     _alcove_MatroidStandardImplications( matroid );
 
-    SetIsUniformMatroid( matroid, true );
+    SetIsUniform( matroid, true );
 
     return matroid;
   end
@@ -4367,7 +4354,7 @@ InstallMethod( UniformMatroidNL,
     matroid := MatroidByRankFunctionNCL( n, function( x ) if Size(x) < k then return Size(x); else return k; fi; end );
     SetRankOfMatroid( matroid, k );
 
-    SetIsUniformMatroid( matroid, true );
+    SetIsUniform( matroid, true );
 
     return matroid;
   end
@@ -4400,7 +4387,7 @@ InstallMethod( PrintObj,
         Print( " rank ", RankOfMatroid(matroid) );
       fi;
 
-      if HasIsUniformMatroid( matroid ) and IsUniformMatroid( matroid ) then
+      if HasIsUniform( matroid ) and IsUniform( matroid ) then
         Print( " uniform" );
       elif HasIsSimpleMatroid( matroid ) and IsSimpleMatroid( matroid ) then
         Print( " simple" );
