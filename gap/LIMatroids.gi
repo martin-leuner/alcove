@@ -12,7 +12,7 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
               [ [ matroid, "DualMatroid" ] ],
               [ matroid, [ DualMatroid, matroid ] ],
               [ [ "the rank of the dual is the co-rank", [ "RankOfMatroid", [ "RankOfMatroid", function() return Size( matroid ) - RankOfMatroid( matroid ); end ] ] ],
-                [ "duals of uniform matroids are uniform", "IsUniformMatroid" ],
+                [ "duals of uniform matroids are uniform", "IsUniform" ],
                 [ "duals of connected matroids are connected", "IsConnectedMatroid" ],
                 [ "dual matroids have the same automorphism group", "AutomorphismGroup" ],
                 [ "Tutte polynomial of the dual swaps variables", [ "TuttePolynomial", [ "TuttePolynomial", function()
@@ -35,7 +35,7 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
 #######
 ## Implications for uniform matroids:
 
-  entry_list := ToDoListEntry( [ [ matroid, "IsUniformMatroid", true ] ],
+  entry_list := ToDoListEntry( [ [ matroid, "IsUniform", true ] ],
                                [ [ "we can write down Tutte polynomials of uniform matroids",
                                    [ matroid,
                                      "TuttePolynomial",
@@ -63,7 +63,7 @@ InstallGlobalFunction( _alcove_MatroidStandardImplications,
 ## Set simplicity:
 
   entry := ToDoListEntry( [
-                                                [ matroid, "IsUniformMatroid", true ],
+                                                [ matroid, "IsUniform", true ],
                                                 [ matroid, "RankOfMatroid" ]
                                         ],
                                         matroid,
