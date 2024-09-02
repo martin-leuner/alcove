@@ -1257,10 +1257,10 @@ InstallMethod( Cocircuits,
 
 
 #####################
-## MatroidHyperplanes
+## Coatoms
 
 ##
-InstallMethod( MatroidHyperplanes,
+InstallMethod( Coatoms,
                 "for matroids",
                 [ IsMatroid ],
 
@@ -1273,13 +1273,13 @@ InstallMethod( MatroidHyperplanes,
 );
 
 ##
-InstallMethod( Hyperplanes,
+InstallOtherMethod( Hyperplanes,
                "for matroids",
                [ IsMatroid ],
 
   function( matroid )
 
-    return MatroidHyperplanes(matroid);
+    return Coatoms(matroid);
 
   end
 
