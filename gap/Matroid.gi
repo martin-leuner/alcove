@@ -3014,7 +3014,7 @@ InstallMethod( MinorNL,
 
     if NrRows(mat) > 0 then
 
-      actRows := [ 1 .. DimensionsMat( minorMat )[1] ];
+      actRows := [ 1 .. NrRows(mat) ];
       for col in scontr do
 
         actCols := Difference( actCols, [ col ] );
