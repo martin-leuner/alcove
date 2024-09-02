@@ -349,14 +349,8 @@ DeclareAttribute( "FundamentalCircuitsWithBasis",
 DeclareAttribute( "Cocircuits",
                   IsMatroid );
 
-# Workaround: Package FinInG declares Hyperplanes as a one-argument operation,
-# preventing alcove from declaring it as an attribute.
-# Thus, we declare a dummy attribute and install an operation returning it.
-DeclareAttribute( "MatroidHyperplanes",
+DeclareAttribute( "Coatoms",
                   IsMatroid );
-
-DeclareOperation( "Hyperplanes",
-                  [ IsMatroid ] );
 
 #! @Description
 #!  Returns a function mapping subsets of <A>mat</A>'s ground set to their
