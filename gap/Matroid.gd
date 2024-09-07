@@ -352,6 +352,11 @@ DeclareAttribute( "Cocircuits",
 DeclareAttribute( "Coatoms",
                   IsMatroid );
 
+# Workaround: Package FinInG declares Hyperplanes as a one-argument operation,
+# preventing alcove from declaring it as an attribute.
+DeclareOperation( "Hyperplanes",
+                  [ IsMatroid ] );
+
 #! @Description
 #!  Returns a function mapping subsets of <A>mat</A>'s ground set to their
 #!  rank in <A>mat</A>.
