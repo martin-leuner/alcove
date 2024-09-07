@@ -1273,7 +1273,7 @@ InstallMethod( Coatoms,
 );
 
 ##
-InstallOtherMethod( Hyperplanes,
+InstallMethod( Hyperplanes,
                "for matroids",
                [ IsMatroid ],
 
@@ -4423,7 +4423,7 @@ InstallMethod( Display,
       printList := [ ];
       if HasBases(matroid) then Add(printList,"bases"); fi;
       if HasCircuits(matroid) then Add(printList,"circuits"); fi;
-      if HasMatroidHyperplanes(matroid) then Add(printList,"hyperplanes"); fi;
+      if HasCoatoms(matroid) then Add(printList,"coatoms"); fi;
       if HasRankFunction(matroid) then Add(printList,"rank function"); fi;
       if HasIndependenceOracle(matroid) then Add(printList,"independence oracle"); fi;
 
@@ -4437,7 +4437,7 @@ InstallMethod( Display,
 
       elif IsEmpty( printList ) then
 
-        Print( "It is pretty much an empty prototype of a matroid, knowing neither its bases, nor its circuits, nor its hyperplanes, nor its rank function, nor an independence oracle.\n" );
+        Print( "It is pretty much an empty prototype of a matroid, knowing neither its bases, nor its circuits, nor its coatoms, nor its rank function, nor an independence oracle.\n" );
 
       else
 
