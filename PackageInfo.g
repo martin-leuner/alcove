@@ -10,7 +10,7 @@ PackageName := package_name,
 
 Subtitle := "A package for algebraic combinatorics",
 
-Version := "2024.09-03",
+Version := "2024.12-01",
 
 Date := ~.Version{[ 1 .. 10 ]},
 Date := Concatenation( ~.Date{[ 9, 10 ]}, "/", ~.Date{[ 6, 7 ]}, "/", ~.Date{[ 1 .. 4 ]} ),
@@ -71,8 +71,6 @@ Dependencies := rec(
          [ "MatricesForHomalg", ">=2012.10.25" ],
          [ "GaussForHomalg", ">=2012.10.22" ],
          [ "ToolsForHomalg", ">=2013.04.08" ],
-         [ "GAPDoc", ">=1.0" ],
-         [ "AutoDoc", ">=2012.07.29" ]
       ],
   SuggestedOtherPackages := [
          [ "RingsForHomalg", ">=2012.10.22" ],
